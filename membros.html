@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membros - Guilda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        /* Animação suave do Accordion */
+        .accordion-content {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 500px;
+            opacity: 1;
+            padding-bottom: 16px;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
+
+    <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full lg:translate-x-0 flex flex-col transition-transform duration-300">
+        <div class="p-6 flex items-center justify-between border-b border-gray-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200">
+                    <i data-lucide="shield" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-900 leading-tight">Guilda</h1>
+                    <p class="text-xs text-gray-400">Painel Admin</p>
+                </div>
+            </div>
+            <button onclick="toggleMenu()" class="lg:hidden text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </a>
+            <a href="membros.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-700 shadow-sm">
+                <i data-lucide="users" class="w-5 h-5"></i> Membros
+            </a>
+            <a href="campeonato.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition">
+                <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+            </a>
+            <a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition">
+                <i data-lucide="settings" class="w-5 h-5"></i> Admin
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-100">
+            <button onclick="window.authApi.logout()" class="w-full flex items-center justify-center gap-2 p-2 rounded-xl border border-gray-200 hover:bg-red-50 hover:border-red-100 hover:text-red-600 transition text-sm font-medium text-gray-500">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Sair do Painel
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <header class="bg-white/80 backdrop-blur border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-30">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMenu()" class="lg:hidden p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg"><i data-lucide="menu"></i></button>
+                <h1 class="font-bold text-gray-900 text-lg">Membros</h1>
+            </div>
+            <button onclick="openModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-emerald-200 transition flex items-center gap-2 active:scale-95">
+                <i data-lucide="plus" class="w-4 h-4"></i> Novo
+            </button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+            <div class="max-w-4xl mx-auto space-y-5">
+                
+                <div class="relative group">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition"></i>
+                    <input type="text" id="search" placeholder="Buscar por nick ou ID..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-200 bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition outline-none shadow-sm text-sm">
+                </div>
+
+                <div id="loading" class="text-center py-12 text-gray-400">
+                    <i data-lucide="loader-circle" class="w-6 h-6 animate-spin mx-auto mb-2"></i>
+                    Carregando lista...
+                </div>
+                <div id="list" class="space-y-3 hidden animate-in"></div>
+
+            </div>
+        </div>
+    </main>
+
+    <div id="modal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in">
+                <div class="p-4 border-b flex justify-between bg-gray-50 items-center">
+                    <h3 class="font-bold text-gray-900" id="modal-title">Novo Membro</h3>
+                    <button onclick="closeModal()" class="p-1 hover:bg-gray-200 rounded-full transition"><i data-lucide="x" class="text-gray-500 w-5 h-5"></i></button>
+                </div>
+                
+                <form id="form" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+                    <input type="hidden" id="mid">
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">ID do Jogo</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="uid" class="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-emerald-500 transition" placeholder="Ex: 888000" required>
+                            <button type="button" onclick="fetchApi()" class="px-4 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-bold hover:bg-emerald-100 transition border border-emerald-100">Buscar</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Nick</label>
+                        <input type="text" id="nick" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold outline-none focus:border-emerald-500 transition" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">WhatsApp</label>
+                        <input type="text" id="zap" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-emerald-500 transition" placeholder="Ex: 11999999999">
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl space-y-4 border border-gray-100">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm font-medium flex gap-2 items-center text-gray-700"><i data-lucide="swords" class="w-4 h-4 text-blue-500"></i> Guerra</label>
+                                <input type="checkbox" id="gw" class="w-5 h-5 accent-emerald-500">
+                            </div>
+                            <input type="number" id="gwVal" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" placeholder="Pontos">
+                        </div>
+                        <div class="h-px bg-gray-200"></div>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm font-medium flex gap-2 items-center text-gray-700"><i data-lucide="target" class="w-4 h-4 text-violet-500"></i> Meta</label>
+                                <input type="checkbox" id="meta" class="w-5 h-5 accent-emerald-500">
+                            </div>
+                            <input type="number" id="metaVal" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm" placeholder="Valor">
+                        </div>
+                        <div class="h-px bg-gray-200"></div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm font-medium flex gap-2 items-center text-gray-700"><i data-lucide="tag" class="w-4 h-4 text-amber-500"></i> Tag</label>
+                            <input type="checkbox" id="tag" class="w-5 h-5 accent-emerald-500">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition active:scale-95">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import "./firebase.js";
+
+        let cache = [];
+
+        window.toggleMenu = () => {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('overlay').classList.toggle('hidden');
+        };
+
+        window.onload = async () => {
+            if(!await window.authApi.check()) return;
+            load();
+        };
+
+        async function load() {
+            try {
+                cache = await window.guildDB.getMembers();
+                render(cache);
+            } catch(e) { console.error(e); }
+            finally { 
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('list').classList.remove('hidden');
+            }
+        }
+
+        function render(arr) {
+            const div = document.getElementById('list');
+            div.innerHTML = "";
+            
+            if(arr.length === 0) {
+                div.innerHTML = `<div class="text-center p-10 bg-white rounded-2xl border border-gray-100 text-gray-400">Nenhum membro encontrado.</div>`;
+                return;
+            }
+
+            arr.forEach(m => {
+                const el = document.createElement('div');
+                el.className = "bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] overflow-hidden transition-all hover:border-emerald-200";
+                
+                // --- AQUI ESTÁ O LAYOUT EXATO DO SEU PRINT ---
+                el.innerHTML = `
+                    <div class="p-4 flex items-center justify-between cursor-pointer select-none" onclick="toggleCard('${m.id}')">
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold text-base shadow-sm border border-emerald-100">
+                                ${m.nick.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900 text-sm leading-tight mb-1">${m.nick}</p>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">ID</span>
+                                    <span class="text-xs text-gray-500 font-mono font-medium">${m.visibleId || '---'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            
+                            <div class="flex gap-2 mr-1">
+                                <div class="w-9 h-9 rounded-xl flex items-center justify-center border transition-colors ${m.guildWar ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-gray-50 border-gray-100 text-gray-300'}" title="Guerra">
+                                    <i data-lucide="swords" class="w-4 h-4"></i>
+                                </div>
+                                <div class="w-9 h-9 rounded-xl flex items-center justify-center border transition-colors ${m.weeklyMeta ? 'bg-violet-50 border-violet-100 text-violet-600' : 'bg-gray-50 border-gray-100 text-gray-300'}" title="Meta">
+                                    <i data-lucide="target" class="w-4 h-4"></i>
+                                </div>
+                                <div class="w-9 h-9 rounded-xl flex items-center justify-center border transition-colors ${m.hasTag ? 'bg-amber-50 border-amber-100 text-amber-600' : 'bg-gray-50 border-gray-100 text-gray-300'}" title="Tag">
+                                    <i data-lucide="tag" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 group-hover:border-emerald-100 transition-colors">
+                                <i data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-300" id="arrow-${m.id}"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="body-${m.id}" class="accordion-content bg-gray-50/50 border-t border-gray-100">
+                        <div class="px-4 pb-4 pt-3 space-y-4">
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-3 rounded-xl border border-gray-100">
+                                    <span class="text-xs text-gray-400 block mb-1">Pontuação Guerra</span>
+                                    <span class="text-sm font-bold text-gray-900">${m.guildWarMeta || 0}</span>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-gray-100">
+                                    <span class="text-xs text-gray-400 block mb-1">Valor Meta</span>
+                                    <span class="text-sm font-bold text-gray-900">${m.weeklyMetaValue || 0}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <a href="${m.whatsapp ? 'https://wa.me/55'+m.whatsapp : '#'}" target="_blank" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 font-bold text-xs hover:border-emerald-500 hover:text-emerald-600 transition ${!m.whatsapp ? 'opacity-50 pointer-events-none' : ''}">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+                                </a>
+                                <button onclick="openModal('${m.id}')" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-xs hover:bg-gray-800 transition shadow-lg shadow-gray-200">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i> Editar
+                                </button>
+                                <button onclick="deleteMember('${m.id}')" class="w-12 flex items-center justify-center rounded-xl bg-red-50 text-red-500 border border-red-100 hover:bg-red-100 transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                div.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        window.toggleCard = (id) => {
+            const body = document.getElementById(`body-${id}`);
+            const arrow = document.getElementById(`arrow-${id}`);
+            
+            // Fecha os outros
+            document.querySelectorAll('.accordion-content.open').forEach(el => {
+                if(el.id !== `body-${id}`) {
+                    el.classList.remove('open');
+                    const otherId = el.id.replace('body-', '');
+                    document.getElementById(`arrow-${otherId}`)?.classList.remove('rotate-180');
+                }
+            });
+
+            const isOpen = body.classList.contains('open');
+            if(isOpen) {
+                body.classList.remove('open');
+                arrow.classList.remove('rotate-180');
+            } else {
+                body.classList.add('open');
+                arrow.classList.add('rotate-180');
+            }
+        };
+
+        window.openModal = (id = null) => {
+            let m = null;
+            if(id && typeof id === 'string') m = cache.find(x => x.id === id);
+
+            document.getElementById('form').reset();
+            document.getElementById('mid').value = "";
+            document.getElementById('modal-title').innerText = "Novo Membro";
+            
+            if(m) {
+                document.getElementById('modal-title').innerText = "Editar Membro";
+                document.getElementById('mid').value = m.id;
+                document.getElementById('uid').value = m.visibleId || "";
+                document.getElementById('nick').value = m.nick;
+                document.getElementById('zap').value = m.whatsapp || "";
+                document.getElementById('gw').checked = m.guildWar;
+                document.getElementById('gwVal').value = m.guildWarMeta || 0;
+                document.getElementById('meta').checked = m.weeklyMeta;
+                document.getElementById('metaVal').value = m.weeklyMetaValue || 0;
+                document.getElementById('tag').checked = m.hasTag;
+            }
+            document.getElementById('modal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => document.getElementById('modal').classList.add('hidden');
+
+        window.deleteMember = async (id) => {
+            if(confirm("Excluir membro?")) {
+                try { await window.guildDB.deleteMember(id); load(); } 
+                catch(e) { alert("Erro"); }
+            }
+        };
+
+        document.getElementById('form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('mid').value || Date.now().toString();
+            const data = {
+                id,
+                visibleId: document.getElementById('uid').value,
+                nick: document.getElementById('nick').value,
+                whatsapp: document.getElementById('zap').value,
+                guildWar: document.getElementById('gw').checked,
+                guildWarMeta: Number(document.getElementById('gwVal').value),
+                weeklyMeta: document.getElementById('meta').checked,
+                weeklyMetaValue: Number(document.getElementById('metaVal').value),
+                hasTag: document.getElementById('tag').checked
+            };
+            try { await window.guildDB.saveMember(data); closeModal(); load(); } catch(e) { alert("Erro"); }
+        };
+
+        window.fetchApi = async () => {
+            const uid = document.getElementById('uid').value;
+            if(!uid) return;
+            try {
+                const req = await fetch("https://api.mitsuri.fun/api/trpc/api.info", {
+                    method:"POST", headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({json:{key:"mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP", uid:uid, region:"BR"}})
+                });
+                const res = await req.json();
+                const d = res?.result?.data?.json;
+                if(d?.nickname) document.getElementById('nick').value = d.nickname;
+                else alert("Não encontrado");
+            } catch(e) { alert("Erro API"); }
+        };
+    </script>
+</body>
+</html>
