@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Membros</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+window.tailwind = window.tailwind || {};
+      window.tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              emerald: {
+                50: '#ecfdf5',
+                100: '#d1fae5',
+                200: '#a7f3d0',
+                400: '#34d399',
+                500: '#10b981',
+                600: '#059669',
+                700: '#047857',
+              },
+            },
+          },
+        },
+      };
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+<script src="./js/common.js"></script>
+
+<div class="flex min-h-screen">
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+  <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-200">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda</h1>
+          <p class="text-xs text-gray-400">Painel Admin</p>
+        </div>
+      </div>
+      <button id="btn-close-sidebar" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <nav class="p-4 space-y-1">
+      <a href="dashboard.html" data-nav="home" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+      </a>
+      <a href="membros.html" data-nav="members" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700">
+        <i data-lucide="users" class="w-5 h-5"></i> Membros
+      </a>
+      <a href="campeonato.html" data-nav="camp" id="nav-camp" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700">
+        <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+      </a>
+      <a href="admin.html" data-nav="admin" id="nav-admin" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700">
+        <i data-lucide="shield" class="w-5 h-5"></i> Admin
+      </a>
+
+      <button id="btn-logout" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all mt-10">
+        <i data-lucide="log-out" class="w-5 h-5"></i> Sair
+      </button>
+    </nav>
+
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 px-3 py-2">
+        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+          <span class="text-emerald-700 font-bold text-sm">A</span>
+        </div>
+        <div class="min-w-0">
+          <p id="user-role" class="text-sm font-medium text-gray-700">—</p>
+          <p id="user-email" class="text-xs text-gray-400 truncate">—</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0 lg:ml-72">
+    <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="btn-open-sidebar" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <h1 class="text-lg font-semibold text-gray-900">Membros</h1>
+      </div>
+    </header>
+
+    
+<div class="p-6 max-w-5xl mx-auto space-y-4">
+  <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Membros</h2>
+        <p class="text-gray-500 text-sm mt-1">Gerencie os membros da guilda</p>
+      </div>
+      <button id="btn-add" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Adicionar</span>
+      </button>
+    </div>
+
+    <div class="flex gap-3">
+      <div class="flex-1 relative">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+        <input id="search-input" type="text" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all bg-white"/>
+      </div>
+    </div>
+  </div>
+
+  <div id="members-list" class="space-y-3"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="fixed inset-0 z-[60] hidden">
+  <div id="modal-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm"></div>
+  <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <h3 class="font-bold text-gray-900" id="modal-title">Novo Membro</h3>
+        <button id="btn-close-modal" class="text-gray-400 hover:text-gray-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="member-form" class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">ID do Jogador</label>
+          <div class="flex gap-2">
+            <input id="inp-visibleId" type="text" class="flex-1 px-3 py-2 border rounded-lg text-sm" placeholder="Ex: 123456" required>
+            <button id="btn-mitsuri" type="button" class="px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-bold hover:bg-emerald-200 transition-colors flex gap-1 items-center">
+              <i data-lucide="search" class="w-3 h-3"></i> Buscar
+            </button>
+          </div>
+          <p id="api-msg" class="text-xs mt-1 hidden"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Nick</label>
+          <input id="inp-nick" type="text" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp</label>
+          <input id="inp-whatsapp" type="text" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="11999999999">
+        </div>
+
+        <div class="border-t pt-3 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium">Guerra de Guilda</span>
+            <input id="inp-guildWar" type="checkbox" class="w-5 h-5 accent-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500">Meta da Guerra</label>
+            <input id="inp-guildWarMeta" type="number" class="w-full px-2 py-1 border rounded text-sm" value="0">
+          </div>
+        </div>
+
+        <div class="border-t pt-3 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium">Meta Semanal</span>
+            <input id="inp-weeklyMeta" type="checkbox" class="w-5 h-5 accent-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500">Valor da Meta</label>
+            <input id="inp-weeklyMetaValue" type="number" class="w-full px-2 py-1 border rounded text-sm" value="0">
+          </div>
+        </div>
+
+        <div class="border-t pt-3 flex justify-between items-center">
+          <span class="text-sm font-medium">Tem Tag?</span>
+          <input id="inp-hasTag" type="checkbox" class="w-5 h-5 accent-emerald-500">
+        </div>
+
+        <div class="pt-4 flex gap-3">
+          <button type="button" class="flex-1 py-2 border rounded-xl text-gray-600 hover:bg-gray-50" onclick="document.getElementById('modal').classList.add('hidden')">Cancelar</button>
+          <button type="submit" class="flex-1 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-200">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  </main>
+</div>
+
+<script type="module">
+  import "./js/firebase.js";
+  import { wireShell } from "./js/shell.js";
+
+  const gate = await window.__adminApi.requireAuth({
+    allowRoles: ["admin","leader"],
+    redirectTo: "index.html"
+  });
+  if(gate){
+    if(window.__session && window.__session.role === "admin") {
+      const camp = document.getElementById("nav-camp");
+      const adm = document.getElementById("nav-admin");
+      if(camp) camp.style.display = "none";
+      if(adm) adm.style.display = "none";
+    }
+    wireShell({active: "members"});
+    lucide.createIcons();
+  }
+</script>
+
+<script type="module" src="./js/membros.js"></script>
+</body>
+</html>

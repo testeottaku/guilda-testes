@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Guild Manager - Dashboard</title>
+ Tailwind via CDN (sem build) 
+<script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              emerald: {
+                50: '#ecfdf5',
+                100: '#d1fae5',
+                200: '#a7f3d0',
+                400: '#34d399',
+                500: '#10b981',
+                600: '#059669',
+                700: '#047857',
+              },
+            },
+          },
+        },
+      };
+    </script>
+<script src="https://cdn.tailwindcss.com"></script>
+ CSS global do projeto 
+<link href="./style.css" rel="stylesheet"/>
+</head>
+<body>
+<script src="./js/common.js"></script>
+<div aria-hidden="false" class="login-screen show" id="login-screen">
+<div aria-label="Login" aria-modal="true" class="login-card" role="dialog">
+<div class="login-brand">
+<div aria-hidden="true" class="login-badge">
+<svg fill="none" viewbox="0 0 24 24">
+<path d="M12 2l8 4v7c0 5-3.4 9.4-8 9.4S4 18 4 13V6l8-4z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"></path>
+<path d="M9 12l2 2 4-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+</div>
+<div>
+<div class="login-title">Guilda e eventos</div>
+<div class="login-subtitle">Acesso restrito • Administradores</div>
+</div>
+</div>
+<form class="login-form" id="login-form">
+<label class="login-label" for="login-email">Email</label>
+<input autocomplete="username" class="login-input" id="login-email" placeholder="seuemail@exemplo.com" required="" type="email"/>
+<label class="login-label" for="login-pass">Senha</label>
+<input autocomplete="current-password" class="login-input" id="login-pass" placeholder="••••••••" required="" type="password"/>
+<button class="login-btn" id="login-btn" type="submit">
+<span class="login-btnText">Entrar</span>
+<span aria-hidden="true" class="login-spinner"></span>
+</button>
+<div class="login-hint">
+            Use um usuário criado no Firebase Authentication (Email/Senha).
+          </div>
+</form>
+<div class="login-footer">
+<a href="https://ottakubrasil.online" rel="noopener noreferrer" target="_blank">ottakubrasil.online</a>
+<span>•</span>
+<a href="https://instagram.com/ottakubrasil" rel="noopener noreferrer" target="_blank">@ottakubrasil</a>
+</div>
+</div>
+</div>
+<script type="module" src="./js/login.js"></script>
+</body>
+</html>
