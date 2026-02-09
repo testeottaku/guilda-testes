@@ -15,48 +15,31 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Função de segurança aprimorada
 async function checkAuthAndRedirect() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
       const path = window.location.pathname;
       const isLogin = path.includes('index.html') || path.endsWith('/');
-
       if (!user) {
         if (!isLogin) window.location.href = 'index.html';
         resolve(null);
       } else {
-        try {
-          // Busca permissões
-          const snap = await getDoc(doc(db, "guildConfig", "security"));
-          const data = snap.exists() ? snap.data() : { admins: [], leaders: [] };
-          const email = user.email.toLowerCase();
-
-          // Se a lista de admin estiver vazia (primeiro uso), libera o primeiro usuário
-          const isFirstUser = (!data.admins || data.admins.length === 0);
-
-          if (isFirstUser || data.admins?.includes(email) || data.leaders?.includes(email)) {
-             const role = (isFirstUser || data.admins?.includes(email)) ? 'admin' : 'leader';
-             window.__session = { email, role }; // Salva sessão
-             
-             if (isLogin) window.location.href = 'dashboard.html';
-             resolve(user);
-          } else {
-            alert("Sem permissão de acesso. Contate o administrador.");
-            await signOut(auth);
-            window.location.href = 'index.html';
-          }
-        } catch (error) {
-          console.error("Erro de segurança:", error);
-          alert("Erro ao verificar permissões.");
-          resolve(null);
+        const snap = await getDoc(doc(db, "guildConfig", "security"));
+        const data = snap.exists() ? snap.data() : { admins: [], leaders: [] };
+        const email = user.email.toLowerCase();
+        if (data.admins?.includes(email) || data.leaders?.includes(email)) {
+          if (isLogin) window.location.href = 'dashboard.html';
+          resolve(user);
+        } else {
+          alert("Sem permissão.");
+          await signOut(auth);
+          window.location.href = 'index.html';
         }
       }
     });
   });
 }
 
-// Expõe funções globalmente
 window.authApi = {
   login: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
   logout: () => signOut(auth),
@@ -64,16 +47,11 @@ window.authApi = {
 };
 
 window.guildDB = {
+  // Membros
   async getMembers() {
-    try {
-      const s = await getDocs(collection(db, "membros"));
-      let d = []; 
-      s.forEach(x => d.push({id: x.id, ...x.data()}));
-      return d.sort((a,b) => (a.nick||"").localeCompare(b.nick||""));
-    } catch (e) {
-      console.error("Erro ao buscar membros:", e);
-      return []; // Retorna lista vazia para não travar a tela
-    }
+    const s = await getDocs(collection(db, "membros"));
+    let d = []; s.forEach(x => d.push({id: x.id, ...x.data()}));
+    return d.sort((a,b) => (a.nick||"").localeCompare(b.nick||""));
   },
   async saveMember(data) {
     if(!data.id) throw new Error("ID inválido");
@@ -83,6 +61,7 @@ window.guildDB = {
   async deleteMember(id) {
     await deleteDoc(doc(db, "membros", id));
   },
+  // Admin / Segurança
   async getSecurity() {
     const s = await getDoc(doc(db, "guildConfig", "security"));
     return s.exists() ? s.data() : { admins: [], leaders: [] };
