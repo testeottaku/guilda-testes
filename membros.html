@@ -78,8 +78,47 @@
         </div>
 
         <div id="members-list" class="space-y-3">
-          <!-- Lista via JS -->
-        </div>
+
+          <!-- Estrutura inicial (não depende do Firebase) -->
+          <div id="members-skeleton" class="space-y-3">
+            <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm animate-pulse">
+              <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                  <div class="h-4 w-40 bg-gray-100 rounded"></div>
+                  <div class="h-3 w-28 bg-gray-100 rounded"></div>
+                </div>
+                <div class="flex gap-2">
+                  <div class="h-9 w-9 bg-gray-100 rounded-xl"></div>
+                  <div class="h-9 w-9 bg-gray-100 rounded-xl"></div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm animate-pulse">
+              <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                  <div class="h-4 w-44 bg-gray-100 rounded"></div>
+                  <div class="h-3 w-24 bg-gray-100 rounded"></div>
+                </div>
+                <div class="flex gap-2">
+                  <div class="h-9 w-9 bg-gray-100 rounded-xl"></div>
+                  <div class="h-9 w-9 bg-gray-100 rounded-xl"></div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm animate-pulse">
+              <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                  <div class="h-4 w-36 bg-gray-100 rounded"></div>
+                  <div class="h-3 w-32 bg-gray-100 rounded"></div>
+                </div>
+                <div class="flex gap-2">
+                  <div class="h-9 w-9 bg-gray-100 rounded-xl"></div>
+                  <div class="h-9 w-9 bg-gray-100 rounded-xl"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+</div>
       </div>
     </main>
   </div>
@@ -166,6 +205,21 @@
 
     let membersCache = [];
 
+    const MEMBERS_CACHE_KEY = "guilda_cache_membros_v1";
+
+    function readCache(key) {
+      try {
+        const raw = sessionStorage.getItem(key);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      } catch(e) { return null; }
+    }
+
+    function writeCache(key, value) {
+      try { sessionStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+    }
+
+
     checkAuth().then(async (user) => {
       if(!user) return;
       setupSidebar();
@@ -181,19 +235,34 @@
       });
     });
 
-    window.loadMembers = async function(fromRefresh = false) {
+    window.
+    loadMembers = async function(fromRefresh = false) {
+      // 1) Render instantâneo via cache (evita "piscar" ao trocar de tela)
+      if(!fromRefresh) {
+        const cached = readCache(MEMBERS_CACHE_KEY);
+        if(cached && Array.isArray(cached)) {
+          membersCache = cached;
+          renderList(membersCache);
+          return;
+        }
+      }
+
+      // 2) Busca no Firebase só quando precisa (primeira vez ou refresh manual)
       try {
         const snap = await getDocs(collection(db, "membros"));
-        membersCache = [];
-        snap.forEach(d => membersCache.push({ id: d.id, ...d.data() }));
-        membersCache.sort((a,b)=> String(a.nick).localeCompare(String(b.nick)));
-        renderList(membersCache);
-        document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+        const list = [];
+        snap.forEach(d => list.push({ idDoc: d.id, ...d.data() }));
+        membersCache = list;
 
-        if(fromRefresh) showToast('success', 'Lista atualizada.');
-      } catch(err) {
-        showToast('error', fromRefresh ? 'Erro ao atualizar a lista.' : 'Erro ao carregar lista.');
+        writeCache(MEMBERS_CACHE_KEY, membersCache);
+
+        renderList(membersCache);
+      } catch(e) {
+        console.error(e);
+        showToast("error", "Erro ao carregar membros.");
       }
+    }
+
     };
 
     function renderList(list) {
@@ -295,7 +364,7 @@
       try {
         await deleteDoc(doc(db, "membros", id));
         showToast('success', 'Membro excluído.');
-        loadMembers();
+        loadMembers(true);
       } catch(e) { showToast('error', 'Erro ao excluir.'); }
     };
 
@@ -364,7 +433,7 @@
           showToast('success', 'Criado!');
         }
         closeModal();
-        loadMembers();
+        loadMembers(true);
       } catch(err) {
         showToast('error', 'Erro ao salvar.');
       }

@@ -82,9 +82,50 @@
 
         <!-- Cards de Estatísticas -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
-          <!-- Será preenchido via JS -->
-          <div class="col-span-4 text-center py-10 text-gray-400">Carregando dados...</div>
-        </div>
+
+          <!-- Estrutura fixa (só números/textos atualizam via JS) -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-500">Total de Membros</p>
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <i data-lucide="users" class="w-5 h-5 text-emerald-600"></i>
+              </div>
+            </div>
+            <p id="stat-total-members" class="text-2xl font-semibold text-gray-900 mt-3">—</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-500">Guerra de Guilda (OK)</p>
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <i data-lucide="swords" class="w-5 h-5 text-emerald-600"></i>
+              </div>
+            </div>
+            <p id="stat-guild-war" class="text-2xl font-semibold text-gray-900 mt-3">—</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-500">Meta Semanal (OK)</p>
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <i data-lucide="target" class="w-5 h-5 text-emerald-600"></i>
+              </div>
+            </div>
+            <p id="stat-weekly-meta" class="text-2xl font-semibold text-gray-900 mt-3">—</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-500">Com Tag</p>
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <i data-lucide="tag" class="w-5 h-5 text-emerald-600"></i>
+              </div>
+            </div>
+            <p id="stat-has-tag" class="text-2xl font-semibold text-gray-900 mt-3">—</p>
+          </div>
+</div>
+
+        <!-- Alertas
 
         <!-- Alertas e Gráficos Simples -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -106,8 +147,37 @@
               <h3 class="font-semibold text-gray-900">Resumo</h3>
             </div>
             <div class="space-y-3" id="summary-container">
-              <!-- JS -->
-            </div>
+
+              <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm text-gray-500">Participação na Guerra</p>
+                  <span id="pct-guild-war" class="text-sm font-semibold text-gray-900">—%</span>
+                </div>
+                <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div id="bar-guild-war" class="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm text-gray-500">Meta Semanal Cumprida</p>
+                  <span id="pct-weekly-meta" class="text-sm font-semibold text-gray-900">—%</span>
+                </div>
+                <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div id="bar-weekly-meta" class="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm text-gray-500">Membros com Tag</p>
+                  <span id="pct-has-tag" class="text-sm font-semibold text-gray-900">—%</span>
+                </div>
+                <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div id="bar-has-tag" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+</div>
           </div>
         </div>
       </div>
@@ -126,82 +196,96 @@
       loadDashboard();
     });
 
-    async function loadDashboard() {
+    
+    const MEMBERS_CACHE_KEY = "guilda_cache_membros_v1";
+
+    function readCache(key) {
+      try {
+        const raw = sessionStorage.getItem(key);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      } catch(e) {
+        return null;
+      }
+    }
+
+    function writeCache(key, value) {
+      try {
+        sessionStorage.setItem(key, JSON.stringify(value));
+      } catch(e) {}
+    }
+
+    function computeAndRenderStats(members = []) {
+      const total = members.length;
+      const guildWar = members.filter(m => !!m.guildWar).length;
+      const weeklyMeta = members.filter(m => !!m.weeklyMeta).length;
+      const hasTag = members.filter(m => !!m.hasTag).length;
+
+      // Cards (estrutura já está no HTML)
+      const $ = (id) => document.getElementById(id);
+      $("stat-total-members").textContent = total;
+      $("stat-guild-war").textContent = `${guildWar} de ${total}`;
+      $("stat-weekly-meta").textContent = `${weeklyMeta} de ${total}`;
+      $("stat-has-tag").textContent = `${hasTag} de ${total}`;
+
+      // Atenção
+      const noWar = total - guildWar;
+      const noMeta = total - weeklyMeta;
+      const noTag = total - hasTag;
+
+      document.getElementById('attention-container').innerHTML = `
+        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-sm text-red-700">Sem Guerra de Guilda</span></div>
+          <span class="text-sm font-semibold text-red-700">${noWar}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl mt-2">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span class="text-sm text-amber-800">Sem Meta Semanal</span></div>
+          <span class="text-sm font-semibold text-amber-800">${noMeta}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-gray-100 rounded-xl mt-2">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-500"></div><span class="text-sm text-gray-700">Sem Tag</span></div>
+          <span class="text-sm font-semibold text-gray-700">${noTag}</span>
+        </div>
+      `;
+
+      // Barras (estrutura já está no HTML)
+      const pct = (val) => total > 0 ? Math.round((val/total)*100) : 0;
+
+      const setBar = (barId, pctId, valuePct) => {
+        const bar = document.getElementById(barId);
+        const pctEl = document.getElementById(pctId);
+        if(bar) bar.style.width = `${valuePct}%`;
+        if(pctEl) pctEl.textContent = `${valuePct}%`;
+      };
+
+      setBar("bar-guild-war", "pct-guild-war", pct(guildWar));
+      setBar("bar-weekly-meta", "pct-weekly-meta", pct(weeklyMeta));
+      setBar("bar-has-tag", "pct-has-tag", pct(hasTag));
+
+      initIcons();
+    }
+
+    async function loadDashboard({ force = false } = {}) {
+      const cached = readCache(MEMBERS_CACHE_KEY);
+
+      // 1) Renderiza instantâneo a partir do cache (se existir)
+      if(!force && cached && Array.isArray(cached)) {
+        computeAndRenderStats(cached);
+        return; // não refaz fetch só por trocar de tela
+      }
+
+      // 2) Busca e salva cache (somente quando necessário)
       try {
         const snap = await getDocs(collection(db, "membros"));
         const members = [];
         snap.forEach(d => members.push(d.data()));
-
-        const total = members.length;
-        const guildWar = members.filter(m => m.guildWar).length;
-        const weeklyMeta = members.filter(m => m.weeklyMeta).length;
-        const hasTag = members.filter(m => m.hasTag).length;
-        
-        // Render Stats
-        const stats = [
-          { title: "Total de Membros", value: total, icon: "users", color: "from-emerald-500 to-green-600", shadow: "shadow-emerald-200" },
-          { title: "Guerra de Guilda", value: guildWar, sub: `de ${total}`, icon: "swords", color: "from-blue-500 to-indigo-600", shadow: "shadow-blue-200" },
-          { title: "Meta Semanal", value: weeklyMeta, sub: `de ${total}`, icon: "target", color: "from-violet-500 to-purple-600", shadow: "shadow-violet-200" },
-          { title: "Com Tag", value: hasTag, sub: `de ${total}`, icon: "tag", color: "from-amber-500 to-orange-600", shadow: "shadow-amber-200" }
-        ];
-
-        document.getElementById('stats-container').innerHTML = stats.map(s => `
-          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-start justify-between mb-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-lg ${s.shadow}">
-                <i data-lucide="${s.icon}" class="w-5 h-5 text-white"></i>
-              </div>
-            </div>
-            <div>
-              <p class="text-2xl sm:text-3xl font-bold text-gray-900">${s.value}</p>
-              <p class="text-xs sm:text-sm text-gray-500 mt-1">${s.title}</p>
-              ${s.sub ? `<p class="text-xs text-gray-400 mt-0.5">${s.sub}</p>` : ''}
-            </div>
-          </div>
-        `).join('');
-
-        // Render Atenção (Quem não fez)
-        const noWar = total - guildWar;
-        const noMeta = total - weeklyMeta;
-        const noTag = total - hasTag;
-
-        document.getElementById('attention-container').innerHTML = `
-          <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl">
-            <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-sm text-red-700">Sem Guerra de Guilda</span></div>
-            <span class="text-sm font-bold text-red-700">${noWar}</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl">
-            <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-orange-500"></div><span class="text-sm text-orange-700">Meta Semanal Pendente</span></div>
-            <span class="text-sm font-bold text-orange-700">${noMeta}</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-            <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-400"></div><span class="text-sm text-gray-600">Sem Tag</span></div>
-            <span class="text-sm font-bold text-gray-600">${noTag}</span>
-          </div>
-        `;
-
-        // Render Resumo (Barras)
-        const renderBar = (label, val, color) => `
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-sm text-gray-600">${label}</span>
-              <span class="text-sm font-semibold text-gray-900">${total > 0 ? Math.round((val/total)*100) : 0}%</span>
-            </div>
-            <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r ${color} rounded-full" style="width: ${total > 0 ? (val/total)*100 : 0}%"></div>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('summary-container').innerHTML = 
-          renderBar("Participação na Guerra", guildWar, "from-emerald-400 to-green-500") +
-          renderBar("Meta Semanal Cumprida", weeklyMeta, "from-violet-400 to-purple-500") +
-          renderBar("Membros com Tag", hasTag, "from-amber-400 to-orange-500");
-
-        initIcons();
+        writeCache(MEMBERS_CACHE_KEY, members);
+        computeAndRenderStats(members);
       } catch(e) {
         console.error(e);
       }
+    }
+
     }
   </script>
 </body>

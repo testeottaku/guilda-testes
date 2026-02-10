@@ -87,7 +87,17 @@
               <button id="btn-add-admin" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
             </div>
             <p class="text-xs text-gray-400 mb-4">Acesso ao Dashboard e administração de membros.</p>
-            <ul id="list-admins" class="space-y-2"></ul>
+            <ul id="list-admins" class="space-y-2">
+            <li class="p-3 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+              <div class="h-4 w-48 bg-gray-200/60 rounded"></div>
+            </li>
+            <li class="p-3 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+              <div class="h-4 w-40 bg-gray-200/60 rounded"></div>
+            </li>
+            <li class="p-3 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+              <div class="h-4 w-44 bg-gray-200/60 rounded"></div>
+            </li>
+    </ul>
           </div>
 
           <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -99,7 +109,17 @@
               <button id="btn-add-leader" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
             </div>
             <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
-            <ul id="list-leaders" class="space-y-2"></ul>
+            <ul id="list-leaders" class="space-y-2">
+            <li class="p-3 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+              <div class="h-4 w-48 bg-gray-200/60 rounded"></div>
+            </li>
+            <li class="p-3 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+              <div class="h-4 w-40 bg-gray-200/60 rounded"></div>
+            </li>
+            <li class="p-3 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+              <div class="h-4 w-44 bg-gray-200/60 rounded"></div>
+            </li>
+    </ul>
           </div>
         </div>
       </div>
@@ -115,6 +135,21 @@
 
     let securityData = { admins: [], leaders: [] };
 
+    const SECURITY_CACHE_KEY = "guilda_cache_security_v1";
+
+    function readCache(key) {
+      try {
+        const raw = sessionStorage.getItem(key);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      } catch(e) { return null; }
+    }
+
+    function writeCache(key, value) {
+      try { sessionStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+    }
+
+
     const user = await checkAuth();
     if (user) {
       setupSidebar();
@@ -122,19 +157,40 @@
       initIcons();
     }
 
-    async function load() {
+    
+    async function load(force = false) {
+      // 1) Render instantâneo via cache
+      if(!force) {
+        const cached = readCache(SECURITY_CACHE_KEY);
+        if(cached && typeof cached === "object") {
+          securityData = {
+            admins: Array.isArray(cached.admins) ? cached.admins : [],
+            leaders: Array.isArray(cached.leaders) ? cached.leaders : []
+          };
+          renderList('admins', securityData.admins);
+          renderList('leaders', securityData.leaders);
+          initIcons();
+          return;
+        }
+      }
+
+      // 2) Busca no Firebase somente quando precisa (primeira vez ou após alteração)
       try {
         const snap = await getDoc(doc(db, "guildConfig", "security"));
         securityData = snap.exists() ? (snap.data() || {}) : {};
         securityData.admins = Array.isArray(securityData.admins) ? securityData.admins : [];
         securityData.leaders = Array.isArray(securityData.leaders) ? securityData.leaders : [];
 
+        writeCache(SECURITY_CACHE_KEY, securityData);
+
         renderList('admins', securityData.admins);
         renderList('leaders', securityData.leaders);
-      } catch (e) {
+        initIcons();
+      } catch(e) {
         console.error(e);
-        showToast('error', e?.message || 'Erro ao carregar configurações.');
       }
+    }
+
     }
 
     function renderList(type, list) {
@@ -243,7 +299,7 @@
 
     async function saveSecurity() {
       await setDoc(doc(db, 'guildConfig', 'security'), securityData, { merge: true });
-      await load();
+      await load(true);
     }
   </script>
 </body>
