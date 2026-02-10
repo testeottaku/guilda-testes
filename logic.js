@@ -11,7 +11,8 @@ import {
 import {
   getFirestore,
   doc,
-  getDoc
+  getDoc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
@@ -86,6 +87,97 @@ async function resolveRoleByEmail(email) {
   }
 }
 
+// ===========================
+// Ajustes globais (Firestore)
+// Coleção: ajustes / Doc: geral
+// Campos: tagPrefix (string), accent (string tailwind color name)
+// ===========================
+const DEFAULT_SETTINGS = {
+  tagPrefix: "ᵒᵗᵏ ",
+  accent: "emerald"
+};
+
+export async function loadGuildSettings() {
+  try {
+    const ref = doc(db, "ajustes", "geral");
+    const snap = await getDoc(ref);
+
+    // Se não existir, cria com padrão (criar doc = criar coleção)
+    if (!snap.exists()) {
+      await setDoc(ref, DEFAULT_SETTINGS, { merge: true });
+      window.guildSettings = { ...DEFAULT_SETTINGS };
+      return window.guildSettings;
+    }
+
+    const data = snap.data() || {};
+    const settings = {
+      tagPrefix: (typeof data.tagPrefix === "string" && data.tagPrefix.length) ? data.tagPrefix : DEFAULT_SETTINGS.tagPrefix,
+      accent: (typeof data.accent === "string" && data.accent.length) ? data.accent : DEFAULT_SETTINGS.accent
+    };
+
+    // Garante campos mínimos sem sobrescrever o que já existe
+    await setDoc(ref, settings, { merge: true });
+
+    window.guildSettings = settings;
+    return settings;
+  } catch (e) {
+    console.error("Erro ao carregar ajustes:", e);
+    window.guildSettings = { ...DEFAULT_SETTINGS };
+    return window.guildSettings;
+  }
+}
+
+export function getTagPrefix() {
+  return (window.guildSettings && window.guildSettings.tagPrefix) ? window.guildSettings.tagPrefix : DEFAULT_SETTINGS.tagPrefix;
+}
+
+export function applyAccent(accent = "emerald") {
+  try {
+    const color = accent || "emerald";
+    document.documentElement.setAttribute("data-accent", color);
+
+    // Troca "emerald" por cor escolhida em classes do DOM (Tailwind CDN já contém as cores)
+    const shouldReplace = (token) =>
+      token.includes("emerald") &&
+      (
+        token.includes("-emerald-") ||
+        token.includes("emerald/") ||
+        token.startsWith("from-emerald") ||
+        token.startsWith("to-emerald") ||
+        token.startsWith("bg-emerald") ||
+        token.startsWith("text-emerald") ||
+        token.startsWith("border-emerald") ||
+        token.startsWith("ring-emerald") ||
+        token.startsWith("accent-emerald") ||
+        token.startsWith("hover:bg-emerald") ||
+        token.startsWith("hover:text-emerald") ||
+        token.startsWith("hover:border-emerald") ||
+        token.startsWith("focus:ring-emerald")
+      );
+
+    document.querySelectorAll("*").forEach((el) => {
+      if (!el.classList || el.classList.length === 0) return;
+      const next = [];
+      let changed = false;
+
+      el.classList.forEach((c) => {
+        if (shouldReplace(c)) {
+          next.push(c.replaceAll("emerald", color));
+          changed = true;
+        } else {
+          next.push(c);
+        }
+      });
+
+      if (changed) {
+        el.className = next.join(" ");
+      }
+    });
+  } catch (e) {
+    console.error("Erro ao aplicar cor:", e);
+  }
+}
+
 // Proteção de rotas (chame no início de cada página privada)
 export function checkAuth(redirectToLogin = true) {
   return new Promise((resolve) => {
@@ -107,11 +199,16 @@ export function checkAuth(redirectToLogin = true) {
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
 
+      // Carrega ajustes globais e aplica cor predominante
+      const settings = await loadGuildSettings();
+      applyAccent(settings.accent);
+
       const path = (window.location.pathname || "").toLowerCase();
       const isAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
       const isMembersPage = path.endsWith("/membros") || path.endsWith("/membros.html") || path.includes("membros.html");
       const isDashboardPage = path.endsWith("/dashboard") || path.endsWith("/dashboard.html") || path.includes("dashboard.html");
       const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html") || path.includes("campeonato");
+      const isAjustesPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html") || path.includes("/settings");
 
       // Regras de acesso (conforme você pediu AGORA):
       // - Líder: tudo
@@ -134,8 +231,8 @@ export function checkAuth(redirectToLogin = true) {
           resolve(null);
           return;
         }
-        // Dashboard e Membros ok
-        if (!isDashboardPage && !isMembersPage) {
+        // Dashboard, Membros e Ajustes ok
+        if (!isDashboardPage && !isMembersPage && !isAjustesPage) {
           window.location.href = "dashboard.html";
           resolve(null);
           return;

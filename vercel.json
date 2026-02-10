@@ -29,5 +29,15 @@
       "source": "/admin",
       "destination": "/admin.html"
     }
+  ],
+  "routes": [
+    {
+      "src": "/settings",
+      "dest": "/ajustes.html"
+    },
+    {
+      "src": "/ajustes",
+      "dest": "/ajustes.html"
+    }
   ]
 }

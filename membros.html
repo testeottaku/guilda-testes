@@ -37,6 +37,10 @@
         <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
         </a>
+        <a href="ajustes.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <span>Ajustes</span>
+        </a>
         <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="settings" class="w-5 h-5"></i> Admin
         </a>
@@ -161,7 +165,7 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, showToast } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, getTagPrefix } from './logic.js';
     import { collection, getDocs, setDoc, doc, deleteDoc, serverTimestamp, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     let membersCache = [];
@@ -339,7 +343,7 @@
 
       const rawNick = document.getElementById('nick').value.trim();
       const hasTag = document.getElementById('has-tag').checked;
-      const finalNick = hasTag ? "ᵒᵗᵏ " + rawNick : rawNick;
+      const finalNick = hasTag ? (getTagPrefix() + rawNick) : rawNick;
 
       const payload = {
         visibleId,
