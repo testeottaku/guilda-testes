@@ -1,51 +1,177 @@
-/* Estilos globais - Mantendo 100% igual ao original */
-* { -webkit-tap-highlight-color: transparent; }
+// logic.js — módulo compartilhado (Firebase + UI helpers)
+// Observação: este arquivo DEVE ser JavaScript. (Antes ele estava com CSS e quebrava o login.)
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
-  background-color: #f9fafb; /* bg-gray-50 */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config (mesmo projeto do admin.html)
+const firebaseConfig = {
+  apiKey: "AIzaSyA5uana2jcnWCkY3vqpotbpoQKxy7bTMtU",
+  authDomain: "guilda-otk.firebaseapp.com",
+  projectId: "guilda-otk"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Toast simples (sem depender de libs)
+export function showToast(type = "info", message = "") {
+  const containerId = "toast-container";
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement("div");
+    container.id = containerId;
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement("div");
+  toast.className =
+    "animate-in px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-start gap-2 max-w-[320px] " +
+    (type === "success"
+      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+      : type === "error"
+      ? "bg-red-50 text-red-800 border-red-200"
+      : "bg-gray-900 text-white border-white/10");
+
+  toast.innerHTML = `<div class="flex-1 leading-snug">${escapeHtml(message)}</div>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(-4px)";
+    toast.style.transition = "all 180ms ease";
+  }, 2600);
+
+  setTimeout(() => toast.remove(), 3000);
 }
 
-/* Scrollbar personalizada */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-
-/* Animações */
-.animate-in { animation: slideDown 0.2s ease-out; }
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-/* Utilitários de Login (Mantidos do original) */
-.login-screen {
-  position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 18px;
-  background: radial-gradient(900px 500px at 10% 0%, rgba(16,185,129,0.18), transparent 60%),
-              radial-gradient(700px 420px at 90% 10%, rgba(34,197,94,0.12), transparent 55%),
-              rgba(17,24,39,0.55);
-  backdrop-filter: blur(10px); z-index: 99998;
-}
-.login-screen.show { display: flex; }
+// Determina o papel do usuário baseado em guildConfig/security
+async function resolveRoleByEmail(email) {
+  try {
+    const snap = await getDoc(doc(db, "guildConfig", "security"));
+    if (!snap.exists()) return "Membro";
 
-.login-card {
-  width: min(420px, 100%); background: rgba(255,255,255,0.95); border: 1px solid rgba(17,24,39,0.10);
-  border-radius: 22px; box-shadow: 0 30px 70px rgba(0,0,0,0.24); padding: 18px;
-}
+    const data = snap.data() || {};
+    const admins = Array.isArray(data.admins) ? data.admins : [];
+    const leaders = Array.isArray(data.leaders) ? data.leaders : [];
 
-/* Spinner e botões */
-.btn-spinner {
-  width: 14px; height: 14px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.55);
-  border-top-color: #fff; display: inline-block; animation: spin 700ms linear infinite;
-}
-@keyframes spin{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg);} }
-
-/* Toast Notification Container */
-#toast-container {
-  position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+    const e = (email || "").toLowerCase();
+    if (admins.includes(e)) return "Admin";
+    if (leaders.includes(e)) return "Líder";
+    return "Membro";
+  } catch (e) {
+    console.error("Erro ao buscar role:", e);
+    return "Membro";
+  }
 }
 
+// Proteção de rotas (chame no início de cada página privada)
+export function checkAuth(redirectToLogin = true) {
+  return new Promise((resolve) => {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (redirectToLogin) {
+          // evita loop: só redireciona se não estiver na página de login
+          const isLogin = /index\.html$|\/$/.test(window.location.pathname);
+          if (!isLogin) window.location.href = "index.html";
+        }
+        resolve(null);
+        return;
+      }
+
+      // Preenche UI de usuário
+      const emailEl = document.getElementById("user-email");
+      if (emailEl) emailEl.textContent = user.email || "";
+
+      const role = await resolveRoleByEmail(user.email || "");
+      const roleEl = document.getElementById("user-role");
+      if (roleEl) roleEl.textContent = role;
+
+      // Se estiver em página admin e não for Admin, bloqueia
+      const path = (window.location.pathname || "").toLowerCase();
+      const onAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
+      if (onAdminPage && role !== "Admin") {
+        showToast("error", "Acesso negado: somente Admin.");
+        await signOut(auth);
+        window.location.href = "index.html";
+        resolve(null);
+        return;
+      }
+
+      resolve(user);
+    });
+  });
+}
+
+// Sidebar (mobile)
+export function setupSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  const btn = document.getElementById("mobile-menu-btn");
+
+  if (!sidebar || !overlay || !btn) return;
+
+  const open = () => {
+    sidebar.classList.remove("-translate-x-full");
+    overlay.classList.remove("hidden");
+  };
+
+  const close = () => {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  };
+
+  btn.addEventListener("click", open);
+  overlay.addEventListener("click", close);
+
+  // Fecha ao navegar (para não ficar travado no mobile)
+  sidebar.querySelectorAll("a[href]").forEach((a) => {
+    a.addEventListener("click", () => {
+      if (window.innerWidth < 1024) close();
+    });
+  });
+
+  // Estado inicial no mobile
+  if (window.innerWidth < 1024) {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  }
+}
+
+// Ícones (lucide)
+export function initIcons() {
+  try {
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
+  } catch (e) {
+    // silencioso
+  }
+}
+
+export async function logout() {
+  try {
+    await signOut(auth);
+  } finally {
+    window.location.href = "index.html";
+  }
+}

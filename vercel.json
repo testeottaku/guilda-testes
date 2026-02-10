@@ -18,6 +18,10 @@
       "destination": "/camp.html"
     },
     {
+      "source": "/camp",
+      "destination": "/camp.html"
+    },
+    {
       "source": "/admin",
       "destination": "/admin.html"
     }
