@@ -49,3 +49,158 @@ body {
   position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;
 }
 
+/* =========================
+   Símbolo do Gato (CSS) — usado no Login e no menu lateral
+   (baseado no símbolo enviado pelo Kelvin)
+   ========================= */
+
+.cat-in-square {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* evita hover/click dentro do quadrado */
+}
+
+.cat-in-square--sidebar { --cat-scale: 0.23; }
+.cat-in-square--login { --cat-scale: 0.25; }
+
+.cat-in-square .cat-symbol {
+  transform: scale(var(--cat-scale, 0.23));
+  transform-origin: center;
+}
+
+/* CONTAINER PRINCIPAL */
+.cat-symbol {
+  position: relative;
+  width: 140px;
+  height: 180px;
+  cursor: default;
+  transition: transform 0.3s ease;
+}
+
+/* CABEÇA */
+.cat-symbol .head {
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  width: 100px;
+  height: 90px;
+  background-color: #1a1a1a;
+  border-radius: 45% 45% 50% 50%;
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* ORELHAS GRANDES */
+.cat-symbol .ear {
+  position: absolute;
+  bottom: 70px;
+  width: 40px;
+  height: 110px;
+  background-color: #1a1a1a;
+  border-radius: 50% 100% 0% 0%;
+  z-index: 1;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cat-symbol .ear.left {
+  left: 10px;
+  transform: rotate(-15deg);
+  border-top-left-radius: 100%;
+}
+
+.cat-symbol .ear.right {
+  right: 10px;
+  transform: rotate(15deg) scaleX(-1);
+  border-top-left-radius: 100%;
+}
+
+/* Detalhe interno da orelha */
+.cat-symbol .ear::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 15px;
+  height: 70px;
+  background: linear-gradient(to top, #333, transparent);
+  border-radius: 50% 100% 0 0;
+  opacity: 0.5;
+}
+
+/* OLHOS (Verdes) */
+.cat-symbol .eyes {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  z-index: 3;
+}
+
+.cat-symbol .eye {
+  width: 22px;
+  height: 12px;
+  background: radial-gradient(circle at 30% 30%, #fff 10%, #00ff00 30%, #004d00 100%);
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+}
+
+/* Pupilas */
+.cat-symbol .eye::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 100%;
+  background-color: #000;
+}
+
+/* Pálpebras */
+.cat-symbol .eye::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background-color: #1a1a1a;
+  transition: top 0.2s;
+}
+
+/* FOCINHO */
+.cat-symbol .nose {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 6px;
+  background-color: #555;
+  border-radius: 50% 50% 100% 100%;
+  z-index: 3;
+}
+
+/* MARCAS NA TESTA */
+.cat-symbol .mark {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 12px solid #333;
+  z-index: 3;
+}
+
+
