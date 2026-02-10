@@ -57,10 +57,7 @@
         </div>
 
         <div id="camps-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <!-- Lista JS -->
-           <div class="col-span-1 md:col-span-2 bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center animate-pulse">
-               <p class="text-gray-400 text-sm">Carregando campeonatos...</p>
-           </div>
+          <!-- JS -->
         </div>
       </div>
     </main>
@@ -115,21 +112,10 @@
     // Se quiser persistir, precisa integrar com Firestore aqui
     window.camps = [];
 
-    // Inicialização IMEDIATA
-    setupSidebar();
-    initIcons();
-
-    // Cache simples para evitar piscar do mock (opcional, já que é memória local)
-    const cachedCamps = localStorage.getItem('campsList');
-    if(cachedCamps) {
-        window.camps = JSON.parse(cachedCamps);
-        renderCamps();
-    }
-
     checkAuth().then(user => {
       if(!user) return;
+      setupSidebar();
       document.getElementById('btn-logout').onclick = logout;
-      // renderCamps já chamado se tiver cache, ou chamamos agora
       renderCamps();
     });
 
@@ -145,7 +131,7 @@
           const statusClass = c.status === 'upcoming' ? 'bg-blue-100 text-blue-700' : (c.status === 'ongoing' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500');
           const statusText = c.status === 'upcoming' ? 'Próximo' : (c.status === 'ongoing' ? 'Em andamento' : 'Finalizado');
           return `
-          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden animate-in">
+          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
             <div class="bg-gradient-to-r from-emerald-500 to-green-600 p-4 flex justify-between items-start">
               <div class="flex items-center gap-2 text-white">
                 <i data-lucide="trophy" class="w-5 h-5"></i>
@@ -197,7 +183,6 @@
     window.deleteCamp = (id) => {
       if(confirm('Excluir?')) {
         camps = camps.filter(x => x.id != id);
-        localStorage.setItem('campsList', JSON.stringify(camps));
         renderCamps();
       }
     };
@@ -221,11 +206,9 @@
       } else {
         camps.push(data);
       }
-      localStorage.setItem('campsList', JSON.stringify(camps));
       closeCampModal();
       renderCamps();
     });
   </script>
 </body>
 </html>
-
