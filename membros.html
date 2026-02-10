@@ -74,7 +74,7 @@
             <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
             <input type="text" id="search-input" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all bg-white">
           </div>
-          <button onclick="loadMembers()" class="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition-colors" title="Atualizar">↻</button>
+          <button onclick="loadMembers(true)" class="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition-colors" title="Atualizar">↻</button>
         </div>
 
         <div id="members-list" class="space-y-3">
@@ -181,7 +181,7 @@
       });
     });
 
-    window.loadMembers = async function() {
+    window.loadMembers = async function(showFeedback = false) {
       try {
         const snap = await getDocs(collection(db, "membros"));
         membersCache = [];
@@ -189,9 +189,10 @@
         membersCache.sort((a,b)=> String(a.nick).localeCompare(String(b.nick)));
         renderList(membersCache);
         document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
-      } catch(err) {
-        showToast('error', 'Erro ao carregar lista.');
-      }
+      
+        if (showFeedback) showToast('success', 'Lista atualizada.');} catch(err) {
+        showToast('error', showFeedback ? 'Erro ao atualizar a lista.' : 'Erro ao carregar lista.');
+}
     };
 
     function renderList(list) {

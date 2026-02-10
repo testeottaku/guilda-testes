@@ -84,6 +84,12 @@ async function resolveRoleByEmail(email) {
   }
 }
 
+
+// Exporta o papel para uso na tela de login e outras telas
+export async function getRoleByEmail(email) {
+  return await resolveRoleByEmail(email);
+}
+
 // Proteção de rotas (chame no início de cada página privada)
 export function checkAuth(redirectToLogin = true) {
   return new Promise((resolve) => {

@@ -21,8 +21,8 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v7c0 5-3.4 9.4-8 9.4S4 18 4 13V6l8-4z"/><path d="M9 12l2 2 4-5"/></svg>
         </div>
         <div>
-          <div class="text-base font-black text-gray-900 leading-tight">Guilda e eventos</div>
-          <div class="text-xs text-gray-500 font-medium">Acesso restrito • Administradores</div>
+          <div class="text-base font-black text-gray-900 leading-tight">Guilda HUB</div>
+          <div class="text-xs text-gray-500 font-medium">Acesso sua conta</div>
         </div>
       </div>
 
@@ -41,7 +41,7 @@
         </button>
 
         <div class="text-[10px] text-gray-400 text-center leading-tight px-2">
-          Use um usuário criado no Firebase Authentication.
+          Use um usuário de Lider ou admin de Guilda
         </div>
       </form>
 
@@ -54,7 +54,7 @@
   </div>
 
   <script type="module">
-    import { auth, showToast, checkAuth } from './logic.js';
+    import { auth, showToast, checkAuth, getRoleByEmail } from './logic.js';
     import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     // Se já estiver logado, vai pro dashboard
@@ -73,9 +73,15 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, pass);
-        showToast('success', 'Login realizado!');
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
-      } catch (err) {
+        showToast('success', 'Login realizado com sucesso!');
+        try {
+          const role = await getRoleByEmail(email);
+          showToast('info', `Perfil: ${role} • ${email}`);
+        } catch (e) {
+          showToast('error', 'Erro ao identificar o perfil da conta.');
+        }
+        setTimeout(() => window.location.href = 'dashboard.html', 900);
+} catch (err) {
         console.error(err);
         let msg = "Erro ao entrar.";
         if(err.code === 'auth/invalid-credential') msg = "Email ou senha incorretos.";
