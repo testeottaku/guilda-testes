@@ -28,10 +28,7 @@
         <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="users" class="w-5 h-5"></i> Membros</a>
         <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm"><i data-lucide="trophy" class="w-5 h-5"></i> Campeonato</a>
         <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="settings" class="w-5 h-5"></i> Admin</a>
-              <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="life-buoy" class="w-5 h-5"></i> Ajustes e suporte
-        </a>
-</nav>
+      </nav>
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
         <div class="flex items-center justify-between px-3 py-2">
           <div class="flex items-center gap-3">
@@ -66,31 +63,6 @@
            </div>
         </div>
       </div>
-    
-      <!-- Footer -->
-      <footer class="mt-auto border-t border-gray-100 bg-white/70 backdrop-blur">
-        <div class="max-w-6xl mx-auto px-4 py-8 sm:px-6">
-          <div class="flex flex-col items-center text-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-200">
-              <i data-lucide="instagram" class="w-6 h-6"></i>
-            </div>
-
-            <div class="space-y-1">
-              <p class="text-sm font-semibold text-gray-900">OtakkuBrasil • Guild Hub</p>
-              <p class="text-xs text-gray-400">Central de guilda e eventos: organização, velocidade e controle — para facilitar sua vida no dia a dia.</p>
-            </div>
-
-            <div class="flex flex-wrap items-center justify-center gap-2">
-              <a href="https://instagram.com/ottakubrasil" target="_blank" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">@ottakubrasil</a>
-              <a href="https://instagram.com/gameotk" target="_blank" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">@gameotk</a>
-              <a href="https://ottakubrasil.online" target="_blank" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">ottakubrasil.online</a>
-            </div>
-
-            <p class="text-xs text-gray-300">© <span id="year"></span> OtakkuBrasil</p>
-          </div>
-        </div>
-      </footer>
-
     </main>
   </div>
 
@@ -141,8 +113,6 @@
 
     // Inicialização IMEDIATA (Sem piscar)
     setupSidebar();
-    document.getElementById('year')?.textContent = String(new Date().getFullYear());
-
     
     // Carrega do cache ANTES de autenticar
     window.camps = [];

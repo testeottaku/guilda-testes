@@ -107,15 +107,11 @@ export function checkAuth(redirectToLogin = true) {
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
 
-      // Exponha role atual (para páginas que precisam de permissões)
-      try { window.__USER_ROLE = role; } catch (_) {}
-
       const path = (window.location.pathname || "").toLowerCase();
       const isAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
       const isMembersPage = path.endsWith("/membros") || path.endsWith("/membros.html") || path.includes("membros.html");
       const isDashboardPage = path.endsWith("/dashboard") || path.endsWith("/dashboard.html") || path.includes("dashboard.html");
       const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html") || path.includes("campeonato");
-      const isSettingsPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html") || path.includes("suporte");
 
       // Regras de acesso (conforme você pediu AGORA):
       // - Líder: tudo
@@ -138,8 +134,8 @@ export function checkAuth(redirectToLogin = true) {
           resolve(null);
           return;
         }
-        // Dashboard, Membros e Ajustes ok
-        if (!isDashboardPage && !isMembersPage && !isSettingsPage) {
+        // Dashboard e Membros ok
+        if (!isDashboardPage && !isMembersPage) {
           window.location.href = "dashboard.html";
           resolve(null);
           return;
@@ -227,12 +223,6 @@ export function consumeLoginToasts() {
 }
 
 // Cria conta no Firebase Auth sem derrubar a sessão atual (usa um Auth secundário)
-
-// Retorna o role atual já resolvido pelo checkAuth()
-export function getCurrentRole() {
-  return (window.__USER_ROLE || "Membro");
-}
-
 export async function ensureUserAccount(email, password) {
   const cleanEmail = (email || "").toLowerCase().trim();
   if (!cleanEmail) throw new Error("E-mail inválido.");
