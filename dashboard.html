@@ -122,9 +122,9 @@
       if(!user) return;
       setupSidebar();
       document.getElementById('btn-logout').onclick = logout;
-      loadDashboard();
       consumeLoginToasts();
-});
+      loadDashboard();
+    });
 
     async function loadDashboard() {
       try {

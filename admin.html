@@ -1,182 +1,211 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Guilda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Guilda HUB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-50 flex text-gray-800 font-sans">
 
-    <div class="lg:hidden fixed top-4 left-4 z-50">
-        <button id="btn-logout" class="w-full flex gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl mt-10"><i data-lucide="log-out"></i> Sair</button>
-        </nav>
-    </aside>
+  <div class="lg:hidden fixed top-4 left-4 z-50">
+    <button id="menu-btn" class="bg-white p-2 rounded-lg shadow text-emerald-600"><i data-lucide="menu"></i></button>
+  </div>
 
-    <main class="flex-1 lg:ml-64 min-h-screen p-6">
-        <header class="bg-white/80 backdrop-blur border-b p-4 mb-6 rounded-2xl sticky top-0 z-30">
-            <h1 class="font-bold text-lg">Configurações de Acesso</h1>
-        </header>
+  <aside id="sidebar" class="w-64 bg-white border-r h-screen fixed -translate-x-full lg:translate-x-0 transition-transform z-40">
+    <div class="p-6 flex items-center gap-3 border-b">
+      <div class="bg-emerald-500 text-white p-2 rounded-lg"><i data-lucide="shield"></i></div>
+      <span class="font-bold">Painel Guilda</span>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            
-            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-gray-900 flex gap-2"><i data-lucide="crown" class="text-yellow-500"></i> Administradores</h3>
-                    <button onclick="add('admins')" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
-                </div>
-                <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
-                <ul id="list-admins" class="space-y-2"></ul>
-            </div>
+    <nav class="p-4 space-y-2">
+      <a href="dashboard.html" class="flex gap-3 px-4 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <a href="membros.html" class="flex gap-3 px-4 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition"><i data-lucide="users"></i> Membros</a>
+      <a href="camp.html" class="flex gap-3 px-4 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition"><i data-lucide="swords"></i> Campeonato</a>
+      <a href="admin.html" class="flex gap-3 px-4 py-3 bg-emerald-50 text-emerald-700 rounded-xl font-medium"><i data-lucide="settings"></i> Admin</a>
 
-            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-gray-900 flex gap-2"><i data-lucide="medal" class="text-blue-500"></i> Líderes</h3>
-                    <button onclick="add('leaders')" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
-                </div>
-                <p class="text-xs text-gray-400 mb-4">Acesso de visualização e edição de membros.</p>
-                <ul id="list-leaders" class="space-y-2"></ul>
-            </div>
+      <button id="btn-logout" class="w-full flex gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl mt-10"><i data-lucide="log-out"></i> Sair</button>
+    </nav>
+  </aside>
 
+  <main class="flex-1 lg:ml-64 min-h-screen p-6">
+    <header class="bg-white/80 backdrop-blur border-b p-4 mb-6 rounded-2xl sticky top-0 z-30">
+      <h1 class="font-bold text-lg">Configurações de Acesso</h1>
+      <p class="text-xs text-gray-400 mt-1">Somente Líder pode gerenciar permissões.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+
+      <div class="bg-white p-6 rounded-2xl border shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-900 flex gap-2"><i data-lucide="crown" class="text-yellow-500"></i> Administradores</h3>
+          <button id="btn-add-admin" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
         </div>
-    </main>
+        <p class="text-xs text-gray-400 mb-4">Acesso ao Dashboard e administração de membros.</p>
+        <ul id="list-admins" class="space-y-2"></ul>
+      </div>
 
-    <script type="module">
-  import { checkAuth, showToast, logout, auth, db, ensureUserAccount } from "./logic.js";
-  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      <div class="bg-white p-6 rounded-2xl border shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-900 flex gap-2"><i data-lucide="medal" class="text-blue-500"></i> Líderes</h3>
+          <button id="btn-add-leader" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
+        </div>
+        <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
+        <ul id="list-leaders" class="space-y-2"></ul>
+      </div>
 
-  // Mobile menu
-  const menuBtn = document.getElementById("menu-btn");
-  const sidebar = document.getElementById("sidebar");
-  if (menuBtn && sidebar) {
-    menuBtn.onclick = () => sidebar.classList.toggle("-translate-x-full");
-  }
+    </div>
+  </main>
 
-  document.getElementById("btn-logout")?.addEventListener("click", logout);
+  <script type="module">
+    import { checkAuth, showToast, logout, auth, db, ensureUserAccount, initIcons } from "./logic.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  let securityData = { admins: [], leaders: [] };
-
-  // Só Líder acessa essa tela (a regra já está no checkAuth do logic.js)
-  checkAuth().then(async (user) => {
-    if (!user) return;
-    await load();
-  });
-
-  async function load() {
-    const snap = await getDoc(doc(db, "guildConfig", "security"));
-    securityData = snap.exists() ? (snap.data() || { admins: [], leaders: [] }) : { admins: [], leaders: [] };
-
-    securityData.admins = Array.isArray(securityData.admins) ? securityData.admins : [];
-    securityData.leaders = Array.isArray(securityData.leaders) ? securityData.leaders : [];
-
-    renderList("admins", securityData.admins);
-    renderList("leaders", securityData.leaders);
-
-    lucide.createIcons();
-  }
-
-  function renderList(type, list) {
-    const ul = document.getElementById(`list-${type}`);
-    ul.innerHTML = "";
-    if (!list.length) {
-      ul.innerHTML = "<li class='text-sm text-gray-300 italic'>Nenhum usuário</li>";
-      return;
-    }
-
-    list.forEach((email) => {
-      const li = document.createElement("li");
-      li.className = "flex justify-between items-center bg-gray-50 p-3 rounded-xl text-sm border";
-      li.innerHTML = `
-        <span class="truncate pr-2">${escapeHtml(email)}</span>
-        <button data-email="${escapeHtml(email)}" class="btn-remove text-red-400 hover:text-red-600">
-          <i data-lucide="trash-2" class="w-4 h-4"></i>
-        </button>
-      `;
-      ul.appendChild(li);
+    // Mobile Menu
+    document.getElementById('menu-btn')?.addEventListener('click', () => {
+      document.getElementById('sidebar')?.classList.toggle('-translate-x-full');
     });
 
-    ul.querySelectorAll(".btn-remove").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const email = btn.getAttribute("data-email") || "";
-        await remove(type, email);
+    document.getElementById('btn-logout')?.addEventListener('click', logout);
+
+    let securityData = { admins: [], leaders: [] };
+
+    // Protege a página (somente Líder)
+    const user = await checkAuth();
+    if (!user) {
+      // checkAuth já redireciona
+    } else {
+      await load();
+      initIcons();
+    }
+
+    async function load() {
+      try {
+        const snap = await getDoc(doc(db, "guildConfig", "security"));
+        securityData = snap.exists() ? (snap.data() || {}) : {};
+        securityData.admins = Array.isArray(securityData.admins) ? securityData.admins : [];
+        securityData.leaders = Array.isArray(securityData.leaders) ? securityData.leaders : [];
+
+        renderList('admins', securityData.admins);
+        renderList('leaders', securityData.leaders);
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao carregar configurações.');
+      }
+    }
+
+    function renderList(type, list) {
+      const ul = document.getElementById(`list-${type}`);
+      ul.innerHTML = "";
+
+      if (!list.length) {
+        ul.innerHTML = "<li class='text-sm text-gray-300 italic'>Nenhum usuário</li>";
+        return;
+      }
+
+      list.forEach((email) => {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center bg-gray-50 p-3 rounded-xl text-sm border";
+        li.innerHTML = `
+          <span class="truncate pr-2">${escapeHtml(email)}</span>
+          <button class="btn-remove text-red-400 hover:text-red-600" data-type="${type}" data-email="${escapeHtml(email)}">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        `;
+        ul.appendChild(li);
       });
-    });
-  }
 
-  function escapeHtml(str="") {
-    return String(str)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
+      ul.querySelectorAll('.btn-remove').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const t = btn.getAttribute('data-type');
+          const e = btn.getAttribute('data-email');
+          await removeAccess(t, e);
+        });
+      });
 
-  window.add = async (type) => {
-    try {
-      const email = prompt("Digite o e-mail do usuário:");
-      if (!email) return;
+      try { lucide.createIcons(); } catch (_) {}
+    }
 
-      const cleanEmail = email.toLowerCase().trim();
-      if (!cleanEmail.includes("@")) {
-        showToast("error", "E-mail inválido.");
-        return;
-      }
+    function escapeHtml(str = "") {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-      if (!securityData[type]) securityData[type] = [];
-      if (securityData[type].includes(cleanEmail)) {
-        showToast("info", "Esse e-mail já está na lista.");
-        return;
-      }
+    document.getElementById('btn-add-admin')?.addEventListener('click', () => addAccess('admins'));
+    document.getElementById('btn-add-leader')?.addEventListener('click', () => addAccess('leaders'));
 
-      // Se a conta não existir, cria (sem derrubar seu login)
-      const methods = await fetchSignInMethodsForEmail(auth, cleanEmail);
-      let created = false;
+    async function addAccess(type) {
+      try {
+        const email = prompt("Digite o e-mail do usuário:");
+        if (!email) return;
+        const cleanEmail = email.toLowerCase().trim();
 
-      if (!methods || methods.length === 0) {
-        const pass = prompt("Conta não existe. Defina uma senha (mín. 6):");
-        if (!pass) {
-          showToast("error", "Senha obrigatória para criar a conta.");
-          return;
-        }
-        const pass2 = prompt("Confirme a senha:");
-        if (pass2 !== pass) {
-          showToast("error", "As senhas não conferem.");
+        if (!cleanEmail.includes('@')) {
+          showToast('error', 'E-mail inválido.');
           return;
         }
 
-        const res = await ensureUserAccount(cleanEmail, pass);
-        created = !!res?.created;
+        if (!securityData[type]) securityData[type] = [];
+        if (securityData[type].includes(cleanEmail)) {
+          showToast('info', 'Esse e-mail já está na lista.');
+          return;
+        }
+
+        // Se a conta não existir, cria (sem derrubar seu login)
+        const methods = await fetchSignInMethodsForEmail(auth, cleanEmail);
+        let created = false;
+        if (!methods || methods.length === 0) {
+          const pass = prompt('Conta não existe. Defina uma senha (mín. 6):');
+          if (!pass) {
+            showToast('error', 'Senha obrigatória para criar a conta.');
+            return;
+          }
+          const pass2 = prompt('Confirme a senha:');
+          if (pass2 !== pass) {
+            showToast('error', 'As senhas não conferem.');
+            return;
+          }
+          const res = await ensureUserAccount(cleanEmail, pass);
+          created = !!res?.created;
+        }
+
+        securityData[type].push(cleanEmail);
+        await saveSecurity();
+
+        showToast('success', created ? 'Conta criada e acesso liberado.' : 'Acesso liberado.');
+
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao adicionar acesso.');
       }
-
-      // Salva permissão no Firestore
-      securityData[type].push(cleanEmail);
-      await save();
-
-      if (created) showToast("success", "Conta criada e acesso liberado.");
-      else showToast("success", "Acesso liberado.");
-
-    } catch (e) {
-      showToast("error", e?.message || "Erro ao adicionar.");
-      console.error(e);
     }
-  };
 
-  async function remove(type, email) {
-    try {
-      if (!confirm(`Remover acesso de ${email}?`)) return;
-      securityData[type] = (securityData[type] || []).filter((e) => e !== email);
-      await save();
-      showToast("success", "Acesso removido.");
-    } catch (e) {
-      showToast("error", e?.message || "Erro ao remover.");
+    async function removeAccess(type, email) {
+      try {
+        if (!email) return;
+        if (!confirm(`Remover acesso de ${email}?`)) return;
+
+        securityData[type] = (securityData[type] || []).filter((e) => e !== email);
+        await saveSecurity();
+
+        showToast('success', 'Acesso removido.');
+
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao remover acesso.');
+      }
     }
-  }
 
-  async function save() {
-    await setDoc(doc(db, "guildConfig", "security"), securityData, { merge: true });
-    await load();
-  }
-</script>
+    async function saveSecurity() {
+      await setDoc(doc(db, 'guildConfig', 'security'), securityData, { merge: true });
+      await load();
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,4 @@
 // logic.js — módulo compartilhado (Firebase + UI helpers)
-// Observação: este arquivo DEVE ser JavaScript. (Antes ele estava com CSS e quebrava o login.)
 
 import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -15,7 +14,7 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase config (mesmo projeto do admin.html)
+// Firebase config
 export const firebaseConfig = {
   apiKey: "AIzaSyA5uana2jcnWCkY3vqpotbpoQKxy7bTMtU",
   authDomain: "guilda-otk.firebaseapp.com",
@@ -33,12 +32,13 @@ export function showToast(type = "info", message = "") {
   if (!container) {
     container = document.createElement("div");
     container.id = containerId;
+    container.className = "fixed top-4 right-4 z-[9999] flex flex-col gap-2";
     document.body.appendChild(container);
   }
 
   const toast = document.createElement("div");
   toast.className =
-    "animate-in px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-start gap-2 max-w-[320px] " +
+    "px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-start gap-2 max-w-[340px] " +
     (type === "success"
       ? "bg-emerald-50 text-emerald-800 border-emerald-200"
       : type === "error"
@@ -77,8 +77,8 @@ async function resolveRoleByEmail(email) {
     const leaders = Array.isArray(data.leaders) ? data.leaders : [];
 
     const e = (email || "").toLowerCase();
-    if (admins.includes(e)) return "Admin";
-    if (leaders.includes(e)) return "Líder";
+    if (admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
+    if (leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
     return "Membro";
   } catch (e) {
     console.error("Erro ao buscar role:", e);
@@ -92,7 +92,6 @@ export function checkAuth(redirectToLogin = true) {
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         if (redirectToLogin) {
-          // evita loop: só redireciona se não estiver na página de login
           const isLogin = /index\.html$|\/$/.test(window.location.pathname);
           if (!isLogin) window.location.href = "index.html";
         }
@@ -108,29 +107,43 @@ export function checkAuth(redirectToLogin = true) {
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
 
-      // Se estiver em página admin e não for Admin, bloqueia
       const path = (window.location.pathname || "").toLowerCase();
-      const path = (window.location.pathname || "").toLowerCase();
-      const onAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
-      const onMembersPage = path.endsWith("/membros") || path.endsWith("/membros.html") || path.includes("membros.html");
+      const isAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
+      const isMembersPage = path.endsWith("/membros") || path.endsWith("/membros.html") || path.includes("membros.html");
+      const isDashboardPage = path.endsWith("/dashboard") || path.endsWith("/dashboard.html") || path.includes("dashboard.html");
+      const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html") || path.includes("campeonato");
 
-      // Regras de acesso:
-      // - Líder: acesso total
-      // - Admin: apenas Membros
-      // - Membro: acesso básico (pode ajustar no futuro)
-      if (role === "Admin" && !onMembersPage) {
-        showToast("error", "Perfil Admin: acesso apenas a Membros.");
-        window.location.href = "membros.html";
+      // Regras de acesso (conforme você pediu AGORA):
+      // - Líder: tudo
+      // - Admin: Dashboard + Membros
+      // - Membro: sem acesso (volta pro login)
+
+      if (role === "Membro") {
+        showToast("error", "Acesso negado: conta não autorizada.");
+        // mantém auth, mas manda pro login
+        window.location.href = "index.html";
         resolve(null);
         return;
       }
 
-      // Página Admin (configurações) é SOMENTE para Líder
-      if (onAdminPage && role !== "Líder") {
-        showToast("error", "Acesso negado: somente Líder.");
-        window.location.href = role === "Admin" ? "membros.html" : "dashboard.html";
-        resolve(null);
-        return;
+      if (role === "Admin") {
+        // Admin não acessa Camp nem Admin (config)
+        if (isAdminPage || isCampPage) {
+          showToast("error", "Perfil Admin: acesso apenas ao Dashboard e Membros.");
+          window.location.href = "dashboard.html";
+          resolve(null);
+          return;
+        }
+        // Dashboard e Membros ok
+        if (!isDashboardPage && !isMembersPage) {
+          window.location.href = "dashboard.html";
+          resolve(null);
+          return;
+        }
+      }
+
+      if (role === "Líder") {
+        // Líder acessa tudo — sem bloqueio
       }
 
       resolve(user);
@@ -159,14 +172,12 @@ export function setupSidebar() {
   btn.addEventListener("click", open);
   overlay.addEventListener("click", close);
 
-  // Fecha ao navegar (para não ficar travado no mobile)
   sidebar.querySelectorAll("a[href]").forEach((a) => {
     a.addEventListener("click", () => {
       if (window.innerWidth < 1024) close();
     });
   });
 
-  // Estado inicial no mobile
   if (window.innerWidth < 1024) {
     sidebar.classList.add("-translate-x-full");
     overlay.classList.add("hidden");
@@ -179,9 +190,7 @@ export function initIcons() {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
       window.lucide.createIcons();
     }
-  } catch (e) {
-    // silencioso
-  }
+  } catch (_) {}
 }
 
 export async function logout() {
@@ -191,7 +200,6 @@ export async function logout() {
     window.location.href = "index.html";
   }
 }
-
 
 // Mostra toasts pós-login (ex.: dashboard.html?login=1) e limpa a URL
 export function consumeLoginToasts() {
@@ -210,7 +218,6 @@ export function consumeLoginToasts() {
     const newUrl = window.location.pathname + (qs ? `?${qs}` : "") + (window.location.hash || "");
     history.replaceState({}, "", newUrl);
   } catch (e) {
-    // não quebra a página por causa de toast
     console.warn("consumeLoginToasts:", e);
   }
 }

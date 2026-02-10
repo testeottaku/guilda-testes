@@ -73,7 +73,7 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, pass);
-        window.location.href = 'dashboard.html?login=1';
+        window.location.href = "dashboard.html?login=1";
       } catch (err) {
         console.error(err);
         let msg = "Erro ao entrar.";
