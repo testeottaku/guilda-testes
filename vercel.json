@@ -1,0 +1,50 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/dashboard/?$",
+      "dest": "/dashboard.html"
+    },
+    {
+      "src": "/membros/?$",
+      "dest": "/membros.html"
+    },
+    {
+      "src": "/members/?$",
+      "dest": "/membros.html"
+    },
+    {
+      "src": "/campeonato/?$",
+      "dest": "/camp.html"
+    },
+    {
+      "src": "/camp/?$",
+      "dest": "/camp.html"
+    },
+    {
+      "src": "/admin/?$",
+      "dest": "/admin.html"
+    },
+    {
+      "src": "/ajustes/?$",
+      "dest": "/ajustes.html"
+    },
+    {
+      "src": "/settings/?$",
+      "dest": "/ajustes.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
