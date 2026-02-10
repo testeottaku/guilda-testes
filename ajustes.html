@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ajustes - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script> <!-- Ícones sem React -->
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+            <p class="text-xs text-gray-400">Painel Admin</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <!-- Menus apenas para Líder -->
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="ajustes.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <span>Ajustes</span>
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 lg:ml-0">
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+    <div class="flex items-center justify-between p-4 lg:p-6">
+      <div class="flex items-center gap-3">
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div>
+          <h1 class="text-xl font-bold text-gray-900">Ajustes</h1>
+          <p class="text-sm text-gray-500">Configurações globais da guilda</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex flex-col items-end leading-tight">
+          <span id="user-email" class="text-sm font-semibold text-gray-900"></span>
+          <span class="text-xs text-gray-500">Perfil: <span id="user-role"></span></span>
+        </div>
+        <button id="btn-logout" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="p-4 lg:p-6 space-y-6">
+    <div class="grid gap-6">
+      <div class="bg-white border border-gray-200 rounded-2xl p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-gray-900">Tag dos membros</h2>
+            <p class="text-sm text-gray-500 mt-1">Prefixo aplicado ao nick quando “Tem Tag” estiver marcado.</p>
+          </div>
+          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-700">Admin e Líder</span>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+          <input id="tag-prefix" type="text" placeholder="Ex: ᵒᵗᵏ " class="w-full sm:w-72 px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+          <button id="save-tag" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Salvar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-gray-900">Cor predominante</h2>
+            <p class="text-sm text-gray-500 mt-1">Altera o destaque do sistema para todos os usuários logados.</p>
+          </div>
+          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-700">Somente Líder</span>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button class="color-btn px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition" data-color="emerald">Verde (padrão)</button>
+          <button class="color-btn px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition" data-color="red">Vermelho</button>
+          <button class="color-btn px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition" data-color="blue">Azul</button>
+          <button class="color-btn px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition" data-color="yellow">Amarelo</button>
+          <button class="color-btn px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition" data-color="pink">Rosa</button>
+          <button class="color-btn px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition" data-color="purple">Roxo</button>
+        </div>
+
+        <div class="mt-4 flex items-center gap-3">
+          <button id="save-color" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition">
+            <i data-lucide="palette" class="w-4 h-4"></i>
+            <span>Aplicar cor</span>
+          </button>
+          <span id="color-hint" class="text-sm text-gray-500"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, loadGuildSettings, applyAccent, patchCachedSecurity } from './logic.js';
+    import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    let currentRole = "Membro";
+    let selectedColor = "emerald";
+
+    function setSelectedColorUI(color) {
+      selectedColor = color || "emerald";
+      document.querySelectorAll('.color-btn').forEach((btn) => {
+        const isActive = btn.dataset.color === selectedColor;
+        btn.classList.toggle('border-gray-900', isActive);
+        btn.classList.toggle('font-semibold', isActive);
+      });
+      const hint = document.getElementById('color-hint');
+      if (hint) hint.textContent = `Selecionado: ${selectedColor}`;
+    }
+
+    async function bootstrap() {
+      initIcons();
+      setupSidebar();
+
+      document.getElementById('btn-logout')?.addEventListener('click', logout);
+
+      const user = await checkAuth(true);
+      if (!user) return;
+
+      // role já preenchido pelo checkAuth na UI
+      currentRole = (document.getElementById('user-role')?.textContent || 'Membro').trim();
+
+      // carrega settings
+      const settings = await loadGuildSettings();
+      applyAccent(settings.accent);
+
+      document.getElementById('tag-prefix').value = settings.tagPrefix || '';
+      setSelectedColorUI(settings.accent || 'emerald');
+
+      // controles
+      document.querySelectorAll('.color-btn').forEach((btn) => {
+        btn.addEventListener('click', () => setSelectedColorUI(btn.dataset.color));
+      });
+
+      // permissões
+      const canEditTag = (currentRole === 'Admin' || currentRole === 'Líder');
+      const canEditColor = (currentRole === 'Líder');
+
+      document.getElementById('save-tag').disabled = !canEditTag;
+      document.getElementById('save-tag').classList.toggle('opacity-50', !canEditTag);
+      document.getElementById('save-tag').classList.toggle('pointer-events-none', !canEditTag);
+
+      document.getElementById('save-color').disabled = !canEditColor;
+      document.getElementById('save-color').classList.toggle('opacity-50', !canEditColor);
+      document.getElementById('save-color').classList.toggle('pointer-events-none', !canEditColor);
+
+      if (!canEditColor) {
+        document.getElementById('color-hint').textContent = 'Somente Líder pode alterar a cor.';
+      }
+
+      // salvar tag
+      document.getElementById('save-tag').addEventListener('click', async () => {
+        try {
+          if (!canEditTag) return showToast('error', 'Sem permissão para alterar a tag.');
+          const tagPrefix = (document.getElementById('tag-prefix').value || '').trim();
+          if (!tagPrefix.length) return showToast('error', 'Informe uma tag válida.');
+          const ref = doc(db, 'guildConfig', 'security');
+          await setDoc(ref, { tagPrefix }, { merge: true });
+          patchCachedSecurity({ tagPrefix });
+          showToast('success', 'Tag atualizada com sucesso.');
+        } catch (e) {
+          console.error(e);
+          showToast('error', 'Erro ao salvar a tag.');
+        }
+      });
+
+      // salvar cor
+      document.getElementById('save-color').addEventListener('click', async () => {
+        try {
+          if (!canEditColor) return showToast('error', 'Somente Líder pode alterar a cor.');
+          const ref = doc(db, 'guildConfig', 'security');
+          await setDoc(ref, { accent: selectedColor }, { merge: true });
+          patchCachedSecurity({ accent: selectedColor });
+          showToast('success', 'Cor aplicada para todos.');
+          // aplica localmente na hora
+          applyAccent(selectedColor);
+        } catch (e) {
+          console.error(e);
+          showToast('error', 'Erro ao salvar a cor.');
+        }
+      });
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>
