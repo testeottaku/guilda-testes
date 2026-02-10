@@ -165,7 +165,7 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, getTagPrefix } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, getTagPrefix, getCachedMembers, setCachedMembers } from './logic.js';
     import { collection, getDocs, setDoc, doc, deleteDoc, serverTimestamp, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     let membersCache = [];
@@ -174,7 +174,15 @@
       if(!user) return;
       setupSidebar();
       document.getElementById('btn-logout').onclick = logout;
-      loadMembers();
+      // Renderiza do cache primeiro (sem delay)
+      const cached = getCachedMembers();
+      if (cached && cached.length) {
+        membersCache = cached;
+        renderList(membersCache);
+        document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+      }
+      // Só busca do Firebase quando for atualização manual ou se não houver cache
+      loadMembers(false);
       
       // Busca (Search)
       document.getElementById('search-input').addEventListener('input', (e) => {
@@ -187,12 +195,23 @@
 
     window.loadMembers = async function(fromRefresh = false) {
       try {
+        if(!fromRefresh){
+          const cached = getCachedMembers();
+          if(cached && cached.length){
+            // já está renderizado acima, evita re-fetch ao abrir tela
+            return;
+          }
+        }
+
         const snap = await getDocs(collection(db, "membros"));
         membersCache = [];
         snap.forEach(d => membersCache.push({ id: d.id, ...d.data() }));
-        membersCache.sort((a,b)=> String(a.nick).localeCompare(String(b.nick)));
+        membersCache.sort((a,b)=> String(a.nick||"").localeCompare(String(b.nick||"")));
         renderList(membersCache);
         document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+
+        // atualiza cache somente quando for refresh manual (ou primeira carga sem cache)
+        setCachedMembers(membersCache);
 
         if(fromRefresh) showToast('success', 'Lista atualizada.');
       } catch(err) {
@@ -299,7 +318,15 @@
       try {
         await deleteDoc(doc(db, "membros", id));
         showToast('success', 'Membro excluído.');
-        loadMembers();
+        // Renderiza do cache primeiro (sem delay)
+      const cached = getCachedMembers();
+      if (cached && cached.length) {
+        membersCache = cached;
+        renderList(membersCache);
+        document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+      }
+      // Só busca do Firebase quando for atualização manual ou se não houver cache
+      loadMembers(false);
       } catch(e) { showToast('error', 'Erro ao excluir.'); }
     };
 
@@ -368,7 +395,15 @@
           showToast('success', 'Criado!');
         }
         closeModal();
-        loadMembers();
+        // Renderiza do cache primeiro (sem delay)
+      const cached = getCachedMembers();
+      if (cached && cached.length) {
+        membersCache = cached;
+        renderList(membersCache);
+        document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+      }
+      // Só busca do Firebase quando for atualização manual ou se não houver cache
+      loadMembers(false);
       } catch(err) {
         showToast('error', 'Erro ao salvar.');
       }

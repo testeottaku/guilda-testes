@@ -146,7 +146,7 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, loadGuildSettings, applyAccent } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, loadGuildSettings, applyAccent, patchCachedSecurity } from './logic.js';
     import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     let currentRole = "Membro";
@@ -211,6 +211,7 @@
           if (!tagPrefix.length) return showToast('error', 'Informe uma tag válida.');
           const ref = doc(db, 'guildConfig', 'security');
           await setDoc(ref, { tagPrefix }, { merge: true });
+          patchCachedSecurity({ tagPrefix });
           showToast('success', 'Tag atualizada com sucesso.');
         } catch (e) {
           console.error(e);
@@ -224,6 +225,7 @@
           if (!canEditColor) return showToast('error', 'Somente Líder pode alterar a cor.');
           const ref = doc(db, 'guildConfig', 'security');
           await setDoc(ref, { accent: selectedColor }, { merge: true });
+          patchCachedSecurity({ accent: selectedColor });
           showToast('success', 'Cor aplicada para todos.');
           // aplica localmente na hora
           applyAccent(selectedColor);

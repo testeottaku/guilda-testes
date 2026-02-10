@@ -12,7 +12,9 @@ import {
   getFirestore,
   doc,
   getDoc,
-  setDoc
+  setDoc,
+  collection,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
@@ -25,6 +27,80 @@ export const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Cache local (evita re-leituras no Firestore a cada troca de tela)
+const CACHE_KEY = "guilda_cache_v1";
+const CACHE_TTL_MS = 1000 * 60 * 60 * 12; // 12h
+
+function nowMs(){ return Date.now(); }
+
+function readCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(!data || typeof data !== "object") return null;
+    return data;
+  }catch(_){ return null; }
+}
+
+function writeCache(next){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify(next));
+  }catch(_){}
+}
+
+function mergeCache(patch){
+  const cur = readCache() || {};
+  const next = { ...cur, ...patch, updatedAt: nowMs() };
+  writeCache(next);
+  return next;
+}
+
+export function clearGuildCache(){
+  try{ localStorage.removeItem(CACHE_KEY); }catch(_){}
+}
+
+export function getCachedMembers(){
+  const c = readCache();
+  if(!c || !c.members || !Array.isArray(c.members.list)) return [];
+  return c.members.list;
+}
+
+export function setCachedMembers(list){
+  return mergeCache({ members: { list: Array.isArray(list) ? list : [], fetchedAt: nowMs() } });
+}
+
+
+
+export function patchCachedSecurity(patch){
+  const c = readCache() || {};
+  const sec = (c.security && typeof c.security === "object") ? c.security : {};
+  const nextSec = { ...sec, ...(patch || {}) };
+  mergeCache({ security: nextSec });
+  window.guildSettings = { tagPrefix: nextSec.tagPrefix || DEFAULT_SETTINGS.tagPrefix, accent: nextSec.accent || DEFAULT_SETTINGS.accent };
+  return nextSec;
+}
+
+export async function prefetchMembersToCache(){
+  try{
+    const c = readCache();
+    if(c && c.members && Array.isArray(c.members.list) && c.members.list.length) return;
+    const snap = await getDocs(collection(db, "membros"));
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    list.sort((a,b)=> String(a.nick||"").localeCompare(String(b.nick||"")));
+    setCachedMembers(list);
+  }catch(e){
+    // silencioso (prefetch)
+  }
+}
+
+function cacheIsFresh(c){
+  if(!c || !c.updatedAt) return false;
+  return (nowMs() - c.updatedAt) < CACHE_TTL_MS;
+}
+
 
 // Toast simples (sem depender de libs)
 export function showToast(type = "info", message = "") {
@@ -70,16 +146,18 @@ function escapeHtml(str) {
 // Determina o papel do usuário baseado em guildConfig/security
 async function resolveRoleByEmail(email) {
   try {
-    const snap = await getDoc(doc(db, "guildConfig", "security"));
-    if (!snap.exists()) return "Membro";
-
-    const data = snap.data() || {};
-    const admins = Array.isArray(data.admins) ? data.admins : [];
-    const leaders = Array.isArray(data.leaders) ? data.leaders : [];
-
+    const cached = getCachedSecurity();
     const e = (email || "").toLowerCase();
-    if (admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
-    if (leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
+
+    if (cached && Array.isArray(cached.admins) && Array.isArray(cached.leaders)) {
+      if (cached.leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
+      if (cached.admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
+      return "Membro";
+    }
+
+    const sec = await getSecurityDocFor(email || "");
+    if (sec.leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
+    if (sec.admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
     return "Membro";
   } catch (e) {
     console.error("Erro ao buscar role:", e);
@@ -97,30 +175,56 @@ const DEFAULT_SETTINGS = {
   accent: "emerald"
 };
 
-export async function loadGuildSettings() {
-  try {
-    const ref = doc(db, "guildConfig", "security");
-    const snap = await getDoc(ref);
+async function getSecurityDocFor(email){
+  const cached = readCache();
+  if(cached && cacheIsFresh(cached) && cached.email && cached.email.toLowerCase() === String(email||"").toLowerCase() && cached.security){
+    return cached.security;
+  }
 
-    // Se não existir, cria com padrão (criar doc = criar coleção)
-    if (!snap.exists()) {
-      // cria o documento base (e as listas) se ainda não existir
-      await setDoc(ref, { admins: [], leaders: [], ...DEFAULT_SETTINGS }, { merge: true });
-      window.guildSettings = { ...DEFAULT_SETTINGS };
+  const ref = doc(db, "guildConfig", "security");
+  const snap = await getDoc(ref);
+
+  // Se não existir, cria com padrão (criar doc = criar coleção)
+  if(!snap.exists()){
+    const base = { admins: [], leaders: [], ...DEFAULT_SETTINGS };
+    await setDoc(ref, base, { merge: true });
+    const next = { ...base };
+    mergeCache({ email: String(email||""), security: next });
+    return next;
+  }
+
+  const data = snap.data() || {};
+  const next = {
+    admins: Array.isArray(data.admins) ? data.admins : [],
+    leaders: Array.isArray(data.leaders) ? data.leaders : [],
+    tagPrefix: (typeof data.tagPrefix === "string" && data.tagPrefix.length) ? data.tagPrefix : DEFAULT_SETTINGS.tagPrefix,
+    accent: (typeof data.accent === "string" && data.accent.length) ? data.accent : DEFAULT_SETTINGS.accent
+  };
+
+  // garante chaves mínimas
+  await setDoc(ref, { tagPrefix: next.tagPrefix, accent: next.accent }, { merge: true });
+
+  mergeCache({ email: String(email||""), security: next });
+  return next;
+}
+
+function getCachedSecurity(){
+  const c = readCache();
+  return c && c.security ? c.security : null;
+}
+
+export async function loadGuildSettings(userEmail = "") {
+  try {
+    // tenta cache primeiro
+    const cached = getCachedSecurity();
+    if (cached && cached.tagPrefix && cached.accent) {
+      window.guildSettings = { tagPrefix: cached.tagPrefix, accent: cached.accent };
       return window.guildSettings;
     }
 
-    const data = snap.data() || {};
-    const settings = {
-      tagPrefix: (typeof data.tagPrefix === "string" && data.tagPrefix.length) ? data.tagPrefix : DEFAULT_SETTINGS.tagPrefix,
-      accent: (typeof data.accent === "string" && data.accent.length) ? data.accent : DEFAULT_SETTINGS.accent
-    };
-
-    // Garante campos mínimos sem sobrescrever o que já existe
-    await setDoc(ref, settings, { merge: true });
-
-    window.guildSettings = settings;
-    return settings;
+    const sec = await getSecurityDocFor(userEmail || "");
+    window.guildSettings = { tagPrefix: sec.tagPrefix, accent: sec.accent };
+    return window.guildSettings;
   } catch (e) {
     console.error("Erro ao carregar ajustes:", e);
     window.guildSettings = { ...DEFAULT_SETTINGS };
@@ -129,6 +233,7 @@ export async function loadGuildSettings() {
 }
 
 export function getTagPrefix() {
+() {
   return (window.guildSettings && window.guildSettings.tagPrefix) ? window.guildSettings.tagPrefix : DEFAULT_SETTINGS.tagPrefix;
 }
 
@@ -137,42 +242,46 @@ export function applyAccent(accent = "emerald") {
     const color = accent || "emerald";
     document.documentElement.setAttribute("data-accent", color);
 
-    // Troca "emerald" por cor escolhida em classes do DOM (Tailwind CDN já contém as cores)
-    const shouldReplace = (token) =>
-      token.includes("emerald") &&
-      (
-        token.includes("-emerald-") ||
-        token.includes("emerald/") ||
-        token.startsWith("from-emerald") ||
-        token.startsWith("to-emerald") ||
-        token.startsWith("bg-emerald") ||
-        token.startsWith("text-emerald") ||
-        token.startsWith("border-emerald") ||
-        token.startsWith("ring-emerald") ||
-        token.startsWith("accent-emerald") ||
-        token.startsWith("hover:bg-emerald") ||
-        token.startsWith("hover:text-emerald") ||
-        token.startsWith("hover:border-emerald") ||
-        token.startsWith("focus:ring-emerald")
-      );
+    const palette = ["emerald","green","red","blue","yellow","pink","purple"];
+
+    const shouldTouch = (token) => {
+      return palette.some((c) => (
+        token.includes(`-${c}-`) ||
+        token.includes(`:${c}-`) ||
+        token.includes(`-${c}/`) ||
+        token.startsWith(`from-${c}`) ||
+        token.startsWith(`to-${c}`) ||
+        token.startsWith(`via-${c}`) ||
+        token.startsWith(`bg-${c}`) ||
+        token.startsWith(`text-${c}`) ||
+        token.startsWith(`border-${c}`) ||
+        token.startsWith(`ring-${c}`) ||
+        token.startsWith(`shadow-${c}`) ||
+        token.startsWith(`hover:bg-${c}`) ||
+        token.startsWith(`hover:text-${c}`) ||
+        token.startsWith(`hover:border-${c}`) ||
+        token.startsWith(`focus:ring-${c}`)
+      ));
+    };
 
     document.querySelectorAll("*").forEach((el) => {
       if (!el.classList || el.classList.length === 0) return;
-      const next = [];
+
       let changed = false;
+      const next = [];
 
       el.classList.forEach((c) => {
-        if (shouldReplace(c)) {
-          next.push(c.replaceAll("emerald", color));
+        if (shouldTouch(c)) {
+          let out = c;
+          palette.forEach((old) => { out = out.replaceAll(old, color); });
+          next.push(out);
           changed = true;
         } else {
           next.push(c);
         }
       });
 
-      if (changed) {
-        el.className = next.join(" ");
-      }
+      if (changed) el.className = next.join(" ");
     });
   } catch (e) {
     console.error("Erro ao aplicar cor:", e);
@@ -180,6 +289,7 @@ export function applyAccent(accent = "emerald") {
 }
 
 // Proteção de rotas (chame no início de cada página privada)
+ (chame no início de cada página privada)
 export function checkAuth(redirectToLogin = true) {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
@@ -201,8 +311,17 @@ export function checkAuth(redirectToLogin = true) {
       if (roleEl) roleEl.textContent = role;
 
       // Carrega ajustes globais e aplica cor predominante
-      const settings = await loadGuildSettings();
+      const settings = await loadGuildSettings(user.email || "");
       applyAccent(settings.accent);
+
+      // Pré-carrega membros para evitar delay ao trocar de tela
+      try {
+        const pathNow = (window.location.pathname || "").toLowerCase();
+        if (pathNow.endsWith("/dashboard.html") || pathNow.endsWith("/dashboard")) {
+          prefetchMembersToCache();
+        }
+      } catch (_) {}
+
 
       const path = (window.location.pathname || "").toLowerCase();
       const isAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
