@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campeonato - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white"><i data-lucide="shield" class="w-5 h-5"></i></div>
+          <div><h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1><p class="text-xs text-gray-400">Painel</p></div>
+        </div>
+      </div>
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="house" class="w-5 h-5"></i> Dashboard</a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="users" class="w-5 h-5"></i> Membros</a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm"><i data-lucide="trophy" class="w-5 h-5"></i> Campeonato</a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="settings" class="w-5 h-5"></i> Admin</a>
+      </nav>
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div><p id="user-role" class="text-sm font-medium text-gray-700">...</p><p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p></div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 relative">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i data-lucide="menu" class="w-5 h-5"></i></button>
+          <h1 class="text-lg font-semibold text-gray-900">Campeonatos</h1>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center justify-between">
+          <div><h2 class="text-2xl font-bold text-gray-900">Eventos</h2><p class="text-gray-500 text-sm mt-1">Gerencie os campeonatos da guilda</p></div>
+          <button onclick="openCampModal()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all active:scale-95">
+            <i data-lucide="plus" class="w-4 h-4"></i> Novo Campeonato
+          </button>
+        </div>
+
+        <div id="camps-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+           <!-- Placeholder Skeleton (só se não tiver cache) -->
+           <div class="col-span-1 md:col-span-2 bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center animate-pulse">
+               <p class="text-gray-400 text-sm">Carregando...</p>
+           </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Camp (Mantido igual) -->
+  <div id="camp-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center hidden">
+    <div class="fixed inset-0 bg-black/40" onclick="closeCampModal()"></div>
+    <div class="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto animate-in">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100 bg-white rounded-t-2xl sticky top-0">
+        <h3 id="camp-modal-title" class="text-lg font-bold text-gray-900">Novo Campeonato</h3>
+        <button onclick="closeCampModal()" class="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="camp-form" class="p-5 space-y-4">
+        <input type="hidden" id="camp-id">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Nome *</label>
+          <input id="camp-name" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descrição</label>
+          <textarea id="camp-desc" rows="3" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Data</label><input id="camp-date" type="date" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Horário</label><input id="camp-time" type="time" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Local</label><input id="camp-local" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Máx. Participantes</label><input id="camp-max" type="number" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+            <select id="camp-status" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="upcoming">Próximo</option>
+              <option value="ongoing">Em andamento</option>
+              <option value="finished">Finalizado</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeCampModal()" class="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout } from './logic.js';
+
+    // Inicialização IMEDIATA (Sem piscar)
+    setupSidebar();
+    
+    // Carrega do cache ANTES de autenticar
+    window.camps = [];
+    const cachedCamps = localStorage.getItem('campsList');
+    if(cachedCamps) {
+        try {
+            window.camps = JSON.parse(cachedCamps);
+            // Renderiza IMEDIATAMENTE
+            renderCamps();
+        } catch(e) {}
+    } else {
+        // Se não tiver cache, renderiza estado vazio (sem skeleton, pois é local)
+        renderCamps(); 
+    }
+
+    checkAuth().then(user => {
+      if(!user) return;
+      document.getElementById('btn-logout').onclick = logout;
+    });
+
+    function renderCamps() {
+      const el = document.getElementById('camps-list');
+      
+      if(!window.camps || window.camps.length === 0) {
+        el.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center">
+          <i data-lucide="trophy" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+          <p class="text-gray-500 font-medium">Nenhum campeonato criado ainda</p>
+        </div>`;
+      } else {
+        el.innerHTML = window.camps.map(c => {
+          const statusClass = c.status === 'upcoming' ? 'bg-blue-100 text-blue-700' : (c.status === 'ongoing' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500');
+          const statusText = c.status === 'upcoming' ? 'Próximo' : (c.status === 'ongoing' ? 'Em andamento' : 'Finalizado');
+          return `
+          <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden animate-in">
+            <div class="bg-gradient-to-r from-emerald-500 to-green-600 p-4 flex justify-between items-start">
+              <div class="flex items-center gap-2 text-white">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+                <h3 class="font-bold text-lg">${c.name}</h3>
+              </div>
+              <span class="text-xs font-medium px-2.5 py-1 rounded-full ${statusClass}">${statusText}</span>
+            </div>
+            <div class="p-4 space-y-3">
+              <p class="text-sm text-gray-600">${c.description}</p>
+              <div class="space-y-2 text-sm text-gray-500">
+                <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i> ${c.date || 'Sem data'}</div>
+                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i> ${c.time || 'Sem horário'}</div>
+                <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i> ${c.location || 'Sem local'}</div>
+                <div class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-emerald-500"></i> Máx. ${c.max} participantes</div>
+              </div>
+              <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <button onclick="editCamp('${c.id}')" class="text-sm text-gray-500 hover:text-emerald-600 px-3 py-2">Editar</button>
+                <button onclick="deleteCamp('${c.id}')" class="text-sm text-red-400 hover:text-red-500 px-3 py-2">Excluir</button>
+              </div>
+            </div>
+          </div>
+        `}).join('');
+      }
+      initIcons();
+    }
+
+    window.openCampModal = () => {
+      document.getElementById('camp-form').reset();
+      document.getElementById('camp-id').value = '';
+      document.getElementById('camp-modal-title').innerText = 'Novo Campeonato';
+      document.getElementById('camp-modal').classList.remove('hidden');
+    };
+    window.closeCampModal = () => document.getElementById('camp-modal').classList.add('hidden');
+
+    window.editCamp = (id) => {
+      const c = camps.find(x => x.id == id);
+      document.getElementById('camp-id').value = c.id;
+      document.getElementById('camp-name').value = c.name;
+      document.getElementById('camp-desc').value = c.description;
+      document.getElementById('camp-date').value = c.date;
+      document.getElementById('camp-time').value = c.time;
+      document.getElementById('camp-local').value = c.location;
+      document.getElementById('camp-max').value = c.max;
+      document.getElementById('camp-status').value = c.status;
+      document.getElementById('camp-modal-title').innerText = 'Editar Campeonato';
+      document.getElementById('camp-modal').classList.remove('hidden');
+    };
+
+    window.deleteCamp = (id) => {
+      if(confirm('Excluir?')) {
+        window.camps = window.camps.filter(x => x.id != id);
+        localStorage.setItem('campsList', JSON.stringify(window.camps));
+        renderCamps();
+      }
+    };
+
+    document.getElementById('camp-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('camp-id').value;
+      const data = {
+        id: id || Date.now(),
+        name: document.getElementById('camp-name').value,
+        description: document.getElementById('camp-desc').value,
+        date: document.getElementById('camp-date').value,
+        time: document.getElementById('camp-time').value,
+        location: document.getElementById('camp-local').value,
+        max: document.getElementById('camp-max').value,
+        status: document.getElementById('camp-status').value,
+      };
+
+      if(id) {
+        window.camps = window.camps.map(c => c.id == id ? data : c);
+      } else {
+        window.camps.push(data);
+      }
+      localStorage.setItem('campsList', JSON.stringify(window.camps));
+      closeCampModal();
+      renderCamps();
+    });
+  </script>
+
+  <!-- OTK Footer -->
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+  <div class="mx-auto w-full max-w-5xl px-4 py-10">
+    <div class="flex flex-col items-center gap-4">
+
+      <div class="flex items-center justify-center gap-3">
+        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram gaming: @gameotk" title="@gameotk">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+          <i data-lucide="globe" class="h-5 w-5"></i>
+        </a>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm font-semibold tracking-wide text-slate-800">
+          Ottakubrasil • Guilda Hub
+        </p>
+
+        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+        </p>
+
+        <p class="mt-4 text-xs text-slate-500">
+          © Ottakubrasil • 2026
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+            <p class="text-xs text-gray-400">Painel</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+          </button>
+          <h1 class="text-lg font-semibold text-gray-900">Dashboard</h1>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Visão Geral</h2>
+          <p class="text-gray-500 text-sm mt-1">Resumo da guilda em tempo real</p>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
+          
+          <!-- Card Total -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-200">
+                <i data-lucide="users" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-total">0</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Total de Membros</p>
+            </div>
+          </div>
+
+          <!-- Card Guerra -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                <i data-lucide="swords" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-war">0</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Guerra de Guilda</p>
+              <p class="text-xs text-gray-400 mt-0.5" id="stat-war-sub">de -</p>
+            </div>
+          </div>
+
+          <!-- Card Meta -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                <i data-lucide="target" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-meta">0</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Meta Semanal</p>
+              <p class="text-xs text-gray-400 mt-0.5" id="stat-meta-sub">de -</p>
+            </div>
+          </div>
+
+          <!-- Card Tag -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-200">
+                <i data-lucide="tag" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-tag">0</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Com Tag</p>
+              <p class="text-xs text-gray-400 mt-0.5" id="stat-tag-sub">de -</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertas e Gráficos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Atenção -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500"></i>
+              <h3 class="font-semibold text-gray-900">Atenção</h3>
+            </div>
+            <div class="space-y-3" id="attention-container">
+              <!-- Placeholder Skeleton (só aparece se não tiver cache) -->
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-pulse"><div class="h-4 bg-gray-200 rounded w-1/2"></div><div class="h-4 bg-gray-200 rounded w-8"></div></div>
+            </div>
+          </div>
+
+          <!-- Resumo -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="trending-up" class="w-5 h-5 text-emerald-500"></i>
+              <h3 class="font-semibold text-gray-900">Resumo</h3>
+            </div>
+            <div class="space-y-3" id="summary-container">
+               <!-- Placeholder Skeleton -->
+              <div class="w-full h-8 bg-gray-100 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts } from './logic.js';
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 1. CARREGAMENTO IMEDIATO DO CACHE
+    // Tenta pegar os stats salvos. Se não tiver, tenta calcular usando a lista de membros salva.
+    setupSidebar();
+    
+    let currentStats = null;
+    
+    // Tenta carregar stats prontos
+    const cachedStats = localStorage.getItem('dashboard_stats');
+    // Tenta carregar lista de membros (mais confiável se você veio da tela de membros)
+    const cachedMembers = localStorage.getItem('membersList');
+
+    if (cachedStats) {
+      currentStats = JSON.parse(cachedStats);
+      updateUI(currentStats);
+    } else if (cachedMembers) {
+      // Se não tem stats prontos, mas tem a lista, calcula agora
+      try {
+        const members = JSON.parse(cachedMembers);
+        if(Array.isArray(members) && members.length > 0) {
+            currentStats = calculateStats(members);
+            updateUI(currentStats);
+        }
+      } catch(e) {}
+    }
+
+    // 2. AUTH E UPDATE EM BACKGROUND
+    checkAuth().then(async (user) => {
+      if(!user) return;
+      document.getElementById('btn-logout').onclick = logout;
+      consumeLoginToasts();
+      
+      // Busca dados frescos no Firebase (Background)
+      loadDashboard();
+    });
+
+    async function loadDashboard() {
+      try {
+        const snap = await getDocs(collection(db, "membros"));
+        const members = [];
+        snap.forEach(d => members.push(d.data()));
+
+        const newStats = calculateStats(members);
+        
+        // Compara para ver se mudou algo
+        if (JSON.stringify(newStats) !== JSON.stringify(currentStats)) {
+            // Se mudou, atualiza a tela e o cache
+            localStorage.setItem('dashboard_stats', JSON.stringify(newStats));
+            // Também atualiza a lista de membros no cache pra garantir consistência
+            // Nota: só salvamos ids e dados básicos se quiséssemos economizar, mas vamos deixar simples
+            updateUI(newStats);
+            currentStats = newStats;
+        } else {
+            console.log("Dashboard sincronizado (sem alterações).");
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function calculateStats(members) {
+      const total = members.length;
+      return {
+        total,
+        guildWar: members.filter(m => m.guildWar).length,
+        weeklyMeta: members.filter(m => m.weeklyMeta).length,
+        hasTag: members.filter(m => m.hasTag).length
+      };
+    }
+
+    function updateUI(data) {
+      const { total, guildWar, weeklyMeta, hasTag } = data;
+
+      document.getElementById('stat-total').innerText = total;
+      
+      document.getElementById('stat-war').innerText = guildWar;
+      document.getElementById('stat-war-sub').innerText = `de ${total}`;
+      
+      document.getElementById('stat-meta').innerText = weeklyMeta;
+      document.getElementById('stat-meta-sub').innerText = `de ${total}`;
+      
+      document.getElementById('stat-tag').innerText = hasTag;
+      document.getElementById('stat-tag-sub').innerText = `de ${total}`;
+
+      const noWar = total - guildWar;
+      const noMeta = total - weeklyMeta;
+      const noTag = total - hasTag;
+
+      document.getElementById('attention-container').innerHTML = `
+        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl animate-in">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-sm text-red-700">Sem Guerra de Guilda</span></div>
+          <span class="text-sm font-bold text-red-700">${noWar}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl animate-in">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-orange-500"></div><span class="text-sm text-orange-700">Meta Semanal Pendente</span></div>
+          <span class="text-sm font-bold text-orange-700">${noMeta}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-in">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-400"></div><span class="text-sm text-gray-600">Sem Tag</span></div>
+          <span class="text-sm font-bold text-gray-600">${noTag}</span>
+        </div>
+      `;
+
+      const renderBar = (label, val, color) => `
+        <div class="animate-in">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm text-gray-600">${label}</span>
+            <span class="text-sm font-semibold text-gray-900">${total > 0 ? Math.round((val/total)*100) : 0}%</span>
+          </div>
+          <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r ${color} rounded-full transition-all duration-1000" style="width: ${total > 0 ? (val/total)*100 : 0}%"></div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('summary-container').innerHTML = 
+        renderBar("Participação na Guerra", guildWar, "from-emerald-400 to-green-500") +
+        renderBar("Meta Semanal Cumprida", weeklyMeta, "from-violet-400 to-purple-500") +
+        renderBar("Membros com Tag", hasTag, "from-amber-400 to-orange-500");
+
+      initIcons();
+    }
+  </script>
+
+  <!-- OTK Footer -->
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+  <div class="mx-auto w-full max-w-5xl px-4 py-10">
+    <div class="flex flex-col items-center gap-4">
+
+      <div class="flex items-center justify-center gap-3">
+        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram gaming: @gameotk" title="@gameotk">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+          <i data-lucide="globe" class="h-5 w-5"></i>
+        </a>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm font-semibold tracking-wide text-slate-800">
+          Ottakubrasil • Guilda Hub
+        </p>
+
+        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+        </p>
+
+        <p class="mt-4 text-xs text-slate-500">
+          © Ottakubrasil • 2026
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+

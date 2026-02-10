@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } }
+    }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <!-- Tela de Login -->
+  <div id="login-screen" class="login-screen show">
+    <div class="login-card">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-2xl flex items-center justify-center bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/30 text-emerald-600 shadow-lg shadow-emerald-500/10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v7c0 5-3.4 9.4-8 9.4S4 18 4 13V6l8-4z"/><path d="M9 12l2 2 4-5"/></svg>
+        </div>
+        <div>
+          <div class="text-base font-black text-gray-900 leading-tight">Guilda HUB</div>
+          <div class="text-xs text-gray-500 font-medium">Acesso sua conta</div>
+        </div>
+      </div>
+
+      <form id="login-form" class="flex flex-col gap-3">
+        <div>
+          <label class="text-xs font-bold text-gray-600 ml-1">Email</label>
+          <input id="email" type="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="seuemail@exemplo.com" required />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-600 ml-1">Senha</label>
+          <input id="password" type="password" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="••••••••" required />
+        </div>
+
+        <button id="btn-login" type="submit" class="mt-1 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-sm shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+          <span>Entrar</span>
+        </button>
+
+        <div class="text-[10px] text-gray-400 text-center leading-tight px-2">
+          Use um usuário de Lider ou admin de Guilda
+        </div>
+      </form>
+
+      <div class="mt-5 pt-4 border-t border-gray-100 flex justify-center gap-3 text-[11px] font-bold text-gray-400">
+        <a href="https://ottakubrasil.online" target="_blank" class="text-emerald-600 hover:underline">ottakubrasil.online</a>
+        <span>•</span>
+        <a href="https://instagram.com/ottakubrasil" target="_blank" class="hover:text-gray-600">@ottakubrasil</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, showToast, checkAuth } from './logic.js';
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Se já estiver logado, vai pro dashboard
+    checkAuth(false).then(user => {
+      if(user) window.location.href = 'dashboard.html';
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      const btn = document.getElementById('btn-login');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span>';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        window.location.href = "dashboard.html?login=1";
+      } catch (err) {
+        console.error(err);
+        let msg = "Erro ao entrar.";
+        if(err.code === 'auth/invalid-credential') msg = "Email ou senha incorretos.";
+        showToast('error', msg);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Entrar</span>';
+      }
+    });
+  </script>
+
+  <!-- OTK Footer -->
+  <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 bg-slate-950 text-white">
+    <div class="mx-auto w-full max-w-5xl px-4 py-10">
+      <div class="flex flex-col items-center gap-4">
+        <div class="flex items-center justify-center gap-3">
+          <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10 transition hover:bg-white/15"
+             aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+            <i data-lucide="instagram" class="h-5 w-5"></i>
+          </a>
+          <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10 transition hover:bg-white/15"
+             aria-label="Instagram gaming: @gameotk" title="@gameotk">
+            <i data-lucide="instagram" class="h-5 w-5"></i>
+          </a>
+          <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10 transition hover:bg-white/15"
+             aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+            <i data-lucide="globe" class="h-5 w-5"></i>
+          </a>
+        </div>
+
+        <div class="text-center">
+          <p class="text-sm font-semibold tracking-wide text-white/90">Ottakubrasil • Guilda Hub</p>
+          <p class="mt-2 max-w-xl text-xs leading-relaxed text-white/65">
+            Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+          </p>
+          <p class="mt-4 text-xs text-white/50">© Ottakubrasil</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    try { window.lucide && window.lucide.createIcons && window.lucide.createIcons(); } catch(_) {}
+  </script>
+
+</body>
+</html>

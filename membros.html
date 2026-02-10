@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Membros - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Menu Mobile Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar (Copiado para manter layout) -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div><h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1><p class="text-xs text-gray-400">Painel</p></div>
+        </div>
+      </div>
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="members.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div><p id="user-role" class="text-sm font-medium text-gray-700">...</p><p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p></div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="flex-1 min-w-0 relative">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i data-lucide="menu" class="w-5 h-5"></i></button>
+          <h1 class="text-lg font-semibold text-gray-900">Membros</h1>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-4">
+        <div class="flex items-center justify-between">
+          <div><h2 class="text-2xl font-bold text-gray-900">Membros</h2><p class="text-gray-500 text-sm mt-1" id="member-count">Carregando...</p></div>
+          <button onclick="openModal()" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95">
+            <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:inline">Adicionar</span>
+          </button>
+        </div>
+
+        <div class="flex gap-3">
+          <div class="flex-1 relative">
+            <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+            <input type="text" id="search-input" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all bg-white">
+          </div>
+          <button onclick="loadMembers(true)" class="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition-colors" title="Atualizar">↻</button>
+        </div>
+
+        <div id="members-list" class="space-y-3">
+          <!-- Placeholder de carregamento (Só aparece se não tiver cache) -->
+           <div class="bg-white rounded-2xl border border-gray-100 p-4 animate-pulse flex items-center gap-3">
+              <div class="w-11 h-11 bg-gray-200 rounded-full"></div>
+              <div class="flex-1 space-y-2">
+                 <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                 <div class="h-3 bg-gray-100 rounded w-1/4"></div>
+              </div>
+           </div>
+           <div class="bg-white rounded-2xl border border-gray-100 p-4 animate-pulse flex items-center gap-3">
+              <div class="w-11 h-11 bg-gray-200 rounded-full"></div>
+              <div class="flex-1 space-y-2">
+                 <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                 <div class="h-3 bg-gray-100 rounded w-1/4"></div>
+              </div>
+           </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL (Adicionar/Editar) -->
+  <div id="modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center hidden">
+    <div class="fixed inset-0 bg-black/40" onclick="closeModal()"></div>
+    <div class="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in">
+      <div class="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between rounded-t-2xl z-10">
+        <h3 id="modal-title" class="text-lg font-bold text-gray-900">Novo Membro</h3>
+        <button onclick="closeModal()" class="p-2 rounded-lg hover:bg-gray-100 text-gray-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      
+      <form id="member-form" class="p-4 space-y-4">
+        <input type="hidden" id="member-id">
+        <input type="hidden" id="join-date">
+        
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1 block">ID do Jogador *</label>
+          <div class="flex gap-2">
+            <input id="visible-id" type="text" placeholder="Ex: 123456789" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm" required>
+            <button type="button" onclick="fetchNick()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all">
+              <i data-lucide="search" class="w-4 h-4"></i> Buscar
+            </button>
+          </div>
+          <div id="api-feedback" class="mt-2 text-xs"></div>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1 block">Nick *</label>
+          <input id="nick" type="text" placeholder="Nome do jogador" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm" required>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700 mb-1 block">WhatsApp</label>
+          <input id="whatsapp" type="text" placeholder="11999999999" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm">
+        </div>
+
+        <hr class="border-gray-100">
+
+        <!-- Toggles -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-medium text-gray-700">Guerra de Guilda</label>
+            <input type="checkbox" id="guild-war" class="w-5 h-5 accent-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 mb-1 block">Meta da Guerra</label>
+            <input id="guild-war-meta" type="number" value="0" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm">
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-medium text-gray-700">Meta Semanal</label>
+            <input type="checkbox" id="weekly-meta" class="w-5 h-5 accent-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 mb-1 block">Valor da Meta</label>
+            <input id="weekly-meta-value" type="number" value="0" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm">
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-medium text-gray-700">Tem Tag</label>
+          <input type="checkbox" id="has-tag" class="w-5 h-5 accent-emerald-500">
+        </div>
+
+        <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 flex gap-3">
+          <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50">Cancelar</button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium text-sm shadow-lg hover:shadow-xl">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast } from './logic.js';
+    import { collection, getDocs, setDoc, doc, deleteDoc, serverTimestamp, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Inicialização IMEDIATA
+    setupSidebar();
+    
+    // Variável para armazenar a lista na memória
+    let membersCache = [];
+
+    // --- LÓGICA DE CACHE SEM PISCAR ---
+    // 1. Tenta carregar do cache IMEDIATAMENTE antes de qualquer auth
+    const cachedMembersJSON = localStorage.getItem('membersList');
+    if(cachedMembersJSON) {
+         try {
+             const cached = JSON.parse(cachedMembersJSON);
+             if(Array.isArray(cached) && cached.length > 0) {
+                 membersCache = cached;
+                 // Renderiza instantaneamente, removendo os skeletons
+                 renderList(membersCache);
+                 document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+             }
+         } catch(e) { console.error("Erro cache:", e); }
+    }
+    // ----------------------------------
+
+    checkAuth().then(async (user) => {
+      if(!user) return;
+      document.getElementById('btn-logout').onclick = logout;
+      
+      // Carrega do servidor (Background Update)
+      // Se já temos cache, não passamos "true" para não mostrar loading visual
+      // Apenas atualiza se tiver dados novos
+      loadMembers(false);
+      
+      // Busca (Search)
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        const termo = e.target.value.toLowerCase();
+        const filtrados = membersCache.filter(m => 
+          (m.nick && m.nick.toLowerCase().includes(termo)) || 
+          (m.visibleId && String(m.visibleId).includes(termo))
+        );
+        renderList(filtrados, true); // true para forçar render na busca
+      });
+    });
+
+    window.loadMembers = async function(forceRefresh = false) {
+      // Se for atualização forçada (botão refresh), mostra toast
+      if(forceRefresh) {
+         showToast('info', 'Atualizando lista...');
+      }
+
+      try {
+        const snap = await getDocs(collection(db, "membros"));
+        const newMembers = [];
+        snap.forEach(d => newMembers.push({ id: d.id, ...d.data() }));
+        newMembers.sort((a,b)=> String(a.nick).localeCompare(String(b.nick)));
+        
+        // Verifica se os dados mudaram em relação ao cache atual
+        // Isso evita "piscar" o DOM se os dados forem idênticos
+        const currentJSON = JSON.stringify(membersCache);
+        const newJSON = JSON.stringify(newMembers);
+
+        if (currentJSON !== newJSON || forceRefresh) {
+            // Se mudou ou forçado, atualiza tudo
+            membersCache = newMembers;
+            localStorage.setItem('membersList', newJSON);
+            renderList(membersCache);
+            document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
+            
+            if(forceRefresh) showToast('success', 'Lista atualizada.');
+        } else {
+            // Dados iguais, não faz nada (silencioso)
+            console.log("Dados sincronizados (sem alterações).");
+        }
+
+      } catch(err) {
+        console.error(err);
+        if(forceRefresh) showToast('error', 'Erro ao buscar dados.');
+      }
+    };
+
+    function renderList(list, isSearch = false) {
+      const el = document.getElementById('members-list');
+      
+      // Se a lista estiver vazia (e não for busca), mantemos um aviso
+      if(list.length === 0) {
+        if(isSearch) {
+           el.innerHTML = `<div class="text-center py-8 text-gray-400">Nenhum membro encontrado na busca.</div>`;
+        } else {
+           // Se realmente não tiver membros no banco, mostra aviso
+           el.innerHTML = `<div class="bg-white rounded-2xl p-8 border border-gray-100 text-center text-gray-400 text-sm">Nenhum membro encontrado.</div>`;
+        }
+        return;
+      }
+
+      // Renderiza HTML
+      el.innerHTML = list.map(m => `
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md animate-in">
+          <div class="w-full flex items-center gap-3 p-4 cursor-pointer" onclick="toggleDetails('${m.id}')">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+              ${m.nick ? m.nick.charAt(0).toUpperCase() : '?'}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-gray-900 text-sm truncate">${m.nick || 'Sem Nick'}</p>
+              <p class="text-xs text-gray-400">ID: ${m.visibleId || '?'}</p>
+            </div>
+            <div class="flex gap-1.5">
+              ${badge(m.guildWar, 'swords')}
+              ${badge(m.weeklyMeta, 'target')}
+              ${badge(m.hasTag, 'tag')}
+            </div>
+            <div class="text-gray-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></div>
+          </div>
+          <div id="details-${m.id}" class="hidden border-t border-gray-100 p-4 bg-gray-50/50 space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              ${detailBox('Guerra', m.guildWar, m.guildWarMeta)}
+              ${detailBox('Meta Semanal', m.weeklyMeta, m.weeklyMetaValue)}
+              <div class="bg-white rounded-xl p-3 border border-gray-100">
+                <p class="text-xs text-gray-400 mb-1">Tag</p>
+                ${m.hasTag ? '<span class="text-emerald-500 font-bold text-xs">Sim</span>' : '<span class="text-red-400 text-xs">Não</span>'}
+              </div>
+              <div class="bg-white rounded-xl p-3 border border-gray-100">
+                <p class="text-xs text-gray-400 mb-1">WhatsApp</p>
+                ${m.whatsapp ? `<a href="https://wa.me/55${m.whatsapp}" target="_blank" class="text-emerald-600 text-xs hover:underline">${m.whatsapp}</a>` : '<span class="text-xs text-gray-400">-</span>'}
+              </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button onclick="editMember('${m.id}')" class="flex-1 py-2.5 rounded-xl border border-emerald-200 text-emerald-700 text-sm font-medium hover:bg-emerald-50">Editar</button>
+              <button onclick="deleteMember('${m.id}')" class="flex-1 py-2.5 rounded-xl border border-red-200 text-red-500 text-sm font-medium hover:bg-red-50">Excluir</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      initIcons();
+    }
+
+    function badge(active, icon) {
+      return `<div class="w-7 h-7 rounded-lg flex items-center justify-center ${active ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'}"><i data-lucide="${icon}" class="w-3 h-3"></i></div>`;
+    }
+
+    function detailBox(label, active, meta) {
+      return `<div class="bg-white rounded-xl p-3 border border-gray-100">
+        <p class="text-xs text-gray-400 mb-1">${label}</p>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="${active ? 'check' : 'x'}" class="w-4 h-4 ${active ? 'text-emerald-500' : 'text-red-400'}"></i>
+          <span class="text-xs text-gray-500">Meta: ${meta}</span>
+        </div>
+      </div>`;
+    }
+
+    // Ações Globais
+    window.toggleDetails = (id) => {
+      const el = document.getElementById(`details-${id}`);
+      el.classList.toggle('hidden');
+    };
+
+    window.openModal = () => {
+      document.getElementById('member-form').reset();
+      document.getElementById('member-id').value = '';
+      document.getElementById('modal-title').innerText = 'Novo Membro';
+      document.getElementById('api-feedback').innerHTML = '';
+      document.getElementById('modal').classList.remove('hidden');
+    };
+
+    window.closeModal = () => document.getElementById('modal').classList.add('hidden');
+
+    window.editMember = (id) => {
+      const m = membersCache.find(x => x.id === id);
+      if(!m) return;
+      document.getElementById('member-id').value = m.id;
+      document.getElementById('visible-id').value = m.visibleId;
+      document.getElementById('nick').value = m.nick.replace(/^ᵒᵗᵏ\s+/i,"").replace(/^otk\s+/i,"");
+      document.getElementById('whatsapp').value = m.whatsapp;
+      document.getElementById('guild-war').checked = m.guildWar;
+      document.getElementById('guild-war-meta').value = m.guildWarMeta;
+      document.getElementById('weekly-meta').checked = m.weeklyMeta;
+      document.getElementById('weekly-meta-value').value = m.weeklyMetaValue;
+      document.getElementById('has-tag').checked = m.hasTag;
+      document.getElementById('join-date').value = m.joinDate;
+      
+      document.getElementById('modal-title').innerText = 'Editar Membro';
+      document.getElementById('modal').classList.remove('hidden');
+    };
+
+    window.deleteMember = async (id) => {
+      if(!confirm('Tem certeza?')) return;
+      try {
+        await deleteDoc(doc(db, "membros", id));
+        showToast('success', 'Membro excluído.');
+        // Força refresh após excluir
+        loadMembers(true);
+      } catch(e) { showToast('error', 'Erro ao excluir.'); }
+    };
+
+    // API Mitsuri (Busca de Nick)
+    window.fetchNick = async () => {
+      const uid = document.getElementById('visible-id').value.trim();
+      const feedback = document.getElementById('api-feedback');
+      if(!uid) { showToast('error', 'Digite o ID'); return; }
+      
+      feedback.innerHTML = '<span class="text-blue-500">Buscando...</span>';
+      try {
+        const res = await fetch("https://api.mitsuri.fun/api/trpc/api.info", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({json:{key:"mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP", uid: uid, region:"BR"}})
+        });
+        const data = await res.json();
+        const json = data?.result?.data?.json;
+        if(json && json.nickname) {
+          document.getElementById('nick').value = json.nickname;
+          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${json.nickname} (Nível ${json.level || '?'})</span>`;
+        } else {
+          throw new Error('Não encontrado');
+        }
+      } catch(e) {
+        feedback.innerHTML = '<span class="text-red-500">Jogador não encontrado ou erro na API.</span>';
+      }
+    };
+
+    // Salvar
+    document.getElementById('member-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('member-id').value;
+      const visibleId = document.getElementById('visible-id').value.trim();
+      
+      // Validação de duplicidade (verifica no cache para ser rápido)
+      if(!id) {
+        const exist = membersCache.find(m => m.visibleId === visibleId);
+        if(exist) { showToast('error', 'Esse ID já existe.'); return; }
+      }
+
+      const rawNick = document.getElementById('nick').value.trim();
+      const hasTag = document.getElementById('has-tag').checked;
+      const finalNick = hasTag ? "ᵒᵗᵏ " + rawNick : rawNick;
+
+      const payload = {
+        visibleId,
+        nick: finalNick,
+        whatsapp: document.getElementById('whatsapp').value.trim(),
+        guildWar: document.getElementById('guild-war').checked,
+        guildWarMeta: Number(document.getElementById('guild-war-meta').value),
+        weeklyMeta: document.getElementById('weekly-meta').checked,
+        weeklyMetaValue: Number(document.getElementById('weekly-meta-value').value),
+        hasTag: hasTag,
+        joinDate: document.getElementById('join-date').value || new Date().toISOString().split('T')[0],
+        updatedAt: serverTimestamp()
+      };
+
+      try {
+        if(id) {
+          await setDoc(doc(db, "membros", id), payload, { merge: true });
+          showToast('success', 'Atualizado!');
+        } else {
+          const newRef = doc(collection(db, "membros"));
+          await setDoc(newRef, payload);
+          showToast('success', 'Criado!');
+        }
+        closeModal();
+        // Força refresh após salvar
+        loadMembers(true);
+      } catch(err) {
+        showToast('error', 'Erro ao salvar.');
+      }
+    });
+  </script>
+
+  <!-- OTK Footer -->
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+  <div class="mx-auto w-full max-w-5xl px-4 py-10">
+    <div class="flex flex-col items-center gap-4">
+
+      <div class="flex items-center justify-center gap-3">
+        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram gaming: @gameotk" title="@gameotk">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+          <i data-lucide="globe" class="h-5 w-5"></i>
+        </a>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm font-semibold tracking-wide text-slate-800">
+          Ottakubrasil • Guilda Hub
+        </p>
+
+        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+        </p>
+
+        <p class="mt-4 text-xs text-slate-500">
+          © Ottakubrasil • 2026
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
