@@ -89,7 +89,7 @@ async function resolveRoleByEmail(email) {
 
 // ===========================
 // Ajustes globais (Firestore)
-// Coleção: ajustes / Doc: geral
+// Doc: guildConfig / security (mesmo documento de permissões)
 // Campos: tagPrefix (string), accent (string tailwind color name)
 // ===========================
 const DEFAULT_SETTINGS = {
@@ -99,12 +99,13 @@ const DEFAULT_SETTINGS = {
 
 export async function loadGuildSettings() {
   try {
-    const ref = doc(db, "ajustes", "geral");
+    const ref = doc(db, "guildConfig", "security");
     const snap = await getDoc(ref);
 
     // Se não existir, cria com padrão (criar doc = criar coleção)
     if (!snap.exists()) {
-      await setDoc(ref, DEFAULT_SETTINGS, { merge: true });
+      // cria o documento base (e as listas) se ainda não existir
+      await setDoc(ref, { admins: [], leaders: [], ...DEFAULT_SETTINGS }, { merge: true });
       window.guildSettings = { ...DEFAULT_SETTINGS };
       return window.guildSettings;
     }
