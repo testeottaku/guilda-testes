@@ -54,7 +54,7 @@
   </div>
 
   <script type="module">
-    import { auth, showToast, checkAuth, getRoleByEmail } from './logic.js';
+    import { auth, showToast, checkAuth } from './logic.js';
     import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     // Se já estiver logado, vai pro dashboard
@@ -73,15 +73,8 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, pass);
-        showToast('success', 'Login realizado com sucesso!');
-        try {
-          const role = await getRoleByEmail(email);
-          showToast('info', `Perfil: ${role} • ${email}`);
-        } catch (e) {
-          showToast('error', 'Erro ao identificar o perfil da conta.');
-        }
-        setTimeout(() => window.location.href = 'dashboard.html', 900);
-} catch (err) {
+        window.location.href = 'dashboard.html?login=1';
+      } catch (err) {
         console.error(err);
         let msg = "Erro ao entrar.";
         if(err.code === 'auth/invalid-credential') msg = "Email ou senha incorretos.";

@@ -1,11 +1,13 @@
 // logic.js — módulo compartilhado (Firebase + UI helpers)
 // Observação: este arquivo DEVE ser JavaScript. (Antes ele estava com CSS e quebrava o login.)
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
-  signOut
+  signOut,
+  fetchSignInMethodsForEmail,
+  createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
@@ -14,7 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config (mesmo projeto do admin.html)
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyA5uana2jcnWCkY3vqpotbpoQKxy7bTMtU",
   authDomain: "guilda-otk.firebaseapp.com",
   projectId: "guilda-otk"
@@ -84,12 +86,6 @@ async function resolveRoleByEmail(email) {
   }
 }
 
-
-// Exporta o papel para uso na tela de login e outras telas
-export async function getRoleByEmail(email) {
-  return await resolveRoleByEmail(email);
-}
-
 // Proteção de rotas (chame no início de cada página privada)
 export function checkAuth(redirectToLogin = true) {
   return new Promise((resolve) => {
@@ -114,11 +110,25 @@ export function checkAuth(redirectToLogin = true) {
 
       // Se estiver em página admin e não for Admin, bloqueia
       const path = (window.location.pathname || "").toLowerCase();
+      const path = (window.location.pathname || "").toLowerCase();
       const onAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
-      if (onAdminPage && role !== "Admin" && role !== "Líder") {
-        showToast("error", "Acesso negado: somente Admin ou Líder.");
-        // Mantém o usuário logado, apenas redireciona
-        window.location.href = "dashboard.html";
+      const onMembersPage = path.endsWith("/membros") || path.endsWith("/membros.html") || path.includes("membros.html");
+
+      // Regras de acesso:
+      // - Líder: acesso total
+      // - Admin: apenas Membros
+      // - Membro: acesso básico (pode ajustar no futuro)
+      if (role === "Admin" && !onMembersPage) {
+        showToast("error", "Perfil Admin: acesso apenas a Membros.");
+        window.location.href = "membros.html";
+        resolve(null);
+        return;
+      }
+
+      // Página Admin (configurações) é SOMENTE para Líder
+      if (onAdminPage && role !== "Líder") {
+        showToast("error", "Acesso negado: somente Líder.");
+        window.location.href = role === "Admin" ? "membros.html" : "dashboard.html";
         resolve(null);
         return;
       }
@@ -179,5 +189,53 @@ export async function logout() {
     await signOut(auth);
   } finally {
     window.location.href = "index.html";
+  }
+}
+
+
+// Mostra toasts pós-login (ex.: dashboard.html?login=1) e limpa a URL
+export function consumeLoginToasts() {
+  try {
+    const params = new URLSearchParams(window.location.search || "");
+    if (params.get("login") !== "1") return;
+
+    const email = (document.getElementById("user-email")?.textContent || auth.currentUser?.email || "").trim();
+    const role = (document.getElementById("user-role")?.textContent || "Membro").trim();
+
+    showToast("success", "Login realizado com sucesso!");
+    showToast("info", `Perfil: ${role} • ${email}`);
+
+    params.delete("login");
+    const qs = params.toString();
+    const newUrl = window.location.pathname + (qs ? `?${qs}` : "") + (window.location.hash || "");
+    history.replaceState({}, "", newUrl);
+  } catch (e) {
+    // não quebra a página por causa de toast
+    console.warn("consumeLoginToasts:", e);
+  }
+}
+
+// Cria conta no Firebase Auth sem derrubar a sessão atual (usa um Auth secundário)
+export async function ensureUserAccount(email, password) {
+  const cleanEmail = (email || "").toLowerCase().trim();
+  if (!cleanEmail) throw new Error("E-mail inválido.");
+
+  const methods = await fetchSignInMethodsForEmail(auth, cleanEmail);
+  if (methods && methods.length) return { created: false };
+
+  if (!password || String(password).length < 6) {
+    throw new Error("Conta não existe. Informe uma senha (mínimo 6 caracteres) para criar.");
+  }
+
+  const secondaryName = "secondary_" + Date.now();
+  const secondaryApp = initializeApp(firebaseConfig, secondaryName);
+  const secondaryAuth = getAuth(secondaryApp);
+
+  try {
+    await createUserWithEmailAndPassword(secondaryAuth, cleanEmail, password);
+    return { created: true };
+  } finally {
+    try { await signOut(secondaryAuth); } catch (_) {}
+    try { await deleteApp(secondaryApp); } catch (_) {}
   }
 }

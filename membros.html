@@ -181,7 +181,7 @@
       });
     });
 
-    window.loadMembers = async function(showFeedback = false) {
+    window.loadMembers = async function(fromRefresh = false) {
       try {
         const snap = await getDocs(collection(db, "membros"));
         membersCache = [];
@@ -189,10 +189,11 @@
         membersCache.sort((a,b)=> String(a.nick).localeCompare(String(b.nick)));
         renderList(membersCache);
         document.getElementById('member-count').textContent = `${membersCache.length} membros na guilda`;
-      
-        if (showFeedback) showToast('success', 'Lista atualizada.');} catch(err) {
-        showToast('error', showFeedback ? 'Erro ao atualizar a lista.' : 'Erro ao carregar lista.');
-}
+
+        if(fromRefresh) showToast('success', 'Lista atualizada.');
+      } catch(err) {
+        showToast('error', fromRefresh ? 'Erro ao atualizar a lista.' : 'Erro ao carregar lista.');
+      }
     };
 
     function renderList(list) {

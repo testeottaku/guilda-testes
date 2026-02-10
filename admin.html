@@ -1,155 +1,182 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Guild Manager</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
-  </script>
-  <link rel="stylesheet" href="./style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Guilda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-50/80">
+<body class="bg-gray-50 flex text-gray-800 font-sans">
 
-  <div class="flex min-h-screen">
-    <!-- Sidebar Overlay -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
-      <div class="flex items-center justify-between p-5 border-b border-gray-100">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white"><i data-lucide="shield" class="w-5 h-5"></i></div>
-          <div><h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1><p class="text-xs text-gray-400">Painel Admin</p></div>
-        </div>
-      </div>
-      <nav class="p-4 space-y-1">
-        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="house" class="w-5 h-5"></i> Dashboard</a>
-        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="users" class="w-5 h-5"></i> Membros</a>
-        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="trophy" class="w-5 h-5"></i> Campeonato</a>
-        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm"><i data-lucide="settings" class="w-5 h-5"></i> Admin</a>
-      </nav>
-      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-        <div class="flex items-center justify-between px-3 py-2">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
-            <div><p id="user-role" class="text-sm font-medium text-gray-700">...</p><p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p></div>
-          </div>
-          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
-        </div>
-      </div>
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="btn-logout" class="w-full flex gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl mt-10"><i data-lucide="log-out"></i> Sair</button>
+        </nav>
     </aside>
 
-    <main class="flex-1 min-w-0 relative">
-      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
-          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i data-lucide="menu" class="w-5 h-5"></i></button>
-          <h1 class="text-lg font-semibold text-gray-900">Administração</h1>
-        </div>
-      </header>
+    <main class="flex-1 lg:ml-64 min-h-screen p-6">
+        <header class="bg-white/80 backdrop-blur border-b p-4 mb-6 rounded-2xl sticky top-0 z-30">
+            <h1 class="font-bold text-lg">Configurações de Acesso</h1>
+        </header>
 
-      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-4">
-        <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-          <h2 class="text-2xl font-bold text-gray-900">Admin</h2>
-          <p class="text-gray-500 text-sm mt-1">Crie contas (Líder/Admin) e gerencie a lista de Admins.</p>
-        </div>
-
-        <div class="grid gap-4">
-          <!-- Criar Líder -->
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <h3 class="text-lg font-bold text-gray-900">Criar Líder</h3>
-            <p class="text-gray-500 text-sm mt-1">Cria uma conta e mantém acesso total.</p>
-            <button onclick="createAccount('leader')" class="mt-4 w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold active:scale-95 shadow-lg hover:shadow-xl transition-all">
-              Criar Líder
-            </button>
-          </div>
-
-          <!-- Criar Admin -->
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <h3 class="text-lg font-bold text-gray-900">Criar Admin</h3>
-            <p class="text-gray-500 text-sm mt-1">Cria a conta e adiciona na lista de admins (acesso limitado).</p>
-            <button onclick="createAccount('admin')" class="mt-4 w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold active:scale-95 shadow-lg hover:shadow-xl transition-all">
-              Criar Admin
-            </button>
-          </div>
-
-          <!-- Gerenciar -->
-          <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <h3 class="text-lg font-bold text-gray-900">Gerenciar Admins</h3>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <button onclick="manageAdmin('add')" class="px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold hover:bg-emerald-100">Adicionar Email</button>
-              <button onclick="manageAdmin('remove')" class="px-4 py-2.5 rounded-xl bg-red-50 text-red-700 border border-red-100 text-sm font-semibold hover:bg-red-100">Remover Email</button>
-              <button onclick="listAdmins()" class="px-4 py-2.5 rounded-xl bg-gray-50 text-gray-700 border border-gray-100 text-sm font-semibold hover:bg-gray-100">Ver Lista</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            
+            <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-900 flex gap-2"><i data-lucide="crown" class="text-yellow-500"></i> Administradores</h3>
+                    <button onclick="add('admins')" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
+                <ul id="list-admins" class="space-y-2"></ul>
             </div>
-          </div>
+
+            <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-900 flex gap-2"><i data-lucide="medal" class="text-blue-500"></i> Líderes</h3>
+                    <button onclick="add('leaders')" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Acesso de visualização e edição de membros.</p>
+                <ul id="list-leaders" class="space-y-2"></ul>
+            </div>
+
         </div>
-      </div>
     </main>
-  </div>
 
-  <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, showToast } from './logic.js';
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc, setDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <script type="module">
+  import { checkAuth, showToast, logout, auth, db, ensureUserAccount } from "./logic.js";
+  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // App Secundário para criar usuários sem deslogar
-    const secApp = initializeApp({
-      apiKey: "AIzaSyA5uana2jcnWCkY3vqpotbpoQKxy7bTMtU",
-      authDomain: "guilda-otk.firebaseapp.com",
-      projectId: "guilda-otk"
-    }, "secondary");
-    const secAuth = getAuth(secApp);
+  // Mobile menu
+  const menuBtn = document.getElementById("menu-btn");
+  const sidebar = document.getElementById("sidebar");
+  if (menuBtn && sidebar) {
+    menuBtn.onclick = () => sidebar.classList.toggle("-translate-x-full");
+  }
 
-    checkAuth().then(user => {
-      if(!user) return;
-      setupSidebar();
-      initIcons();
-      document.getElementById('btn-logout').onclick = logout;
+  document.getElementById("btn-logout")?.addEventListener("click", logout);
+
+  let securityData = { admins: [], leaders: [] };
+
+  // Só Líder acessa essa tela (a regra já está no checkAuth do logic.js)
+  checkAuth().then(async (user) => {
+    if (!user) return;
+    await load();
+  });
+
+  async function load() {
+    const snap = await getDoc(doc(db, "guildConfig", "security"));
+    securityData = snap.exists() ? (snap.data() || { admins: [], leaders: [] }) : { admins: [], leaders: [] };
+
+    securityData.admins = Array.isArray(securityData.admins) ? securityData.admins : [];
+    securityData.leaders = Array.isArray(securityData.leaders) ? securityData.leaders : [];
+
+    renderList("admins", securityData.admins);
+    renderList("leaders", securityData.leaders);
+
+    lucide.createIcons();
+  }
+
+  function renderList(type, list) {
+    const ul = document.getElementById(`list-${type}`);
+    ul.innerHTML = "";
+    if (!list.length) {
+      ul.innerHTML = "<li class='text-sm text-gray-300 italic'>Nenhum usuário</li>";
+      return;
+    }
+
+    list.forEach((email) => {
+      const li = document.createElement("li");
+      li.className = "flex justify-between items-center bg-gray-50 p-3 rounded-xl text-sm border";
+      li.innerHTML = `
+        <span class="truncate pr-2">${escapeHtml(email)}</span>
+        <button data-email="${escapeHtml(email)}" class="btn-remove text-red-400 hover:text-red-600">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      `;
+      ul.appendChild(li);
     });
 
-    window.createAccount = async (type) => {
-      const email = prompt("Email:");
-      if(!email) return;
-      const pass = prompt("Senha (mín 6):");
-      if(!pass) return;
+    ul.querySelectorAll(".btn-remove").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const email = btn.getAttribute("data-email") || "";
+        await remove(type, email);
+      });
+    });
+  }
 
-      try {
-        await createUserWithEmailAndPassword(secAuth, email, pass);
-        await signOut(secAuth); // limpa a sessão secundária
-        
-        if(type === 'leader') {
-          await setDoc(doc(db, "guildConfig", "security"), { leaders: arrayUnion(email.toLowerCase()) }, { merge: true });
-        } else {
-          await setDoc(doc(db, "guildConfig", "security"), { admins: arrayUnion(email.toLowerCase()) }, { merge: true });
-        }
-        showToast('success', `${type === 'leader' ? 'Líder' : 'Admin'} criado com sucesso!`);
-      } catch(e) {
-        showToast('error', e.message);
+  function escapeHtml(str="") {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  window.add = async (type) => {
+    try {
+      const email = prompt("Digite o e-mail do usuário:");
+      if (!email) return;
+
+      const cleanEmail = email.toLowerCase().trim();
+      if (!cleanEmail.includes("@")) {
+        showToast("error", "E-mail inválido.");
+        return;
       }
-    };
 
-    window.manageAdmin = async (action) => {
-      const email = prompt("Email:");
-      if(!email) return;
-      try {
-        if(action === 'add') {
-          await setDoc(doc(db, "guildConfig", "security"), { admins: arrayUnion(email.toLowerCase()) }, { merge: true });
-          showToast('success', 'Adicionado!');
-        } else {
-          await setDoc(doc(db, "guildConfig", "security"), { admins: arrayRemove(email.toLowerCase()) }, { merge: true });
-          showToast('success', 'Removido!');
+      if (!securityData[type]) securityData[type] = [];
+      if (securityData[type].includes(cleanEmail)) {
+        showToast("info", "Esse e-mail já está na lista.");
+        return;
+      }
+
+      // Se a conta não existir, cria (sem derrubar seu login)
+      const methods = await fetchSignInMethodsForEmail(auth, cleanEmail);
+      let created = false;
+
+      if (!methods || methods.length === 0) {
+        const pass = prompt("Conta não existe. Defina uma senha (mín. 6):");
+        if (!pass) {
+          showToast("error", "Senha obrigatória para criar a conta.");
+          return;
         }
-      } catch(e) { showToast('error', e.message); }
-    };
+        const pass2 = prompt("Confirme a senha:");
+        if (pass2 !== pass) {
+          showToast("error", "As senhas não conferem.");
+          return;
+        }
 
-    window.listAdmins = async () => {
-      try {
-        const snap = await getDoc(doc(db, "guildConfig", "security"));
-        const list = snap.data()?.admins || [];
-        alert("Admins:\n" + list.join("\n"));
-      } catch(e) { showToast('error', 'Erro ao listar.'); }
-    };
-  </script>
-</body>
-</html>
+        const res = await ensureUserAccount(cleanEmail, pass);
+        created = !!res?.created;
+      }
+
+      // Salva permissão no Firestore
+      securityData[type].push(cleanEmail);
+      await save();
+
+      if (created) showToast("success", "Conta criada e acesso liberado.");
+      else showToast("success", "Acesso liberado.");
+
+    } catch (e) {
+      showToast("error", e?.message || "Erro ao adicionar.");
+      console.error(e);
+    }
+  };
+
+  async function remove(type, email) {
+    try {
+      if (!confirm(`Remover acesso de ${email}?`)) return;
+      securityData[type] = (securityData[type] || []).filter((e) => e !== email);
+      await save();
+      showToast("success", "Acesso removido.");
+    } catch (e) {
+      showToast("error", e?.message || "Erro ao remover.");
+    }
+  }
+
+  async function save() {
+    await setDoc(doc(db, "guildConfig", "security"), securityData, { merge: true });
+    await load();
+  }
+</script>
