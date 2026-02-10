@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ajustes e Suporte - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+            <p class="text-xs text-gray-400">Painel Admin</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="life-buoy" class="w-5 h-5"></i> Ajustes e suporte
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+          </button>
+          <div>
+            <h2 class="text-base font-semibold text-gray-900">Ajustes e suporte</h2>
+            <p class="text-xs text-gray-400">Configurações gerais e contato</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="p-4 sm:p-6 max-w-3xl">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-900">Tag do membro</h3>
+              <p class="text-xs text-gray-400 mt-1">Define o prefixo que será aplicado automaticamente quando o membro estiver com “Tem Tag”.</p>
+            </div>
+            <div class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100">
+              Líder / Admin
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-3">
+            <label class="text-sm font-medium text-gray-700">Prefixo da tag</label>
+            <input id="tag-prefix" type="text" placeholder="Ex: ᵒᵗᵏ " class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400" />
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-xs text-gray-400">Dica: mantenha um espaço no final para ficar natural no nick.</p>
+              <button id="btn-save-tag" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm">
+                Salvar
+              </button>
+            </div>
+            <p id="tag-status" class="text-xs text-gray-400"></p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 mt-4">
+          <h3 class="text-sm font-semibold text-gray-900">Suporte</h3>
+          <p class="text-xs text-gray-400 mt-1">Se algo travar, falhar ou você precisar de ajuda rápida, chame aqui.</p>
+
+          <div class="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="flex-1 rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+              <p class="text-xs text-gray-400 mb-1">WhatsApp</p>
+              <p class="text-sm font-semibold text-gray-900">(31) 99824-1241</p>
+            </div>
+            <a id="btn-whats" href="https://wa.me/5531998241241" target="_blank" class="px-4 py-3 rounded-xl border border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold text-center">
+              Abrir no WhatsApp
+            </a>
+          </div>
+
+          <div class="mt-4 text-xs text-gray-400">
+            <p>💡 Sugestão: ao relatar um problema, envie print + qual tela você estava + o que você clicou.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="mt-auto border-t border-gray-100 bg-white/70 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 py-8 sm:px-6">
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-200">
+              <i data-lucide="instagram" class="w-6 h-6"></i>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-sm font-semibold text-gray-900">OtakkuBrasil • Guild Hub</p>
+              <p class="text-xs text-gray-400">Central de guilda e eventos: organização, velocidade e controle — para facilitar sua vida no dia a dia.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <a href="https://instagram.com/ottakubrasil" target="_blank" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">@ottakubrasil</a>
+              <a href="https://instagram.com/gameotk" target="_blank" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">@gameotk</a>
+              <a href="https://ottakubrasil.online" target="_blank" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">ottakubrasil.online</a>
+            </div>
+
+            <p class="text-xs text-gray-300">© <span id="year"></span> OtakkuBrasil</p>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, getCurrentRole } from './logic.js';
+    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    setupSidebar();
+
+    const input = document.getElementById('tag-prefix');
+    const status = document.getElementById('tag-status');
+    const btnSave = document.getElementById('btn-save-tag');
+
+    document.getElementById('year').textContent = String(new Date().getFullYear());
+
+    function normalizePrefix(v) {
+      const raw = String(v || "").trim();
+      if (!raw) return "";
+      return raw.endsWith(" ") ? raw : (raw + " ");
+    }
+
+    async function ensureConfigExists() {
+      const ref = doc(db, "ajustes", "config");
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, { tagPrefix: "ᵒᵗᵏ ", createdAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+        return { tagPrefix: "ᵒᵗᵏ " };
+      }
+      return (snap.data() || {});
+    }
+
+    checkAuth().then(async (user) => {
+      if(!user) return;
+      document.getElementById('btn-logout').onclick = logout;
+
+      const cfg = await ensureConfigExists();
+      const prefix = normalizePrefix(cfg.tagPrefix || localStorage.getItem("tagPrefix") || "ᵒᵗᵏ ");
+      input.value = prefix;
+      localStorage.setItem("tagPrefix", prefix);
+      status.textContent = "Carregado do Firebase.";
+
+      const role = getCurrentRole();
+      const canEdit = role === "Líder" || role === "Admin";
+      if (!canEdit) {
+        input.disabled = true;
+        btnSave.disabled = true;
+        btnSave.classList.add("opacity-60", "cursor-not-allowed");
+        status.textContent = "Seu perfil não tem permissão para alterar.";
+      }
+
+      btnSave.addEventListener('click', async () => {
+        const v = normalizePrefix(input.value);
+        if (!v) {
+          showToast("error", "Informe um prefixo de tag.");
+          return;
+        }
+        try {
+          btnSave.disabled = true;
+          status.textContent = "Salvando...";
+          await setDoc(doc(db, "ajustes", "config"), { tagPrefix: v, updatedAt: serverTimestamp() }, { merge: true });
+          localStorage.setItem("tagPrefix", v);
+          showToast("success", "Tag salva com sucesso!");
+          status.textContent = "Salvo no Firebase.";
+        } catch (e) {
+          console.error(e);
+          showToast("error", "Não foi possível salvar a tag.");
+          status.textContent = "Erro ao salvar.";
+        } finally {
+          btnSave.disabled = false;
+        }
+      });
+
+      initIcons();
+    });
+  </script>
+</body>
+</html>
