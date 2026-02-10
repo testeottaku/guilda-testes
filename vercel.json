@@ -1,33 +1,50 @@
 {
+  "version": 2,
   "cleanUrls": true,
-  "rewrites": [
+  "trailingSlash": false,
+  "routes": [
     {
-      "source": "/",
-      "destination": "/index.html"
+      "handle": "filesystem"
     },
     {
-      "source": "/dashboard",
-      "destination": "/dashboard.html"
+      "src": "/$",
+      "dest": "/index.html"
     },
     {
-      "source": "/membros",
-      "destination": "/membros.html"
+      "src": "/dashboard/?$",
+      "dest": "/dashboard.html"
     },
     {
-      "source": "/members",
-      "destination": "/membros.html"
+      "src": "/membros/?$",
+      "dest": "/membros.html"
     },
     {
-      "source": "/campeonato",
-      "destination": "/camp.html"
+      "src": "/members/?$",
+      "dest": "/membros.html"
     },
     {
-      "source": "/camp",
-      "destination": "/camp.html"
+      "src": "/campeonato/?$",
+      "dest": "/camp.html"
     },
     {
-      "source": "/admin",
-      "destination": "/admin.html"
+      "src": "/camp/?$",
+      "dest": "/camp.html"
+    },
+    {
+      "src": "/admin/?$",
+      "dest": "/admin.html"
+    },
+    {
+      "src": "/ajustes/?$",
+      "dest": "/ajustes.html"
+    },
+    {
+      "src": "/settings/?$",
+      "dest": "/ajustes.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }

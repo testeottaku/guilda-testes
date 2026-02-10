@@ -11,7 +11,10 @@ import {
 import {
   getFirestore,
   doc,
-  getDoc
+  getDoc,
+  setDoc,
+  collection,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
@@ -24,6 +27,80 @@ export const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Cache local (evita re-leituras no Firestore a cada troca de tela)
+const CACHE_KEY = "guilda_cache_v1";
+const CACHE_TTL_MS = 1000 * 60 * 60 * 12; // 12h
+
+function nowMs(){ return Date.now(); }
+
+function readCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(!data || typeof data !== "object") return null;
+    return data;
+  }catch(_){ return null; }
+}
+
+function writeCache(next){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify(next));
+  }catch(_){}
+}
+
+function mergeCache(patch){
+  const cur = readCache() || {};
+  const next = { ...cur, ...patch, updatedAt: nowMs() };
+  writeCache(next);
+  return next;
+}
+
+export function clearGuildCache(){
+  try{ localStorage.removeItem(CACHE_KEY); }catch(_){}
+}
+
+export function getCachedMembers(){
+  const c = readCache();
+  if(!c || !c.members || !Array.isArray(c.members.list)) return [];
+  return c.members.list;
+}
+
+export function setCachedMembers(list){
+  return mergeCache({ members: { list: Array.isArray(list) ? list : [], fetchedAt: nowMs() } });
+}
+
+
+
+export function patchCachedSecurity(patch){
+  const c = readCache() || {};
+  const sec = (c.security && typeof c.security === "object") ? c.security : {};
+  const nextSec = { ...sec, ...(patch || {}) };
+  mergeCache({ security: nextSec });
+  window.guildSettings = { tagPrefix: nextSec.tagPrefix || DEFAULT_SETTINGS.tagPrefix, accent: nextSec.accent || DEFAULT_SETTINGS.accent };
+  return nextSec;
+}
+
+export async function prefetchMembersToCache(){
+  try{
+    const c = readCache();
+    if(c && c.members && Array.isArray(c.members.list) && c.members.list.length) return;
+    const snap = await getDocs(collection(db, "membros"));
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    list.sort((a,b)=> String(a.nick||"").localeCompare(String(b.nick||"")));
+    setCachedMembers(list);
+  }catch(e){
+    // silencioso (prefetch)
+  }
+}
+
+function cacheIsFresh(c){
+  if(!c || !c.updatedAt) return false;
+  return (nowMs() - c.updatedAt) < CACHE_TTL_MS;
+}
+
 
 // Toast simples (sem depender de libs)
 export function showToast(type = "info", message = "") {
@@ -69,16 +146,18 @@ function escapeHtml(str) {
 // Determina o papel do usuário baseado em guildConfig/security
 async function resolveRoleByEmail(email) {
   try {
-    const snap = await getDoc(doc(db, "guildConfig", "security"));
-    if (!snap.exists()) return "Membro";
-
-    const data = snap.data() || {};
-    const admins = Array.isArray(data.admins) ? data.admins : [];
-    const leaders = Array.isArray(data.leaders) ? data.leaders : [];
-
+    const cached = getCachedSecurity();
     const e = (email || "").toLowerCase();
-    if (admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
-    if (leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
+
+    if (cached && Array.isArray(cached.admins) && Array.isArray(cached.leaders)) {
+      if (cached.leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
+      if (cached.admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
+      return "Membro";
+    }
+
+    const sec = await getSecurityDocFor(email || "");
+    if (sec.leaders.map((x) => String(x).toLowerCase()).includes(e)) return "Líder";
+    if (sec.admins.map((x) => String(x).toLowerCase()).includes(e)) return "Admin";
     return "Membro";
   } catch (e) {
     console.error("Erro ao buscar role:", e);
@@ -86,7 +165,131 @@ async function resolveRoleByEmail(email) {
   }
 }
 
+// ===========================
+// Ajustes globais (Firestore)
+// Doc: guildConfig / security (mesmo documento de permissões)
+// Campos: tagPrefix (string), accent (string tailwind color name)
+// ===========================
+const DEFAULT_SETTINGS = {
+  tagPrefix: "ᵒᵗᵏ ",
+  accent: "emerald"
+};
+
+async function getSecurityDocFor(email){
+  const cached = readCache();
+  if(cached && cacheIsFresh(cached) && cached.email && cached.email.toLowerCase() === String(email||"").toLowerCase() && cached.security){
+    return cached.security;
+  }
+
+  const ref = doc(db, "guildConfig", "security");
+  const snap = await getDoc(ref);
+
+  // Se não existir, cria com padrão (criar doc = criar coleção)
+  if(!snap.exists()){
+    const base = { admins: [], leaders: [], ...DEFAULT_SETTINGS };
+    await setDoc(ref, base, { merge: true });
+    const next = { ...base };
+    mergeCache({ email: String(email||""), security: next });
+    return next;
+  }
+
+  const data = snap.data() || {};
+  const next = {
+    admins: Array.isArray(data.admins) ? data.admins : [],
+    leaders: Array.isArray(data.leaders) ? data.leaders : [],
+    tagPrefix: (typeof data.tagPrefix === "string" && data.tagPrefix.length) ? data.tagPrefix : DEFAULT_SETTINGS.tagPrefix,
+    accent: (typeof data.accent === "string" && data.accent.length) ? data.accent : DEFAULT_SETTINGS.accent
+  };
+
+  // garante chaves mínimas
+  await setDoc(ref, { tagPrefix: next.tagPrefix, accent: next.accent }, { merge: true });
+
+  mergeCache({ email: String(email||""), security: next });
+  return next;
+}
+
+function getCachedSecurity(){
+  const c = readCache();
+  return c && c.security ? c.security : null;
+}
+
+export async function loadGuildSettings(userEmail = "") {
+  try {
+    // tenta cache primeiro
+    const cached = getCachedSecurity();
+    if (cached && cached.tagPrefix && cached.accent) {
+      window.guildSettings = { tagPrefix: cached.tagPrefix, accent: cached.accent };
+      return window.guildSettings;
+    }
+
+    const sec = await getSecurityDocFor(userEmail || "");
+    window.guildSettings = { tagPrefix: sec.tagPrefix, accent: sec.accent };
+    return window.guildSettings;
+  } catch (e) {
+    console.error("Erro ao carregar ajustes:", e);
+    window.guildSettings = { ...DEFAULT_SETTINGS };
+    return window.guildSettings;
+  }
+}
+
+export function getTagPrefix() {
+() {
+  return (window.guildSettings && window.guildSettings.tagPrefix) ? window.guildSettings.tagPrefix : DEFAULT_SETTINGS.tagPrefix;
+}
+
+export function applyAccent(accent = "emerald") {
+  try {
+    const color = accent || "emerald";
+    document.documentElement.setAttribute("data-accent", color);
+
+    const palette = ["emerald","green","red","blue","yellow","pink","purple"];
+
+    const shouldTouch = (token) => {
+      return palette.some((c) => (
+        token.includes(`-${c}-`) ||
+        token.includes(`:${c}-`) ||
+        token.includes(`-${c}/`) ||
+        token.startsWith(`from-${c}`) ||
+        token.startsWith(`to-${c}`) ||
+        token.startsWith(`via-${c}`) ||
+        token.startsWith(`bg-${c}`) ||
+        token.startsWith(`text-${c}`) ||
+        token.startsWith(`border-${c}`) ||
+        token.startsWith(`ring-${c}`) ||
+        token.startsWith(`shadow-${c}`) ||
+        token.startsWith(`hover:bg-${c}`) ||
+        token.startsWith(`hover:text-${c}`) ||
+        token.startsWith(`hover:border-${c}`) ||
+        token.startsWith(`focus:ring-${c}`)
+      ));
+    };
+
+    document.querySelectorAll("*").forEach((el) => {
+      if (!el.classList || el.classList.length === 0) return;
+
+      let changed = false;
+      const next = [];
+
+      el.classList.forEach((c) => {
+        if (shouldTouch(c)) {
+          let out = c;
+          palette.forEach((old) => { out = out.replaceAll(old, color); });
+          next.push(out);
+          changed = true;
+        } else {
+          next.push(c);
+        }
+      });
+
+      if (changed) el.className = next.join(" ");
+    });
+  } catch (e) {
+    console.error("Erro ao aplicar cor:", e);
+  }
+}
+
 // Proteção de rotas (chame no início de cada página privada)
+ (chame no início de cada página privada)
 export function checkAuth(redirectToLogin = true) {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
@@ -107,11 +310,25 @@ export function checkAuth(redirectToLogin = true) {
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
 
+      // Carrega ajustes globais e aplica cor predominante
+      const settings = await loadGuildSettings(user.email || "");
+      applyAccent(settings.accent);
+
+      // Pré-carrega membros para evitar delay ao trocar de tela
+      try {
+        const pathNow = (window.location.pathname || "").toLowerCase();
+        if (pathNow.endsWith("/dashboard.html") || pathNow.endsWith("/dashboard")) {
+          prefetchMembersToCache();
+        }
+      } catch (_) {}
+
+
       const path = (window.location.pathname || "").toLowerCase();
       const isAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
       const isMembersPage = path.endsWith("/membros") || path.endsWith("/membros.html") || path.includes("membros.html");
       const isDashboardPage = path.endsWith("/dashboard") || path.endsWith("/dashboard.html") || path.includes("dashboard.html");
       const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html") || path.includes("campeonato");
+      const isAjustesPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html") || path.includes("/settings");
 
       // Regras de acesso (conforme você pediu AGORA):
       // - Líder: tudo
@@ -134,8 +351,8 @@ export function checkAuth(redirectToLogin = true) {
           resolve(null);
           return;
         }
-        // Dashboard e Membros ok
-        if (!isDashboardPage && !isMembersPage) {
+        // Dashboard, Membros e Ajustes ok
+        if (!isDashboardPage && !isMembersPage && !isAjustesPage) {
           window.location.href = "dashboard.html";
           resolve(null);
           return;
