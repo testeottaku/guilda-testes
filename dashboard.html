@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script> <!-- Ícones sem React -->
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+            <p class="text-xs text-gray-400">Painel Admin</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <!-- Menus apenas para Líder -->
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <h1 class="text-lg font-semibold text-gray-900">Dashboard</h1>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Visão Geral</h2>
+          <p class="text-gray-500 text-sm mt-1">Resumo da guilda em tempo real</p>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
+          <!-- Estrutura fixa (não pisca). Só os números são preenchidos via JS -->
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-200">
+                <i data-lucide="users" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p id="stat-total" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Total de Membros</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                <i data-lucide="swords" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p id="stat-war" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Guerra de Guilda</p>
+              <p id="stat-war-sub" class="text-xs text-gray-400 mt-0.5">de —</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                <i data-lucide="target" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p id="stat-meta" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Meta Semanal</p>
+              <p id="stat-meta-sub" class="text-xs text-gray-400 mt-0.5">de —</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-200">
+                <i data-lucide="tag" class="w-5 h-5 text-white"></i>
+              </div>
+            </div>
+            <div>
+              <p id="stat-tag" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Com Tag</p>
+              <p id="stat-tag-sub" class="text-xs text-gray-400 mt-0.5">de —</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertas e Gráficos Simples -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Atenção -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500"></i>
+              <h3 class="font-semibold text-gray-900">Atenção</h3>
+            </div>
+            <div class="space-y-3" id="attention-container">
+              <!-- JS -->
+            </div>
+          </div>
+
+          <!-- Resumo (Barras) -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="trending-up" class="w-5 h-5 text-emerald-500"></i>
+              <h3 class="font-semibold text-gray-900">Resumo</h3>
+            </div>
+            <div class="space-y-3" id="summary-container">
+              <!-- JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+    <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts } from './logic.js';
+    import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const CACHE_KEY = "guilda_members_cache_v1";
+
+    function readCache() {
+      try {
+        const raw = sessionStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function writeCache(list) {
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(list || [])); } catch (_) {}
+    }
+
+    // Ícones/base UI precisam aparecer imediatamente (sem esperar Firestore)
+    initIcons();
+
+    let membersCache = [];
+
+    checkAuth().then(async (user) => {
+      if (!user) return;
+
+      setupSidebar();
+      document.getElementById('btn-logout').onclick = logout;
+      consumeLoginToasts();
+
+      // Primeiro paint: tenta cache (instantâneo)
+      const cached = readCache();
+      if (cached) {
+        membersCache = cached;
+        renderDashboard(membersCache);
+      }
+
+      // Atualiza em tempo real: só muda quando a coleção mudar
+      onSnapshot(
+        collection(db, "membros"),
+        (snap) => {
+          const members = [];
+          snap.forEach(d => members.push(d.data()));
+          membersCache = members;
+          writeCache(members);
+          renderDashboard(members);
+        },
+        (err) => console.error("onSnapshot membros:", err)
+      );
+    });
+
+    function renderDashboard(members) {
+      const total = members.length;
+
+      const guildWar = members.filter(m => m.guildWar).length;
+      const weeklyMeta = members.filter(m => m.weeklyMeta).length;
+      const hasTag = members.filter(m => m.hasTag).length;
+
+      // Stats (só texto)
+      document.getElementById('stat-total').textContent = String(total);
+      document.getElementById('stat-war').textContent = String(guildWar);
+      document.getElementById('stat-meta').textContent = String(weeklyMeta);
+      document.getElementById('stat-tag').textContent = String(hasTag);
+
+      document.getElementById('stat-war-sub').textContent = `de ${total}`;
+      document.getElementById('stat-meta-sub').textContent = `de ${total}`;
+      document.getElementById('stat-tag-sub').textContent = `de ${total}`;
+
+      // Atenção
+      const noWar = total - guildWar;
+      const noMeta = total - weeklyMeta;
+      const noTag = total - hasTag;
+
+      document.getElementById('attention-container').innerHTML = `
+        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-sm text-red-700">Sem Guerra de Guilda</span></div>
+          <span class="text-sm font-bold text-red-700">${noWar}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-orange-500"></div><span class="text-sm text-orange-700">Meta Semanal Pendente</span></div>
+          <span class="text-sm font-bold text-orange-700">${noMeta}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+          <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-400"></div><span class="text-sm text-gray-600">Sem Tag</span></div>
+          <span class="text-sm font-bold text-gray-600">${noTag}</span>
+        </div>
+      `;
+
+      // Resumo (Barras)
+      const pct = (val) => total > 0 ? Math.round((val / total) * 100) : 0;
+      const bar = (label, val, color) => `
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm text-gray-600">${label}</span>
+            <span class="text-sm font-semibold text-gray-900">${pct(val)}%</span>
+          </div>
+          <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r ${color} rounded-full" style="width: ${total > 0 ? (val/total)*100 : 0}%"></div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('summary-container').innerHTML =
+        bar("Participação na Guerra", guildWar, "from-emerald-400 to-green-500") +
+        bar("Meta Semanal Cumprida", weeklyMeta, "from-violet-400 to-purple-500") +
+        bar("Membros com Tag", hasTag, "from-amber-400 to-orange-500");
+
+      initIcons();
+    }
+  </script>
+</body>
+</html>
