@@ -14,6 +14,10 @@
       "destination": "/membros.html"
     },
     {
+      "source": "/members",
+      "destination": "/membros.html"
+    },
+    {
       "source": "/campeonato",
       "destination": "/camp.html"
     },

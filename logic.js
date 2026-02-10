@@ -109,10 +109,10 @@ export function checkAuth(redirectToLogin = true) {
       // Se estiver em página admin e não for Admin, bloqueia
       const path = (window.location.pathname || "").toLowerCase();
       const onAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
-      if (onAdminPage && role !== "Admin") {
-        showToast("error", "Acesso negado: somente Admin.");
-        await signOut(auth);
-        window.location.href = "index.html";
+      if (onAdminPage && role !== "Admin" && role !== "Líder") {
+        showToast("error", "Acesso negado: somente Admin ou Líder.");
+        // Mantém o usuário logado, apenas redireciona
+        window.location.href = "dashboard.html";
         resolve(null);
         return;
       }
