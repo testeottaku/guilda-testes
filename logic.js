@@ -246,3 +246,20 @@ export async function ensureUserAccount(email, password) {
     try { await deleteApp(secondaryApp); } catch (_) {}
   }
 }
+
+
+// Cache flags (evita recarregar dados ao trocar de tela)
+export function markDirty(key){
+  try{ localStorage.setItem(`dirty_${key}`,'1'); }catch(e){}
+}
+export function isDirty(key){
+  try{ return localStorage.getItem(`dirty_${key}`)==='1'; }catch(e){ return true; }
+}
+export function clearDirty(key){
+  try{ localStorage.removeItem(`dirty_${key}`); }catch(e){}
+}
+export function consumeDirty(key){
+  const d = isDirty(key);
+  if(d) clearDirty(key);
+  return d;
+}

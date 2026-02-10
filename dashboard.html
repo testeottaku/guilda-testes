@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - Guild Manager</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script> <!-- Ícones sem React -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
   </script>
@@ -67,8 +67,9 @@
     <main class="flex-1 min-w-0">
       <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <!-- Botão Mobile com SVG Inline para aparecer instantaneamente -->
           <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
-            <i data-lucide="menu" class="w-5 h-5"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
           </button>
           <h1 class="text-lg font-semibold text-gray-900">Dashboard</h1>
         </div>
@@ -80,9 +81,10 @@
           <p class="text-gray-500 text-sm mt-1">Resumo da guilda em tempo real</p>
         </div>
 
-        <!-- Cards de Estatísticas -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
-          <!-- Estrutura fixa (não pisca). Só os números são preenchidos via JS -->
+        <!-- Cards de Estatísticas (ESTRUTURA FIXA NO HTML) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
+          
+          <!-- Card Total -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-start justify-between mb-3">
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-200">
@@ -90,11 +92,12 @@
               </div>
             </div>
             <div>
-              <p id="stat-total" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-total">-</p>
               <p class="text-xs sm:text-sm text-gray-500 mt-1">Total de Membros</p>
             </div>
           </div>
 
+          <!-- Card Guerra -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-start justify-between mb-3">
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-200">
@@ -102,12 +105,13 @@
               </div>
             </div>
             <div>
-              <p id="stat-war" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-war">-</p>
               <p class="text-xs sm:text-sm text-gray-500 mt-1">Guerra de Guilda</p>
-              <p id="stat-war-sub" class="text-xs text-gray-400 mt-0.5">de —</p>
+              <p class="text-xs text-gray-400 mt-0.5" id="stat-war-sub">de -</p>
             </div>
           </div>
 
+          <!-- Card Meta -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-start justify-between mb-3">
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-200">
@@ -115,12 +119,13 @@
               </div>
             </div>
             <div>
-              <p id="stat-meta" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-meta">-</p>
               <p class="text-xs sm:text-sm text-gray-500 mt-1">Meta Semanal</p>
-              <p id="stat-meta-sub" class="text-xs text-gray-400 mt-0.5">de —</p>
+              <p class="text-xs text-gray-400 mt-0.5" id="stat-meta-sub">de -</p>
             </div>
           </div>
 
+          <!-- Card Tag -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-start justify-between mb-3">
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-200">
@@ -128,14 +133,15 @@
               </div>
             </div>
             <div>
-              <p id="stat-tag" class="text-2xl sm:text-3xl font-bold text-gray-900">—</p>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900" id="stat-tag">-</p>
               <p class="text-xs sm:text-sm text-gray-500 mt-1">Com Tag</p>
-              <p id="stat-tag-sub" class="text-xs text-gray-400 mt-0.5">de —</p>
+              <p class="text-xs text-gray-400 mt-0.5" id="stat-tag-sub">de -</p>
             </div>
           </div>
+
         </div>
 
-        <!-- Alertas e Gráficos Simples -->
+        <!-- Alertas e Gráficos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Atenção -->
           <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
@@ -144,18 +150,24 @@
               <h3 class="font-semibold text-gray-900">Atenção</h3>
             </div>
             <div class="space-y-3" id="attention-container">
-              <!-- JS -->
+              <!-- Placeholder Skeleton para Atenção -->
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-pulse"><div class="h-4 bg-gray-200 rounded w-1/2"></div><div class="h-4 bg-gray-200 rounded w-8"></div></div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-pulse"><div class="h-4 bg-gray-200 rounded w-1/2"></div><div class="h-4 bg-gray-200 rounded w-8"></div></div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-pulse"><div class="h-4 bg-gray-200 rounded w-1/2"></div><div class="h-4 bg-gray-200 rounded w-8"></div></div>
             </div>
           </div>
 
-          <!-- Resumo (Barras) -->
+          <!-- Resumo -->
           <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-2 mb-4">
               <i data-lucide="trending-up" class="w-5 h-5 text-emerald-500"></i>
               <h3 class="font-semibold text-gray-900">Resumo</h3>
             </div>
             <div class="space-y-3" id="summary-container">
-              <!-- JS -->
+              <!-- Placeholder Skeleton para Resumo -->
+              <div class="w-full h-8 bg-gray-100 rounded-lg animate-pulse"></div>
+              <div class="w-full h-8 bg-gray-100 rounded-lg animate-pulse"></div>
+              <div class="w-full h-8 bg-gray-100 rounded-lg animate-pulse"></div>
             </div>
           </div>
         </div>
@@ -163,117 +175,109 @@
     </main>
   </div>
 
-    <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts } from './logic.js';
-    import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const CACHE_KEY = "guilda_members_cache_v1";
-
-    function readCache() {
-      try {
-        const raw = sessionStorage.getItem(CACHE_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : null;
-      } catch (_) {
-        return null;
-      }
-    }
-
-    function writeCache(list) {
-      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(list || [])); } catch (_) {}
-    }
-
-    // Ícones/base UI precisam aparecer imediatamente (sem esperar Firestore)
-    initIcons();
-
-    let membersCache = [];
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, consumeDirty, clearDirty } from './logic.js';
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     checkAuth().then(async (user) => {
-      if (!user) return;
-
+      if(!user) return;
       setupSidebar();
       document.getElementById('btn-logout').onclick = logout;
       consumeLoginToasts();
-
-      // Primeiro paint: tenta cache (instantâneo)
-      const cached = readCache();
+      
+      // Tenta carregar do cache primeiro (instantâneo)
+      const cached = localStorage.getItem('dashboard_stats');
       if (cached) {
-        membersCache = cached;
-        renderDashboard(membersCache);
+        updateUI(JSON.parse(cached));
       }
-
-      // Atualiza em tempo real: só muda quando a coleção mudar
-      onSnapshot(
-        collection(db, "membros"),
-        (snap) => {
-          const members = [];
-          snap.forEach(d => members.push(d.data()));
-          membersCache = members;
-          writeCache(members);
-          renderDashboard(members);
-        },
-        (err) => console.error("onSnapshot membros:", err)
-      );
+      // Só sincroniza do Firebase quando não houver cache ou quando houver alteração
+      const shouldSync = !cached || consumeDirty('dashboard');
+      if (shouldSync) loadDashboard();
     });
 
-    function renderDashboard(members) {
+    async function loadDashboard() {
+      try {
+        const snap = await getDocs(collection(db, "membros"));
+        const members = [];
+        snap.forEach(d => members.push(d.data()));
+
+        const stats = calculateStats(members);
+        
+        // Salva no cache
+        localStorage.setItem('dashboard_stats', JSON.stringify(stats));
+        clearDirty('dashboard');
+        
+        // Atualiza tela
+        updateUI(stats);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function calculateStats(members) {
       const total = members.length;
+      return {
+        total,
+        guildWar: members.filter(m => m.guildWar).length,
+        weeklyMeta: members.filter(m => m.weeklyMeta).length,
+        hasTag: members.filter(m => m.hasTag).length
+      };
+    }
 
-      const guildWar = members.filter(m => m.guildWar).length;
-      const weeklyMeta = members.filter(m => m.weeklyMeta).length;
-      const hasTag = members.filter(m => m.hasTag).length;
+    function updateUI(data) {
+      const { total, guildWar, weeklyMeta, hasTag } = data;
 
-      // Stats (só texto)
-      document.getElementById('stat-total').textContent = String(total);
-      document.getElementById('stat-war').textContent = String(guildWar);
-      document.getElementById('stat-meta').textContent = String(weeklyMeta);
-      document.getElementById('stat-tag').textContent = String(hasTag);
+      // Atualiza Números dos Cards
+      document.getElementById('stat-total').innerText = total;
+      
+      document.getElementById('stat-war').innerText = guildWar;
+      document.getElementById('stat-war-sub').innerText = `de ${total}`;
+      
+      document.getElementById('stat-meta').innerText = weeklyMeta;
+      document.getElementById('stat-meta-sub').innerText = `de ${total}`;
+      
+      document.getElementById('stat-tag').innerText = hasTag;
+      document.getElementById('stat-tag-sub').innerText = `de ${total}`;
 
-      document.getElementById('stat-war-sub').textContent = `de ${total}`;
-      document.getElementById('stat-meta-sub').textContent = `de ${total}`;
-      document.getElementById('stat-tag-sub').textContent = `de ${total}`;
-
-      // Atenção
+      // Render Atenção
       const noWar = total - guildWar;
       const noMeta = total - weeklyMeta;
       const noTag = total - hasTag;
 
       document.getElementById('attention-container').innerHTML = `
-        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl animate-in">
           <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-sm text-red-700">Sem Guerra de Guilda</span></div>
           <span class="text-sm font-bold text-red-700">${noWar}</span>
         </div>
-        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl">
+        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl animate-in">
           <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-orange-500"></div><span class="text-sm text-orange-700">Meta Semanal Pendente</span></div>
           <span class="text-sm font-bold text-orange-700">${noMeta}</span>
         </div>
-        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-in">
           <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-400"></div><span class="text-sm text-gray-600">Sem Tag</span></div>
           <span class="text-sm font-bold text-gray-600">${noTag}</span>
         </div>
       `;
 
-      // Resumo (Barras)
-      const pct = (val) => total > 0 ? Math.round((val / total) * 100) : 0;
-      const bar = (label, val, color) => `
-        <div>
+      // Render Barras
+      const renderBar = (label, val, color) => `
+        <div class="animate-in">
           <div class="flex items-center justify-between mb-1">
             <span class="text-sm text-gray-600">${label}</span>
-            <span class="text-sm font-semibold text-gray-900">${pct(val)}%</span>
+            <span class="text-sm font-semibold text-gray-900">${total > 0 ? Math.round((val/total)*100) : 0}%</span>
           </div>
           <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r ${color} rounded-full" style="width: ${total > 0 ? (val/total)*100 : 0}%"></div>
+            <div class="h-full bg-gradient-to-r ${color} rounded-full transition-all duration-1000" style="width: ${total > 0 ? (val/total)*100 : 0}%"></div>
           </div>
         </div>
       `;
 
-      document.getElementById('summary-container').innerHTML =
-        bar("Participação na Guerra", guildWar, "from-emerald-400 to-green-500") +
-        bar("Meta Semanal Cumprida", weeklyMeta, "from-violet-400 to-purple-500") +
-        bar("Membros com Tag", hasTag, "from-amber-400 to-orange-500");
+      document.getElementById('summary-container').innerHTML = 
+        renderBar("Participação na Guerra", guildWar, "from-emerald-400 to-green-500") +
+        renderBar("Meta Semanal Cumprida", weeklyMeta, "from-violet-400 to-purple-500") +
+        renderBar("Membros com Tag", hasTag, "from-amber-400 to-orange-500");
 
-      initIcons();
+      initIcons(); // Re-renderiza ícones dos novos elementos
     }
   </script>
 </body>
