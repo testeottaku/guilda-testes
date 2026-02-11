@@ -565,6 +565,18 @@ function __setDisabled(btn, disabled, reasonText) {
   } else {
     btn.removeAttribute("aria-disabled");
   }
+
+function __setLockedLabel(btn, labelText) {
+  if (!btn) return;
+  btn.dataset.originalHtml = btn.dataset.originalHtml || btn.innerHTML;
+  btn.innerHTML = `<span class="inline-flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4"></i><span class="font-extrabold tracking-wide">${labelText}</span></span>`;
+  try { if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons(); } catch (_) {}
+}
+function __restoreLabel(btn) {
+  if (!btn) return;
+  if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+  try { if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons(); } catch (_) {}
+}
 }
 
 function __ensureVipTagsIndex() {
@@ -609,10 +621,17 @@ export function applyVipUiAndGates(tierRaw) {
   __setDisabled(document.getElementById("btn-add-leader"), !isPlusOrPro, "Recurso PLUS");
 
   // Lines: criar lines = PLUS/PRO (bloqueia no free)
-  __setDisabled(document.getElementById("btn-new-line"), !isPlusOrPro, "Recurso PLUS/PRO");
-  __setDisabled(document.getElementById("btn-save-line"), !isPlusOrPro, "Recurso PLUS/PRO");
-
-  // Camp/Eventos: PRO (BETA)
+  const __btnNewLine = document.getElementById("btn-new-line");
+  const __btnSaveLine = document.getElementById("btn-save-line");
+  __setDisabled(__btnNewLine, !isPlusOrPro, "Recurso PLUS/PRO");
+  __setDisabled(__btnSaveLine, !isPlusOrPro, "Recurso PLUS/PRO");
+  // quando FREE, deixar o botão Salvar no estilo "cadeado + PLUS"
+  if (!isPlusOrPro) {
+    __setLockedLabel(__btnSaveLine, "PLUS");
+  } else {
+    __restoreLabel(__btnSaveLine);
+  }
+// Camp/Eventos: PRO (BETA)
   __setDisabled(document.getElementById("btn-new-camp"), !isPro, "Recurso PRO (BETA)");
 }
 
