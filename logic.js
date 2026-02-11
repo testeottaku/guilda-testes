@@ -443,7 +443,7 @@ export function checkAuth(redirectToLogin = true) {
         guildName,
         role,
         email: emailLower,
-        uid: user\.uid
+        uid: user.uid
       };
 
       // Persiste contexto para outras telas renderizarem cache antes do auth
