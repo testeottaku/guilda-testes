@@ -48,14 +48,14 @@
       <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
           <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i data-lucide="menu" class="w-5 h-5"></i></button>
-          <h1 class="text-lg font-semibold text-gray-900">Campeonatos</h1>
+          <h1 class="text-lg font-semibold text-gray-900">Campeonatos <span class="ml-2 inline-flex items-center rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200 px-2 py-0.5 text-[10px] font-extrabold">PRO</span><span class="ml-2 inline-flex items-center rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200 px-2 py-0.5 text-[10px] font-extrabold">BETA</span></h1>
         </div>
       </header>
 
       <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
         <div class="flex items-center justify-between">
           <div><h2 class="text-2xl font-bold text-gray-900">Eventos</h2><p class="text-gray-500 text-sm mt-1">Gerencie os campeonatos da guilda</p></div>
-          <button onclick="openCampModal()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all active:scale-95">
+          <button id="btn-new-camp" onclick="openCampModal()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i> Novo Campeonato
           </button>
         </div>
@@ -113,10 +113,32 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, getGuildContext, showToast } from './logic.js';
 
     // Inicialização IMEDIATA (Sem piscar)
     setupSidebar();
+
+    function tierRank(t){
+      const s=(t||'free').toString().toLowerCase();
+      if(s==='pro') return 2; if(s==='plus') return 1; return 0;
+    }
+    function applyVip(tier){
+      const pro = tierRank(tier) >= 2;
+      const b = document.getElementById('btn-new-camp');
+      if(b && !pro){
+        b.disabled = true;
+        b.classList.add('opacity-50','cursor-not-allowed');
+        b.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> PRO (BETA)';
+      }
+    }
+
+    // aplica VIP usando cache imediato
+    try {
+      const ctx0=getGuildContext();
+      const tier0=(ctx0?.vipTier || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}').vipTier || 'free');
+      applyVip(String(tier0));
+    } catch(_) {}
+
     
     // Carrega do cache ANTES de autenticar
     window.camps = [];

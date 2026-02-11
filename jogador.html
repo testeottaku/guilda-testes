@@ -46,7 +46,7 @@
     <div class="flex-1 lg:ml-0">
       <header class="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-100">
         <div class="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
-          <button id="mobile-menu-btn" class="lg:hidden h-11 w-11 rounded-2xl bg-gray-100 flex items-center justify-center">
+          <button id="mobile-menu-btn" class="lg:hidden h-11 w-11 rounded-2xl bg-gray-100 flex items-center justify-center z-50">
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
 
@@ -124,7 +124,7 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, showToast, db, getGuildContext } from "./logic.js";
-    import { collection, getDocs, query, where, limit, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { collection, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
     initIcons();
@@ -149,7 +149,10 @@
 
     // Cache local (evita "piscar" e deixa a tela utilizável antes do Firestore responder)
     const ctx0 = getGuildContext();
-    const gid0 = ctx0?.guildId ? String(ctx0.guildId) : "";
+    let gid0 = ctx0?.guildId ? String(ctx0.guildId) : "";
+    if (!gid0) {
+      try { gid0 = String(JSON.parse(localStorage.getItem("guildCtx_cache_v1") || "{}").guildId || ""); } catch (_) {}
+    }
     const LS_STATS_KEY = gid0 ? `player_stats_${gid0}` : "player_stats_unknown";
     const LS_MEMBERS_KEY = gid0 ? `player_members_${gid0}` : "player_members_unknown";
 
@@ -215,57 +218,13 @@
       return getGuildContext();
     }
 
-    async function resolvePlayerContext(user) {
-      const emailLower = (user?.email || "").toString().trim().toLowerCase();
-      // 1) users/{uid}.guildId (se já existir)
-      try {
-        const u = await getDoc(doc(db, "users", user.uid));
-        if (u.exists()) {
-          const d = u.data() || {};
-          const gid = (d.guildId || "").toString().trim();
-          if (gid) return { guildId: gid, emailLower };
-        }
-      } catch (e) {}
-
-      // 2) configGuilda where playerEmail == emailLower (fallback robusto)
-      try {
-        const q1 = query(collection(db, "configGuilda"), where("playerEmail", "==", emailLower), limit(1));
-        const s1 = await getDocs(q1);
-        if (!s1.empty) return { guildId: s1.docs[0].id, emailLower };
-      } catch (e) {}
-
-      // 3) último recurso: contexto do logic.js (se existir)
+    async function loadReadOnlyStats() {
       const ctx = await waitForGuildContext();
-      if (ctx?.guildId) return { guildId: ctx.guildId, emailLower };
-
-      return { guildId: null, emailLower };
-    }
-
-    async function loadReadOnlyStats(ctx, user) {
       const gid = ctx?.guildId;
       if (!gid) throw new Error("Guilda não resolvida. Faça login novamente.");
 
-      // tenta obter nome da guilda diretamente (mesmo se o ctx do logic.js não tiver name ainda)
-      try {
-        const g = await getDoc(doc(db, "guildas", gid));
-        if (g.exists()) {
-          const gd = g.data() || {};
-          ctx.guildName = ctx.guildName || gd.name || gd.guildName || "";
-        }
-      } catch (_) {}
-
-
       // membros
-      let snapM;
-      try {
-        snapM = await getDocs(collection(db, "guildas", gid, "membros"));
-      } catch (e) {
-        // Quando as regras bloqueiam, o Firebase retorna permission-denied.
-        if (String(e?.code || "").includes("permission-denied")) {
-          throw new Error("Permissão negada para ler membros. Confirme as regras do Firestore para o perfil Jogador.");
-        }
-        throw e;
-      }
+      const snapM = await getDocs(collection(db, "guildas", gid, "membros"));
       membersCache = [];
       snapM.forEach(d => {
         const data = d.data() || {};
@@ -285,15 +244,7 @@
       membersCache.sort((a,b)=> String(a.nick||"").localeCompare(String(b.nick||"")));
 
       // lines
-      let snapL;
-      try {
-        snapL = await getDocs(collection(db, "guildas", gid, "lines"));
-      } catch (e) {
-        if (String(e?.code || "").includes("permission-denied")) {
-          throw new Error("Permissão negada para ler lines. Confirme as regras do Firestore para o perfil Jogador.");
-        }
-        throw e;
-      }
+      const snapL = await getDocs(collection(db, "guildas", gid, "lines"));
       linesCount = snapL.size;
 
       els.statMembers.textContent = String(membersCache.length);
@@ -392,12 +343,12 @@
       }
     }
 
-    els.btnClear.addEventListener("click", () => {
+    els.btnClear?.addEventListener("click", () => {
       els.search.value = "";
       setDefaultView();
     });
 
-    els.search.addEventListener("input", () => {
+    els.search?.addEventListener("input", () => {
       clearTimeout(timer);
       timer = setTimeout(handleSearch, 250);
     });
@@ -405,13 +356,13 @@
     // Auth + boot
     checkAuth().then(async (user) => {
       if (!user) return;
+      showToast("success", "Login OK");
 
       // Mostra algo imediatamente (sem depender do Firestore)
       setDefaultView();
 
       try {
-        const pctx = await resolvePlayerContext(user);
-        await loadReadOnlyStats(pctx, user);
+        await loadReadOnlyStats();
       } catch (e) {
         console.error(e);
         showToast("error", e?.message || "Erro ao carregar dados.");

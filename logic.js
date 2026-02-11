@@ -57,7 +57,8 @@ try {
         guildName: cached.guildName ? String(cached.guildName) : null,
         role: String(cached.role),
         email: String(cached.email),
-        uid: String(cached.uid)
+        uid: String(cached.uid),
+        vipTier: cached.vipTier ? String(cached.vipTier) : 'free'
       };
     }
   }
@@ -68,6 +69,19 @@ try {
 export function getGuildContext() {
   return __guildCtx;
 }
+
+// VIP tier da guilda: 'free' | 'plus' | 'pro'
+export function getVipTier() {
+  return (__guildCtx && __guildCtx.vipTier) ? String(__guildCtx.vipTier) : 'free';
+}
+
+function vipTierFromValue(v) {
+  const s = (v || '').toString().toLowerCase().trim();
+  if (!s || s === 'free') return 'free';
+  if (s === 'pro' || s.includes('pro')) return 'pro';
+  return 'plus';
+}
+
 
 function requireGuildId() {
   if (!__guildCtx || !__guildCtx.guildId) throw new Error("Guilda não resolvida. Faça login novamente.");
@@ -449,17 +463,29 @@ export function checkAuth(redirectToLogin = true) {
 
       const guildName = await getGuildName(guildId);
 
+      // VIP: lê configGuilda/{guildId}.vip (string). 'free' => gratuito; 'pro' => pro; demais => plus
+      let vipTier = 'free';
+      try {
+        const cfgSnap = await getDoc(doc(db, "configGuilda", guildId));
+        if (cfgSnap.exists()) {
+          const cfg = cfgSnap.data() || {};
+          vipTier = vipTierFromValue(cfg.vip);
+        }
+      } catch (_) {}
+
+
       __guildCtx = {
         guildId,
         guildName,
         role,
+        vipTier,
         email: emailLower,
         uid: user.uid
       };
 
       // Persiste contexto para outras telas renderizarem cache antes do auth
       try {
-        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, email: emailLower, uid: user.uid, ts: Date.now() }));
+        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
       } catch (_) {}
 
       const roleEl = document.getElementById("user-role");
