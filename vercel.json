@@ -1,0 +1,33 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/membros",
+      "destination": "/membros.html"
+    },
+    {
+      "source": "/members",
+      "destination": "/membros.html"
+    },
+    {
+      "source": "/campeonato",
+      "destination": "/camp.html"
+    },
+    {
+      "source": "/camp",
+      "destination": "/camp.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    }
+  ]
+}
