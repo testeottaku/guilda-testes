@@ -1,10 +1,9 @@
 // logic.js — módulo compartilhado (Firebase + UI helpers)
-// MODO "UID = GUILDA": cada usuário só lê/escreve dados do próprio UID
-// Compatível com regras:
-// - users/{uid} read/write apenas se request.auth.uid == uid
-// - guildas/{uid} read/write apenas se request.auth.uid == uid
-// - configGuilda/{uid} read/write apenas se request.auth.uid == uid
-// - guildas/{uid}/membros/* read/write apenas se request.auth.uid == uid
+// MODO "MULTI-USUÁRIO NA MESMA GUILDA" (por e-mail):
+// - users/{uid} guarda guildId (id do doc em guildas/configGuilda)
+// - guildas/{guildId} e configGuilda/{guildId} são da guilda (normalmente do líder principal)
+// - Um usuário só acessa a guilda cujo guildId está no próprio users/{uid}
+// - Se users/{uid} não existir, tentamos descobrir a guilda via e-mail em configGuilda (leaders/admins/ownerEmail)
 
 import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -20,7 +19,12 @@ import {
   getDoc,
   setDoc,
   writeBatch,
-  serverTimestamp
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
@@ -39,7 +43,6 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // --- Contexto da Guilda -----------------------------------------------------
-// Agora: guildId = uid (sempre)
 let __guildCtx = null;
 
 // Retorna { guildId, guildName, role, email, uid }
@@ -50,6 +53,23 @@ export function getGuildContext() {
 function requireGuildId() {
   if (!__guildCtx || !__guildCtx.guildId) throw new Error("Guilda não resolvida. Faça login novamente.");
   return __guildCtx.guildId;
+}
+
+function cleanEmail(email) {
+  return (email || "").toString().toLowerCase().trim();
+}
+
+function uniq(arr) {
+  const out = [];
+  const seen = new Set();
+  for (const v of (arr || [])) {
+    const s = (v || "").toString();
+    if (!s) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  return out;
 }
 
 async function getGuildName(guildId) {
@@ -63,35 +83,61 @@ async function getGuildName(guildId) {
   }
 }
 
+// Busca a guilda por e-mail nas listas de leaders/admins ou ownerEmail.
+// Retorna { guildId, source } ou null.
+async function findGuildByEmail(emailLower) {
+  if (!emailLower) return null;
+
+  // 1) leaders array-contains
+  try {
+    const q1 = query(collection(db, "configGuilda"), where("leaders", "array-contains", emailLower), limit(1));
+    const s1 = await getDocs(q1);
+    if (!s1.empty) return { guildId: s1.docs[0].id, source: "leaders" };
+  } catch (_) {}
+
+  // 2) admins array-contains
+  try {
+    const q2 = query(collection(db, "configGuilda"), where("admins", "array-contains", emailLower), limit(1));
+    const s2 = await getDocs(q2);
+    if (!s2.empty) return { guildId: s2.docs[0].id, source: "admins" };
+  } catch (_) {}
+
+  // 3) ownerEmail == email
+  try {
+    const q3 = query(collection(db, "configGuilda"), where("ownerEmail", "==", emailLower), limit(1));
+    const s3 = await getDocs(q3);
+    if (!s3.empty) return { guildId: s3.docs[0].id, source: "ownerEmail" };
+  } catch (_) {}
+
+  return null;
+}
+
 async function resolveRoleInGuild(guildId, email) {
-  const cleanEmail = (email || "").toLowerCase().trim();
-  if (!guildId || !cleanEmail) return "Membro";
+  const e = cleanEmail(email);
+  if (!guildId || !e) return "Membro";
 
   try {
-    // 1) Primeira fonte: configGuilda/{uid}
     const snap = await getDoc(doc(db, "configGuilda", guildId));
     if (snap.exists()) {
       const data = snap.data() || {};
-
       const leaders = Array.isArray(data.leaders) ? data.leaders : [];
       const admins = Array.isArray(data.admins) ? data.admins : [];
 
-      // Normaliza lista (evita bug por email com letras maiúsculas)
-      const leadersL = leaders.map((e) => (e || "").toString().toLowerCase().trim());
-      const adminsL = admins.map((e) => (e || "").toString().toLowerCase().trim());
+      const leadersL = uniq(leaders.map((x) => cleanEmail(x))).filter(Boolean);
+      const adminsL = uniq(admins.map((x) => cleanEmail(x))).filter(Boolean);
 
-      if (leadersL.includes(cleanEmail)) return "Líder";
-      if (adminsL.includes(cleanEmail)) return "Admin";
+      if (leadersL.includes(e)) return "Líder";
+      if (adminsL.includes(e)) return "Admin";
     }
 
-    // 2) Fallback de segurança: dono da guilda sempre é Líder
+    // fallback: ownerEmail/ownerUid do doc guildas
     const g = await getDoc(doc(db, "guildas", guildId));
     if (g.exists()) {
       const gd = g.data() || {};
-      const ownerEmail = (gd.ownerEmail || "").toString().toLowerCase().trim();
+      const ownerEmail = cleanEmail(gd.ownerEmail);
       const ownerUid = (gd.ownerUid || "").toString().trim();
-      if (ownerUid === guildId || ownerUid === (auth.currentUser ? auth.currentUser.uid : "")) return "Líder";
-      if (ownerEmail && ownerEmail === cleanEmail) return "Líder";
+      if (ownerUid && ownerUid === auth.currentUser?.uid) return "Líder";
+      if (ownerEmail && ownerEmail === e) return "Líder";
     }
 
     return "Membro";
@@ -100,50 +146,78 @@ async function resolveRoleInGuild(guildId, email) {
   }
 }
 
+// Normaliza e-mails dentro de configGuilda (leaders/admins/ownerEmail) para lower-case.
+// Só tenta escrever se houver mudança e se o usuário tiver permissão (líder).
+async function normalizeConfigGuilda(guildId) {
+  try {
+    const ref = doc(db, "configGuilda", guildId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
 
-// Garante que existam os 3 docs base do usuário:
-// - users/{uid}
-// - guildas/{uid}
-// - configGuilda/{uid}
-async function ensureBootstrapDocs(user, usernameMaybe) {
+    const data = snap.data() || {};
+    const leaders = Array.isArray(data.leaders) ? data.leaders : [];
+    const admins = Array.isArray(data.admins) ? data.admins : [];
+
+    const leadersN = uniq(leaders.map((x) => cleanEmail(x))).filter(Boolean);
+    const adminsN = uniq(admins.map((x) => cleanEmail(x))).filter(Boolean);
+    const ownerEmailN = data.ownerEmail ? cleanEmail(data.ownerEmail) : null;
+
+    const changed =
+      JSON.stringify(leadersN) !== JSON.stringify(leaders) ||
+      JSON.stringify(adminsN) !== JSON.stringify(admins) ||
+      (data.ownerEmail ? ownerEmailN !== data.ownerEmail : false);
+
+    if (!changed) return;
+
+    await setDoc(ref, {
+      ...(ownerEmailN ? { ownerEmail: ownerEmailN } : {}),
+      leaders: leadersN,
+      admins: adminsN,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (_) {
+    // silêncio: se não tiver permissão, não queremos derrubar login
+  }
+}
+
+// Garante docs base:
+// - users/{uid} SEMPRE
+// - guildas/{guildId} e configGuilda/{guildId} APENAS quando guildId == uid (dono/criador)
+async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
   const uid = user.uid;
-  const email = (user.email || "").toLowerCase().trim();
+  const email = cleanEmail(user.email);
   const uname = (usernameMaybe || "").toString().trim();
 
-  // IMPORTANTÍSSIMO:
-  // Este bootstrap roda em TODO login (checkAuth). Portanto, ele não pode
-  // sobrescrever campos configuráveis (tagMembros, leaders, admins), senão:
-  // - a tag some do Firebase
-  // - listas de líderes/admins voltam pro padrão
-  // Aqui nós criamos os docs apenas se não existirem; se existirem,
-  // só fazemos um merge leve (sem tocar em tag/roles).
+  const uRef = doc(db, "users", uid);
+  const uSnap = await getDoc(uRef);
 
-  const [uSnap, gSnap, cSnap] = await Promise.all([
-    getDoc(doc(db, "users", uid)),
+  // users/{uid}
+  if (!uSnap.exists()) {
+    await setDoc(uRef, {
+      email,
+      username: uname || null,
+      guildId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } else {
+    await setDoc(uRef, {
+      ...(uname ? { username: uname } : {}),
+      ...(guildId ? { guildId } : {}),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  // Se este usuário é o dono (guildId == uid), cria/garante guildas/config
+  if (guildId !== uid) return;
+
+  const [gSnap, cSnap] = await Promise.all([
     getDoc(doc(db, "guildas", uid)),
     getDoc(doc(db, "configGuilda", uid))
   ]);
 
   const batch = writeBatch(db);
 
-  // users/{uid}
-  if (!uSnap.exists()) {
-    batch.set(doc(db, "users", uid), {
-      email,
-      username: uname || null,
-      guildId: uid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-  } else {
-    batch.set(doc(db, "users", uid), {
-      // não forçamos username se estiver vazio
-      ...(uname ? { username: uname } : {}),
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  }
-
-  // guildas/{uid}
   if (!gSnap.exists()) {
     batch.set(doc(db, "guildas", uid), {
       name: uname || "Minha Guilda",
@@ -159,12 +233,10 @@ async function ensureBootstrapDocs(user, usernameMaybe) {
     }, { merge: true });
   }
 
-  // configGuilda/{uid}
   if (!cSnap.exists()) {
     batch.set(doc(db, "configGuilda", uid), {
       ownerUid: uid,
-      // NÃO defina tagMembros aqui no modo "merge" para não zerar.
-      // Ao criar (doc novo), podemos iniciar vazio.
+      ownerEmail: email,
       tagMembros: "",
       leaders: email ? [email] : [],
       admins: [],
@@ -172,7 +244,7 @@ async function ensureBootstrapDocs(user, usernameMaybe) {
       updatedAt: serverTimestamp()
     });
   } else {
-    // Só atualiza carimbo de data. Nada de sobrescrever tag/roles.
+    // não sobrescreve tag/roles
     batch.set(doc(db, "configGuilda", uid), {
       updatedAt: serverTimestamp()
     }, { merge: true });
@@ -181,19 +253,19 @@ async function ensureBootstrapDocs(user, usernameMaybe) {
   await batch.commit();
 }
 
-// Cria/atualiza o perfil do usuário com a guilda correta.
-// NESTE MODO: guildId = uid, sempre.
+// Signup do dono: cria guilda própria (guildId = uid)
 export async function finalizeSignup(user, username) {
   if (!user || !user.uid) throw new Error("Usuário inválido.");
   const uname = (username || "").toString().trim();
   if (!uname) throw new Error("Nome de usuário inválido.");
 
-  await ensureBootstrapDocs(user, uname);
-  return { guildId: user.uid };
+  const guildId = user.uid;
+  await ensureBootstrapDocs(user, uname, guildId);
+  return { guildId };
 }
 
 // --- Ajustes (Firestore) ----------------------------------------------------
-// Configuração por guilda: configGuilda/{uid}.tagMembros
+// Tag por guilda: configGuilda/{guildId}.tagMembros
 export async function getMemberTagConfig() {
   try {
     const guildId = requireGuildId();
@@ -203,7 +275,7 @@ export async function getMemberTagConfig() {
     const tag = (data.tagMembros || "").toString().trim();
     return tag ? tag : null;
   } catch (e) {
-    console.error("Erro ao ler tag (configGuilda/{uid}):", e);
+    console.error("Erro ao ler tag (configGuilda/{guildId}):", e);
     return null;
   }
 }
@@ -274,28 +346,41 @@ export function checkAuth(redirectToLogin = true) {
         return;
       }
 
+      const emailLower = cleanEmail(user.email);
+
       // Preenche UI de usuário
       const emailEl = document.getElementById("user-email");
       if (emailEl) emailEl.textContent = user.email || "";
 
-      // MODO UID=GUILDA
-      const guildId = user.uid;
+      // 1) Tenta obter guildId do perfil
+      let guildId = null;
+      let username = "";
 
-      // Garante docs base (evita loop e evita "só criou email")
       try {
-        // tenta pegar username do perfil já salvo; se não existir, cria base com "Minha Guilda"
-        let username = "";
-        try {
-          const prof = await getDoc(doc(db, "users", user.uid));
-          if (prof.exists()) {
-            const d = prof.data() || {};
-            username = (d.username || "").toString().trim();
-          }
-        } catch {}
+        const prof = await getDoc(doc(db, "users", user.uid));
+        if (prof.exists()) {
+          const d = prof.data() || {};
+          guildId = (d.guildId || "").toString().trim() || null;
+          username = (d.username || "").toString().trim();
+        }
+      } catch (_) {}
 
-        await ensureBootstrapDocs(user, username || "Minha Guilda");
+      // 2) Se não tem guildId, tenta descobrir pela configGuilda (leaders/admins/ownerEmail)
+      if (!guildId) {
+        try {
+          const found = await findGuildByEmail(emailLower);
+          if (found?.guildId) guildId = found.guildId;
+        } catch (_) {}
+      }
+
+      // 3) Se ainda não tem guildId, assume que é dono (nova guilda)
+      if (!guildId) guildId = user.uid;
+
+      // 4) Bootstrap: sempre garante users/{uid}; só cria guilda/config se for dono
+      try {
+        await ensureBootstrapDocs(user, username || "Minha Guilda", guildId);
       } catch (e) {
-        console.warn("Falha ao criar/garantir docs base:", e);
+        console.warn("Falha ao preparar docs:", e);
         showToast("error", "Não foi possível preparar sua guilda no Firestore. Verifique as regras e tente novamente.");
         try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
@@ -303,14 +388,20 @@ export function checkAuth(redirectToLogin = true) {
         return;
       }
 
+      // 5) Resolve role e normaliza config (se puder)
       const role = await resolveRoleInGuild(guildId, user.email || "");
+      if (role === "Líder") {
+        // corrige listas com maiúsculas/minúsculas (evita o bug do 'precisa trocar letra')
+        normalizeConfigGuilda(guildId);
+      }
+
       const guildName = await getGuildName(guildId);
 
       __guildCtx = {
         guildId,
         guildName,
         role,
-        email: (user.email || "").toLowerCase().trim(),
+        email: emailLower,
         uid: user.uid
       };
 
@@ -324,9 +415,9 @@ export function checkAuth(redirectToLogin = true) {
       const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html") || path.includes("campeonato");
       const isSettingsPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html");
 
-      // Regras de acesso (igual você vinha usando):
+      // Acesso:
       // - Líder: tudo
-      // - Admin: Dashboard + Membros + Ajustes (somente visualização)
+      // - Admin: Dashboard + Membros + Ajustes
       // - Membro: sem acesso
       if (role === "Membro") {
         showToast("error", "Acesso negado: conta não autorizada.");
@@ -349,8 +440,6 @@ export function checkAuth(redirectToLogin = true) {
           return;
         }
       }
-
-      // Líder: sem bloqueio adicional
 
       resolve(user);
     });
@@ -430,10 +519,10 @@ export function consumeLoginToasts() {
 
 // Cria conta no Firebase Auth sem derrubar a sessão atual (usa um Auth secundário)
 export async function ensureUserAccount(email, password) {
-  const cleanEmail = (email || "").toLowerCase().trim();
-  if (!cleanEmail) throw new Error("E-mail inválido.");
+  const e = cleanEmail(email);
+  if (!e) throw new Error("E-mail inválido.");
 
-  const methods = await fetchSignInMethodsForEmail(auth, cleanEmail);
+  const methods = await fetchSignInMethodsForEmail(auth, e);
   if (methods && methods.length) return { created: false };
 
   if (!password || String(password).length < 6) {
@@ -445,7 +534,7 @@ export async function ensureUserAccount(email, password) {
   const secondaryAuth = getAuth(secondaryApp);
 
   try {
-    await createUserWithEmailAndPassword(secondaryAuth, cleanEmail, password);
+    await createUserWithEmailAndPassword(secondaryAuth, e, password);
     return { created: true };
   } finally {
     try { await signOut(secondaryAuth); } catch (_) {}
