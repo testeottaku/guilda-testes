@@ -487,6 +487,8 @@ export function checkAuth(redirectToLogin = true) {
       try {
         localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
       } catch (_) {}
+      try { applyVipUiAndGates(vipTier); } catch (_) {}
+
 
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
@@ -542,6 +544,89 @@ if (role === "Admin") {
     });
   });
 }
+
+
+// ================= VIP UI + Gates (cache-first) =================
+function __vipNormalize(tier) {
+  const t = (tier || "").toString().toLowerCase().trim();
+  if (t === "pro") return "pro";
+  if (t === "plus") return "plus";
+  return "free";
+}
+
+function __setDisabled(btn, disabled, reasonText) {
+  if (!btn) return;
+  btn.disabled = !!disabled;
+  btn.classList.toggle("opacity-50", !!disabled);
+  btn.classList.toggle("cursor-not-allowed", !!disabled);
+  if (disabled) {
+    btn.setAttribute("aria-disabled", "true");
+    if (reasonText) btn.setAttribute("title", reasonText);
+  } else {
+    btn.removeAttribute("aria-disabled");
+  }
+}
+
+function __ensureVipTagsIndex() {
+  try {
+    document.querySelectorAll("span").forEach((sp) => {
+      if (sp.dataset && sp.dataset.vipTag) return;
+      const t = (sp.textContent || "").trim().toUpperCase();
+      if (t === "PLUS") sp.dataset.vipTag = "plus";
+      if (t === "PRO") sp.dataset.vipTag = "pro";
+    });
+  } catch (_) {}
+}
+
+export function applyVipUiAndGates(tierRaw) {
+  const tier = __vipNormalize(tierRaw || getVipTier());
+
+  // Label "Guilda: <vip>"
+  const vipLabel = document.getElementById("vip-label");
+  if (vipLabel) {
+    vipLabel.innerHTML = `Guilda: <span class="font-bold text-gray-800">${tier}</span>`;
+  }
+
+  // Show tags only when useful:
+  // - free: show PLUS + PRO tags
+  // - plus: show only PRO tags
+  // - pro: hide all PLUS/PRO tags
+  __ensureVipTagsIndex();
+  const showPlusTags = tier === "free";
+  const showProTags = tier !== "pro"; // show PRO for free/plus; hide for pro
+  document.querySelectorAll("[data-vip-tag]").forEach((el) => {
+    const tag = (el.dataset.vipTag || "").toLowerCase();
+    if (tag === "plus") el.style.display = showPlusTags ? "" : "none";
+    if (tag === "pro") el.style.display = showProTags ? "" : "none";
+  });
+
+  // Gates
+  const isPlusOrPro = tier !== "free";
+  const isPro = tier === "pro";
+
+  // Admin: adicionar admins/líderes = PLUS
+  __setDisabled(document.getElementById("btn-add-admin"), !isPlusOrPro, "Recurso PLUS");
+  __setDisabled(document.getElementById("btn-add-leader"), !isPlusOrPro, "Recurso PLUS");
+
+  // Lines: criar lines = PLUS/PRO (bloqueia no free)
+  __setDisabled(document.getElementById("btn-new-line"), !isPlusOrPro, "Recurso PLUS/PRO");
+  __setDisabled(document.getElementById("btn-save-line"), !isPlusOrPro, "Recurso PLUS/PRO");
+
+  // Camp/Eventos: PRO (BETA)
+  __setDisabled(document.getElementById("btn-new-camp"), !isPro, "Recurso PRO (BETA)");
+}
+
+// Apply immediately from cache (to avoid flicker) and re-apply after auth loads
+(function __vipAutoApply() {
+  try {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => applyVipUiAndGates(getVipTier()));
+    } else {
+      applyVipUiAndGates(getVipTier());
+    }
+  } catch (_) {}
+})();
+// ================================================================
 
 // Sidebar (mobile)
 export function setupSidebar() {
