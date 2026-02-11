@@ -582,6 +582,9 @@ function __restoreLabel(btn) {
 function __ensureVipTagsIndex() {
   try {
     document.querySelectorAll("span").forEach((sp) => {
+      // não marque spans do label "Guilda: <vip>"
+      if (sp.closest && sp.closest("#vip-label")) return;
+
       if (sp.dataset && sp.dataset.vipTag) return;
       const t = (sp.textContent || "").trim().toUpperCase();
       if (t === "PLUS") sp.dataset.vipTag = "plus";
