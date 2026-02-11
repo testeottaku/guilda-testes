@@ -1,0 +1,51 @@
+/* Estilos globais - Mantendo 100% igual ao original */
+* { -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  background-color: #f9fafb; /* bg-gray-50 */
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Animações */
+.animate-in { animation: slideDown 0.2s ease-out; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utilitários de Login (Mantidos do original) */
+.login-screen {
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 18px;
+  background: radial-gradient(900px 500px at 10% 0%, rgba(16,185,129,0.18), transparent 60%),
+              radial-gradient(700px 420px at 90% 10%, rgba(34,197,94,0.12), transparent 55%),
+              rgba(17,24,39,0.55);
+  backdrop-filter: blur(10px); z-index: 99998;
+}
+.login-screen.show { display: flex; }
+
+.login-card {
+  width: min(420px, 100%); background: rgba(255,255,255,0.95); border: 1px solid rgba(17,24,39,0.10);
+  border-radius: 22px; box-shadow: 0 30px 70px rgba(0,0,0,0.24); padding: 18px;
+}
+
+/* Spinner e botões */
+.btn-spinner {
+  width: 14px; height: 14px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.55);
+  border-top-color: #fff; display: inline-block; animation: spin 700ms linear infinite;
+}
+@keyframes spin{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg);} }
+
+/* Toast Notification Container */
+#toast-container {
+  position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+}
+
