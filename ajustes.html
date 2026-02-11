@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ajustes - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Menu Mobile Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1>
+            <p class="text-xs text-gray-400">Painel</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i data-lucide="menu" class="w-5 h-5"></i></button>
+          <h1 class="text-lg font-semibold text-gray-900">Ajustes</h1>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-6 max-w-3xl mx-auto space-y-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Ajustes</h2>
+          <p class="text-gray-500 text-sm mt-1">Configurações globais da guilda</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="tag" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900">Tag dos membros</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Essa tag é usada quando você marca “Tem Tag” ao criar/editar um membro.</p>
+            </div>
+          </div>
+
+          <div class="grid gap-3">
+            <div>
+              <label class="text-sm font-medium text-gray-700 mb-1 block">Tag atual</label>
+              <div class="flex items-center gap-3">
+                <input id="tag-input" type="text" placeholder="Ex: ᵒᵗᵏ" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm" />
+                <button id="btn-save-tag" class="px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all active:scale-95">
+                  Salvar
+                </button>
+              </div>
+              <p id="tag-hint" class="mt-2 text-xs text-gray-500"></p>
+            </div>
+
+            <div id="readonly-note" class="hidden rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-xs">
+              Você está como <b>Admin</b>. Você pode visualizar, mas apenas <b>Líder</b> pode alterar a tag.
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-5">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gray-50 text-gray-700 flex items-center justify-center">
+              <i data-lucide="info" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">Como funciona</p>
+              <ul class="mt-2 text-xs text-gray-600 space-y-1 list-disc pl-4">
+                <li>Ao marcar “Tem Tag” em <b>Membros</b>, o site prefixa o nick com a tag definida aqui.</li>
+                <li>Se não existir tag salva, o site mostra um aviso e não deixa marcar “Tem Tag”.</li>
+                <li>A tag é salva no banco de dados em <code class="px-1 py-0.5 rounded bg-gray-100">configGuilda/&lt;UID&gt;</code> (campo <code class="px-1 py-0.5 rounded bg-gray-100">tagMembros</code>).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, showToast, getMemberTagConfig, setMemberTagConfig, getGuildContext } from './logic.js';
+
+    setupSidebar();
+    initIcons();
+
+    const tagInput = document.getElementById('tag-input');
+    const btnSave = document.getElementById('btn-save-tag');
+    const hint = document.getElementById('tag-hint');
+    const readOnlyNote = document.getElementById('readonly-note');
+
+    // --- CACHE INSTANTÂNEO (evita delay ao abrir Ajustes) ---
+    // Tenta renderizar a tag já salva localmente antes do auth terminar.
+    try {
+      const ctx = getGuildContext();
+      const gid = ctx?.guildId;
+      if (gid) {
+        const raw = localStorage.getItem(`tagMembros_${gid}`);
+        if (raw) {
+          const cached = JSON.parse(raw);
+          if (cached?.value) {
+            tagInput.value = String(cached.value);
+            hint.textContent = `Tag configurada: “${cached.value}”`;
+          }
+        }
+      }
+    } catch (_) {}
+    // --------------------------------------------------------
+
+    // isReadonly: desabilita inputs
+    // showAdminNote: mostra aviso APENAS quando for Admin (evita piscar enquanto auth carrega)
+    function setReadonly(isReadonly, showAdminNote = false) {
+      tagInput.disabled = isReadonly;
+      btnSave.disabled = isReadonly;
+      if (isReadonly) {
+        tagInput.classList.add('bg-gray-50');
+        btnSave.classList.add('opacity-50', 'cursor-not-allowed');
+        if (showAdminNote) readOnlyNote.classList.remove('hidden');
+        else readOnlyNote.classList.add('hidden');
+      } else {
+        tagInput.classList.remove('bg-gray-50');
+        btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
+        readOnlyNote.classList.add('hidden');
+      }
+    }
+
+    // Começa travado, porém SEM mostrar aviso (evita piscar)
+    setReadonly(true, false);
+
+    checkAuth().then(async (user) => {
+      if (!user) return;
+      document.getElementById('btn-logout').onclick = logout;
+
+      const role = (document.getElementById('user-role')?.textContent || '').trim();
+      const isLeader = role === 'Líder';
+      const isAdmin = role === 'Admin';
+      // Só Admin vê o aviso. Líder não deve ver nada aqui.
+      setReadonly(!isLeader, isAdmin);
+
+      const current = await getMemberTagConfig();
+      tagInput.value = current || '';
+      hint.textContent = current ? `Tag configurada: “${current}”` : 'Nenhuma tag configurada ainda.';
+
+      btnSave.addEventListener('click', async () => {
+        if (!isLeader) return;
+        const value = (tagInput.value || '').trim();
+        if (!value) {
+          showToast('error', 'Digite uma tag antes de salvar.');
+          return;
+        }
+
+        try {
+          await setMemberTagConfig(value);
+          showToast('success', 'Tag salva com sucesso!');
+          hint.textContent = `Tag configurada: “${value}”`;
+        } catch (e) {
+          console.error(e);
+          showToast('error', 'Não foi possível salvar a tag.');
+        }
+      });
+    });
+  </script>
+  
+<!-- OTK Footer -->
+  <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+    <div class="mx-auto w-full max-w-5xl px-4 py-10">
+      <div class="flex flex-col items-center gap-4">
+  
+        <div class="flex items-center justify-center gap-3">
+          <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+             aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+            <i data-lucide="instagram" class="h-5 w-5"></i>
+          </a>
+  
+          <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+             aria-label="Instagram gaming: @gameotk" title="@gameotk">
+            <i data-lucide="instagram" class="h-5 w-5"></i>
+          </a>
+  
+          <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+             aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+            <i data-lucide="globe" class="h-5 w-5"></i>
+          </a>
+        </div>
+  
+        <div class="text-center">
+          <p class="text-sm font-semibold tracking-wide text-slate-800">
+            Ottakubrasil • Guilda Hub
+          </p>
+  
+          <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+            Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+          </p>
+  
+          <p class="mt-4 text-xs text-slate-500">
+            © Ottakubrasil • 2026
+          </p>
+        </div>
+  
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
