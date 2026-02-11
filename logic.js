@@ -109,63 +109,48 @@ export async function finalizeSignup(user, username) {
   const uname = (username || "").toString().trim();
   if (!uname) throw new Error("Nome de usuário inválido.");
 
-  // 1) tenta descobrir se o email já foi adicionado como admin/líder de alguma guilda
+  // 1) Descobre se o email já foi convidado (admin/líder) em alguma guilda existente
   let guildId = await findGuildIdByEmail(email);
 
+  // Se não foi convidado para nenhuma guilda, cria uma nova (guildId = uid)
+  const isCreatingNewGuild = !guildId;
+  if (!guildId) guildId = user.uid;
+
   // Firestore não tem "criar coleção": a coleção nasce quando gravamos um documento.
-  // Para evitar estado parcial (ex.: criou user no Auth mas falhou em criar docs),
-  // usamos batch e garantimos que guilda/config existam.
+  // Para evitar estado parcial, usamos batch.
   const batch = writeBatch(db);
 
-  // Se não foi convidado para nenhuma guilda, cria uma nova (guildId = uid)
-  if (!guildId) {
-    guildId = user.uid;
-  }
+  const gRef = doc(db, "guildas", guildId);
+  const cRef = doc(db, "configGuilda", guildId);
 
-  // 2) garante que os docs base existam (mesmo se guildId veio de convite)
-  try {
-    const gRef = doc(db, "guildas", guildId);
-    const cRef = doc(db, "configGuilda", guildId);
-
-    const [gSnap, cSnap] = await Promise.all([getDoc(gRef), getDoc(cRef)]);
-
-    if (!gSnap.exists()) {
-      batch.set(gRef, {
-        name: uname,
-        ownerEmail: email,
-        createdAt: serverTimestamp()
-      }, { merge: true });
-    }
-
-    if (!cSnap.exists()) {
-      batch.set(cRef, {
-        tagMembros: "",
-        // se essa guilda está sendo criada agora pelo dono, ele vira líder
-        leaders: (guildId === user.uid) ? [email] : [],
-        admins: [],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-    }
-  } catch (e) {
-    // Se não conseguir ler (por regras), ainda tentamos criar com merge.
-    // (Se a guilda já existir, merge não quebra.)
-    batch.set(doc(db, "guildas", guildId), {
+  if (isCreatingNewGuild) {
+    // ✅ Criação de guilda (dono = uid)
+    batch.set(gRef, {
       name: uname,
+      ownerUid: user.uid,
       ownerEmail: email,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     }, { merge: true });
 
-    batch.set(doc(db, "configGuilda", guildId), {
+    batch.set(cRef, {
+      ownerUid: user.uid,
       tagMembros: "",
-      leaders: (guildId === user.uid) ? [email] : [],
+      leaders: [email],   // o dono vira líder automaticamente
       admins: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }, { merge: true });
+  } else {
+    // ✅ Entrada por convite: a guilda e a config devem EXISTIR (não criamos aqui)
+    // Se não existirem, é sinal de convite mal configurado (ou regras bloqueando leitura).
+    const [gSnap, cSnap] = await Promise.all([getDoc(gRef), getDoc(cRef)]);
+    if (!gSnap.exists() || !cSnap.exists()) {
+      throw new Error("Convite inválido: a guilda/config não existe. Peça ao líder para criar a guilda primeiro.");
+    }
   }
 
-  // 3) Perfil do usuário
+  // 2) Perfil do usuário (sempre)
   batch.set(doc(db, "users", user.uid), {
     email,
     username: uname,
@@ -175,7 +160,6 @@ export async function finalizeSignup(user, username) {
   }, { merge: true });
 
   await batch.commit();
-
   return { guildId };
 }
 
