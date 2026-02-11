@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jogador - Guilda HUB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="p-5 flex items-center gap-3">
+        <div class="h-10 w-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black">GH</div>
+        <div>
+          <div class="font-extrabold leading-tight">Guilda HUB</div>
+          <div class="text-xs text-gray-500">Acesso: <span class="font-bold">Jogador</span></div>
+        </div>
+      </div>
+
+      <nav class="px-3 pb-3">
+        <a href="jogador.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 font-bold">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          Dashboard
+        </a>
+      </nav>
+
+      <div class="mt-auto p-4">
+        <div class="text-xs text-gray-500 mb-2">
+          Logado como: <span id="user-email" class="font-semibold text-gray-700"></span>
+        </div>
+        <button id="btn-logout" class="w-full px-4 py-3 rounded-2xl bg-gray-900 text-white font-bold hover:bg-black">
+          Sair
+        </button>
+      </div>
+    </aside>
+
+    <!-- Overlay + topbar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <div class="flex-1 lg:ml-0">
+      <header class="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-100">
+        <div class="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+          <button id="mobile-menu-btn" class="lg:hidden h-11 w-11 rounded-2xl bg-gray-100 flex items-center justify-center z-50">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+
+          <div>
+            <div class="font-extrabold">Dashboard do Jogador</div>
+            <div class="text-xs text-gray-500">Leitura da sua guilda + busca por ID</div>
+          </div>
+
+          <div class="text-right">
+            <div id="guild-name" class="text-sm font-bold text-gray-900"></div>
+            <div class="text-xs text-gray-500">Jogador</div>
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-5xl px-4 py-6 space-y-6">
+        <!-- Search -->
+        <section class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+            <div class="flex-1">
+              <label class="block text-xs text-gray-500 mb-1">Pesquisar membro por ID</label>
+              <input id="search-id" type="text" inputmode="numeric" placeholder="Digite o ID do jogador..."
+                class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+              <div class="mt-2 text-xs text-gray-400">Ao digitar um ID válido, você verá os detalhes do membro e os demais membros da guilda.</div>
+            </div>
+            <button id="btn-clear" class="sm:w-40 px-4 py-3 rounded-2xl bg-gray-100 font-bold hover:bg-gray-200">
+              Limpar
+            </button>
+          </div>
+        </section>
+
+        <!-- Default dashboard -->
+        <section id="default-dashboard" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs text-gray-500 mb-2">Total de membros</div>
+            <div id="stat-members" class="text-3xl font-black">—</div>
+          </div>
+          <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs text-gray-500 mb-2">Lines cadastradas</div>
+            <div id="stat-lines" class="text-3xl font-black">—</div>
+          </div>
+          <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs text-gray-500 mb-2">Guilda</div>
+            <div id="stat-guild" class="text-lg font-extrabold leading-snug">—</div>
+          </div>
+        </section>
+
+        <!-- Search result -->
+        <section id="result-box" class="hidden space-y-4">
+          <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-gray-500">Membro encontrado</div>
+                <div id="result-title" class="text-xl font-black">—</div>
+              </div>
+              <span class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Somente leitura</span>
+            </div>
+
+            <div id="result-details" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+          </div>
+
+          <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <div class="text-sm font-extrabold mb-3">Outros membros da guilda</div>
+            <ul id="result-members" class="divide-y divide-gray-100"></ul>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-400 py-6">
+          Guilda • HUB — acesso do Jogador (sem permissao de edicão)
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, logout, showToast, db, getGuildContext } from "./logic.js";
+    import { collection, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    setupSidebar();
+    initIcons();
+    document.getElementById("btn-logout")?.addEventListener("click", logout);
+
+    const els = {
+      guildName: document.getElementById("guild-name"),
+      statMembers: document.getElementById("stat-members"),
+      statLines: document.getElementById("stat-lines"),
+      statGuild: document.getElementById("stat-guild"),
+      search: document.getElementById("search-id"),
+      btnClear: document.getElementById("btn-clear"),
+      defaultDash: document.getElementById("default-dashboard"),
+      resultBox: document.getElementById("result-box"),
+      resultTitle: document.getElementById("result-title"),
+      resultDetails: document.getElementById("result-details"),
+      resultMembers: document.getElementById("result-members")
+    };
+
+    let membersCache = [];
+    let linesCount = 0;
+
+    // Cache local (evita "piscar" e deixa a tela utilizável antes do Firestore responder)
+    const ctx0 = getGuildContext();
+    let gid0 = ctx0?.guildId ? String(ctx0.guildId) : "";
+    if (!gid0) {
+      try { gid0 = String(JSON.parse(localStorage.getItem("guildCtx_cache_v1") || "{}").guildId || ""); } catch (_) {}
+    }
+    const LS_STATS_KEY = gid0 ? `player_stats_${gid0}` : "player_stats_unknown";
+    const LS_MEMBERS_KEY = gid0 ? `player_members_${gid0}` : "player_members_unknown";
+
+    function hydrateFromCache() {
+      try {
+        // Nome da guilda já vem do cache do ctx (logic.js), então já renderiza header/estatística.
+        if (ctx0?.guildName) {
+          els.statGuild.textContent = String(ctx0.guildName);
+          if (els.guildName) els.guildName.textContent = String(ctx0.guildName);
+        } else if (ctx0?.guildId) {
+          els.statGuild.textContent = String(ctx0.guildId);
+          if (els.guildName) els.guildName.textContent = "Sua guilda";
+        }
+
+        const rawS = localStorage.getItem(LS_STATS_KEY);
+        if (rawS) {
+          const s = JSON.parse(rawS);
+          if (s && typeof s.membersCount !== 'undefined') els.statMembers.textContent = String(s.membersCount);
+          if (s && typeof s.linesCount !== 'undefined') els.statLines.textContent = String(s.linesCount);
+          if (s && s.guildName) {
+            els.statGuild.textContent = String(s.guildName);
+            if (els.guildName) els.guildName.textContent = String(s.guildName);
+          }
+        }
+
+        const rawM = localStorage.getItem(LS_MEMBERS_KEY);
+        if (rawM) {
+          const m = JSON.parse(rawM);
+          if (Array.isArray(m)) {
+            membersCache = m;
+          }
+        }
+      } catch (_) {}
+    }
+
+    hydrateFromCache();
+
+    function setDefaultView() {
+      els.resultBox.classList.add("hidden");
+      els.defaultDash.classList.remove("hidden");
+    }
+
+    function setResultView() {
+      els.defaultDash.classList.add("hidden");
+      els.resultBox.classList.remove("hidden");
+    }
+
+    function row(label, value) {
+      const div = document.createElement("div");
+      div.className = "bg-gray-50 border border-gray-100 rounded-2xl p-3";
+      div.innerHTML = \`<div class="text-xs text-gray-500">\${label}</div><div class="font-bold break-words">\${value ?? "—"}</div>\`;
+      return div;
+    }
+
+    async function waitForGuildContext() {
+      // Em alguns dispositivos, o onAuthStateChanged pode demorar um pouco.
+      // Esta função garante que temos guildId antes de consultar Firestore.
+      for (let i = 0; i < 30; i++) {
+        const ctx = getGuildContext();
+        if (ctx?.guildId) return ctx;
+        await new Promise(r => setTimeout(r, 50));
+      }
+      return getGuildContext();
+    }
+
+    async function loadReadOnlyStats() {
+      const ctx = await waitForGuildContext();
+      const gid = ctx?.guildId;
+      if (!gid) throw new Error("Guilda não resolvida. Faça login novamente.");
+
+      // membros
+      const snapM = await getDocs(collection(db, "guildas", gid, "membros"));
+      membersCache = [];
+      snapM.forEach(d => {
+        const data = d.data() || {};
+        // Guarda só o necessário para busca/visão (evita cache gigante)
+        membersCache.push({
+          id: d.id,
+          nick: data.nick ?? "",
+          visibleId: data.visibleId ?? "",
+          whatsapp: data.whatsapp ?? "",
+          guildWar: !!data.guildWar,
+          guildWarMeta: data.guildWarMeta ?? "",
+          weeklyMeta: !!data.weeklyMeta,
+          weeklyMetaValue: data.weeklyMetaValue ?? "",
+          joinDate: data.joinDate ?? ""
+        });
+      });
+      membersCache.sort((a,b)=> String(a.nick||"").localeCompare(String(b.nick||"")));
+
+      // lines
+      const snapL = await getDocs(collection(db, "guildas", gid, "lines"));
+      linesCount = snapL.size;
+
+      els.statMembers.textContent = String(membersCache.length);
+      els.statLines.textContent = String(linesCount);
+      els.statGuild.textContent = String(ctx.guildName || gid);
+      if (els.guildName) els.guildName.textContent = String(ctx.guildName || "Sua guilda");
+
+      // Atualiza cache local
+      try {
+        localStorage.setItem(LS_STATS_KEY, JSON.stringify({
+          guildName: ctx.guildName || null,
+          membersCount: membersCache.length,
+          linesCount,
+          ts: Date.now()
+        }));
+        localStorage.setItem(LS_MEMBERS_KEY, JSON.stringify(membersCache));
+      } catch (_) {}
+    }
+
+    function renderOtherMembers(highlightVisibleId) {
+      const ul = els.resultMembers;
+      ul.innerHTML = "";
+      const max = 30;
+      const list = membersCache.slice(0, max);
+
+      list.forEach(m => {
+        const li = document.createElement("li");
+        li.className = "py-3 flex items-center justify-between gap-3";
+        const vid = (m.visibleId ?? "").toString();
+        const nick = (m.nick ?? "—").toString();
+        li.innerHTML = \`
+          <div>
+            <div class="font-bold text-gray-900">\${nick}</div>
+            <div class="text-xs text-gray-500">ID: \${vid || "—"}</div>
+          </div>
+          \${highlightVisibleId && vid && vid === highlightVisibleId ? '<span class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Você</span>' : ''}
+        \`;
+        ul.appendChild(li);
+      });
+
+      if (membersCache.length > max) {
+        const more = document.createElement("div");
+        more.className = "pt-3 text-xs text-gray-400";
+        more.textContent = \`Mostrando \${max} de \${membersCache.length} membros.\`;
+        ul.appendChild(more);
+      }
+    }
+
+    function renderMemberResult(m) {
+      const vid = (m.visibleId ?? "—").toString();
+      const nick = (m.nick ?? "—").toString();
+
+      els.resultTitle.textContent = \`\${nick} • ID \${vid}\`;
+      els.resultDetails.innerHTML = "";
+      els.resultDetails.appendChild(row("Guilda", getGuildContext().guildName || getGuildContext().guildId));
+      els.resultDetails.appendChild(row("WhatsApp", m.whatsapp || "—"));
+      els.resultDetails.appendChild(row("Guerra de Guilda", (m.guildWar ? "✅ Sim" : "❌ Não")));
+      els.resultDetails.appendChild(row("Meta Guerra", m.guildWarMeta ?? "—"));
+      els.resultDetails.appendChild(row("Meta semanal", m.weeklyMeta ? "✅ Sim" : "❌ Não"));
+      els.resultDetails.appendChild(row("Valor meta", m.weeklyMetaValue ?? "—"));
+      els.resultDetails.appendChild(row("Entrada", m.joinDate ?? "—"));
+
+      renderOtherMembers(vid);
+      setResultView();
+    }
+
+    let timer = null;
+    async function handleSearch() {
+      const raw = (els.search.value || "").trim();
+      if (!raw) {
+        setDefaultView();
+        return;
+      }
+
+      // 1) tenta no cache (mais rápido)
+      const found = membersCache.find(x => String(x.visibleId ?? "").trim() === raw);
+      if (found) {
+        renderMemberResult(found);
+        return;
+      }
+
+      // 2) fallback: consulta (caso cache esteja desatualizado)
+      try {
+        const gid = getGuildContext().guildId;
+        const q = query(collection(db, "guildas", gid, "membros"), where("visibleId", "==", raw), limit(1));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          showToast("error", "Nenhum membro encontrado com esse ID.");
+          return;
+        }
+        const d = snap.docs[0];
+        renderMemberResult({ id: d.id, ...d.data() });
+      } catch (e) {
+        console.error(e);
+        showToast("error", e?.message || "Erro ao pesquisar.");
+      }
+    }
+
+    els.btnClear?.addEventListener("click", () => {
+      els.search.value = "";
+      setDefaultView();
+    });
+
+    els.search?.addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = setTimeout(handleSearch, 250);
+    });
+
+    // Auth + boot
+    checkAuth().then(async (user) => {
+      if (!user) return;
+      showToast("success", "Login OK");
+
+      // Mostra algo imediatamente (sem depender do Firestore)
+      setDefaultView();
+
+      try {
+        await loadReadOnlyStats();
+      } catch (e) {
+        console.error(e);
+        showToast("error", e?.message || "Erro ao carregar dados.");
+      }
+    });
+  </script>
+</body>
+</html>

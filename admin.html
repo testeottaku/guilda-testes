@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Guilda HUB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar (igual as outras telas) -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+            <p class="text-xs text-gray-400">Painel</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="layers" class="w-5 h-5"></i> Lines
+        </a>
+        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="min-w-0">
+            <h1 class="text-lg font-semibold text-gray-900">Configurações de Acesso</h1>
+            <p class="text-xs text-gray-400 mt-0.5">Somente Líder pode gerenciar permissões.</p>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-4 sm:p-6 max-w-5xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Card Admin FIXO -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-4 sm:mt-0">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="crown" class="w-5 h-5 text-yellow-500"></i>
+                Administradores
+              </h3>
+              <button id="btn-add-admin" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Acesso ao Dashboard e administração de membros.</p>
+            <!-- Lista que será preenchida -->
+            <ul id="list-admins" class="space-y-2">
+                <!-- Skeleton Loader (se não tiver cache) -->
+                <li class="text-sm text-gray-300 italic animate-pulse">Carregando lista...</li>
+            </ul>
+          </div>
+
+          <!-- Card Líder FIXO -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-4 sm:mt-0">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="medal" class="w-5 h-5 text-blue-500"></i>
+                Líderes
+              </h3>
+              <button id="btn-add-leader" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
+            <!-- Lista que será preenchida -->
+            <ul id="list-leaders" class="space-y-2">
+                <li class="text-sm text-gray-300 italic animate-pulse">Carregando lista...</li>
+            </ul>
+          </div>
+        </div>
+
+
+
+          <!-- Card Acesso Jogador -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm" mt-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="gamepad-2" class="w-5 h-5 text-emerald-600"></i>
+                Acesso do Jogador
+              </h3>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-4">
+              Cria um <b>acesso de Jogador</b> com o e-mail que você definir. Quem entrar com esse usuário verá apenas a tela do Jogador
+              (Dashboard + busca por ID), sem qualquer permissão de edição.
+            </p>
+
+            <!-- CREATE -->
+            <div id="player-create-box" class="space-y-3">
+              <div class="text-xs text-gray-500">E-mail do Jogador (definido por você)</div>
+
+              <div class="space-y-2">
+                <input id="player-email" type="email" placeholder="ex: jogador.minhaguilda@gmail.com"
+                  class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400" />
+                <div class="flex items-center justify-between gap-3 text-xs text-gray-400">
+                  <span>Sugestão rápida:</span>
+                  <button id="btn-fill-player-email" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Usar sugestão</button>
+                </div>
+                <code id="player-email-preview" class="block text-xs text-gray-700 break-all bg-gray-50 border border-gray-200 rounded-xl p-3">jogador.{guildId}@guildahub.app</code>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Senha do Jogador</label>
+                  <input id="player-pass" type="password" minlength="6" placeholder="Mínimo 6 caracteres"
+                    class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                </div>
+                <div class="flex items-end">
+                  <button id="btn-create-player" class="w-full px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+                    Criar acesso ao Jogador
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-xs text-gray-400">
+                Importante: a senha <b>não é salva</b> no banco. Guarde-a para distribuir ao time ou para apagar a conta depois.
+              </div>
+            </div>
+
+            <!-- MANAGE -->
+            <div id="player-manage-box" class="hidden space-y-3">
+              <div class="text-xs text-gray-500">E-mail atual do Jogador</div>
+              <div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+                <code id="player-email-active" class="text-xs text-gray-800 break-all"></code>
+                <button id="btn-copy-player-email-2" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Copiar</button>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Senha do Jogador (para apagar conta)</label>
+                  <input id="player-pass-del" type="password" minlength="6" placeholder="Senha do Jogador"
+                    class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                </div>
+                <div class="flex items-end gap-2">
+                  <button id="btn-revoke-player" class="w-1/2 px-4 py-2 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200">
+                    Revogar
+                  </button>
+                  <button id="btn-delete-player" class="w-1/2 px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700">
+                    Deletar conta
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-xs text-gray-400">
+                “Revogar” remove o acesso no sistema (sem apagar a conta). “Deletar conta” tenta remover também o usuário do Auth (precisa da senha).
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, setupSidebar, initIcons, showToast, logout, auth, db, getGuildContext, ensureUserAccount, createPlayerAccess, revokePlayerAccess, deletePlayerAccount } from "./logic.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Inicializa interface (menu mobile + ícones)
+    setupSidebar();
+    initIcons();
+    document.getElementById('player-email')?.addEventListener('input', (e) => {
+      const v = (e.target?.value || '').trim().toLowerCase();
+      const p = document.getElementById('player-email-preview');
+      if (p) p.textContent = v || getPlayerEmailForGuild();
+    });
+    
+    // Cache de Segurança (por guilda)
+    let securityData = { admins: [], leaders: [] };
+    const guildCacheKey = () => {
+      const ctx = getGuildContext();
+      let gid = ctx?.guildId || null;
+      if (!gid) {
+        try { gid = JSON.parse(localStorage.getItem("guildCtx_cache_v1") || "{}").guildId || null; } catch (_) {}
+      }
+      return `securityConfig_${gid || "unknown"}`;
+    };
+
+    // Email do usuário atual (usa cache para evitar piscar / depender do auth)
+    let currentEmail = '';
+    try {
+      const ctx = getGuildContext();
+      currentEmail = String(ctx?.email || '').toLowerCase().trim();
+    } catch (_) {}
+
+
+    // 1) Carrega cache IMEDIATAMENTE (se já houver contexto salvo) para não piscar
+    try {
+      const cachedSec = localStorage.getItem(guildCacheKey());
+      if (cachedSec) {
+        securityData = JSON.parse(cachedSec) || securityData;
+        // playerEmail também vem do cache, para evitar a "piscada" ao abrir a tela
+        try {
+          const pe = (securityData.playerEmail || "").toString().toLowerCase().trim() || null;
+          renderPlayerAccess(pe);
+        } catch (_) {}
+        renderList('admins', securityData.admins || []);
+        renderList('leaders', securityData.leaders || []);
+      }
+    } catch (_) {}
+
+
+    document.getElementById('btn-logout')?.addEventListener('click', logout);
+
+    // Verifica login e carrega dados
+    checkAuth().then(async (user) => {
+      if(!user) return;
+
+      // garante email atual (caso cache esteja vazio)
+      try {
+        currentEmail = String(user?.email || currentEmail || '').toLowerCase().trim();
+      } catch (_) {}
+
+      // Atualiza em background
+      await load();
+    });
+
+    async function load() {
+      try {
+        const snap = await getDoc(doc(db, "configGuilda", getGuildContext().guildId));
+        const newData = snap.exists() ? (snap.data() || {}) : {};
+        newData.admins = Array.isArray(newData.admins) ? newData.admins : [];
+        newData.leaders = Array.isArray(newData.leaders) ? newData.leaders : [];
+
+
+        // Player access
+        newData.playerEmail = (newData.playerEmail || "").toString().toLowerCase().trim() || null;
+        renderPlayerAccess(newData.playerEmail);
+
+
+        // Comparação para evitar refresh desnecessário
+        const currentJSON = JSON.stringify(securityData);
+        const newJSON = JSON.stringify(newData);
+
+        if(currentJSON !== newJSON) {
+            securityData = newData;
+            localStorage.setItem(guildCacheKey(), newJSON);
+            renderList('admins', securityData.admins);
+            renderList('leaders', securityData.leaders);
+            console.log("Permissões atualizadas do servidor.");
+        } else {
+            console.log("Permissões sincronizadas.");
+        }
+      } catch (e) {
+        console.error(e);
+        // Se não tiver cache nenhum e der erro, avisa
+        showToast('error', e?.message || 'Erro ao carregar configurações.');
+      }
+    }
+
+    function renderList(type, list) {
+      const ul = document.getElementById(`list-${type}`);
+      ul.innerHTML = "";
+
+      if (!list || list.length === 0) {
+        ul.innerHTML = "<li class='text-sm text-gray-300 italic'>Nenhum usuário</li>";
+        return;
+      }
+
+      // Líder master = primeiro líder cadastrado (criador). Ele não pode ser removido.
+      const masterLeader = (type === 'leaders' && Array.isArray(list) && list.length)
+        ? String(list[0] || '').toLowerCase().trim()
+        : '';
+
+      list.forEach((email) => {
+        const clean = String(email || '').toLowerCase().trim();
+        const isMaster = type === 'leaders' && clean && clean === masterLeader;
+        const isSelf = clean && currentEmail && clean === currentEmail;
+
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center bg-gray-50 p-3 rounded-xl text-sm border animate-in";
+        li.innerHTML = `
+          <span class="truncate pr-2 flex items-center gap-2">
+            <span class="truncate">${escapeHtml(email)}</span>
+            ${isMaster ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold">Líder Master</span>` : ''}
+            ${(!isMaster && isSelf) ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold">Você</span>` : ''}
+          </span>
+          <button class="btn-remove text-red-400 hover:text-red-600 ${isMaster ? 'opacity-40 cursor-not-allowed' : ''}" data-type="${type}" data-email="${escapeHtml(email)}" title="${isMaster ? 'O Líder Master não pode ser removido' : 'Remover'}" ${isMaster ? 'disabled' : ''}>
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        `;
+        ul.appendChild(li);
+      });
+
+      ul.querySelectorAll('.btn-remove').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const t = btn.getAttribute('data-type');
+          const e = btn.getAttribute('data-email');
+          await removeAccess(t, e);
+        });
+      });
+
+      initIcons();
+    }
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    
+    // ===== Acesso Jogador =====
+    const playerCreateBox = document.getElementById('player-create-box');
+    const playerManageBox = document.getElementById('player-manage-box');
+    const playerEmailPreview = document.getElementById('player-email-preview');
+    const playerEmailActive = document.getElementById('player-email-active');
+
+    function getPlayerEmailForGuild() {
+      const gid = getGuildContext().guildId;
+      return `jogador.${gid}@guildahub.app`.toLowerCase();
+    }
+
+    function openCreateUI() {
+      if (playerManageBox) playerManageBox.classList.add('hidden');
+      if (playerCreateBox) playerCreateBox.classList.remove('hidden');
+      if (playerEmailPreview) playerEmailPreview.textContent = getPlayerEmailForGuild();
+      const emailInp = document.getElementById('player-email');
+      if (emailInp) emailInp.value = '';
+    }
+
+    function openManageUI(email) {
+      if (playerCreateBox) playerCreateBox.classList.add('hidden');
+      if (playerManageBox) playerManageBox.classList.remove('hidden');
+      if (playerEmailActive) playerEmailActive.textContent = (email || '').toLowerCase();
+    }
+
+    function renderPlayerAccess(email) {
+      if (email) openManageUI(email);
+      else openCreateUI();
+    }
+
+    function copyText(txt) {
+      try {
+        navigator.clipboard.writeText(String(txt || ''));
+        showToast('success', 'Copiado!');
+      } catch (_) {
+        showToast('error', 'Não foi possível copiar.');
+      }
+    }
+
+    document.getElementById('btn-fill-player-email')?.addEventListener('click', () => {
+      const gid = getGuildContext().guildId;
+      const suggested = `jogador.${gid}@guildahub.app`;
+      const inp = document.getElementById('player-email');
+      if (inp) inp.value = suggested;
+      const preview = document.getElementById('player-email-preview');
+      if (preview) preview.textContent = suggested;
+    });
+    document.getElementById('btn-copy-player-email-2')?.addEventListener('click', () => copyText(playerEmailActive?.textContent || ''));
+
+    document.getElementById('btn-create-player')?.addEventListener('click', async () => {
+      const gid = getGuildContext().guildId;
+      const email = document.getElementById('player-email')?.value || '';
+      const pass = document.getElementById('player-pass')?.value || '';
+      try {
+        showToast('info', 'Criando acesso do Jogador...');
+        const res = await createPlayerAccess(gid, email, pass);
+        showToast('success', `Acesso criado: ${res.email}`);
+        await load(); // recarrega config
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao criar acesso.');
+      }
+    });
+
+    document.getElementById('btn-revoke-player')?.addEventListener('click', async () => {
+      const gid = getGuildContext().guildId;
+      try {
+        showToast('info', 'Revogando acesso...');
+        await revokePlayerAccess(gid);
+        showToast('success', 'Acesso revogado.');
+        await load();
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao revogar.');
+      }
+    });
+
+    document.getElementById('btn-delete-player')?.addEventListener('click', async () => {
+      const gid = getGuildContext().guildId;
+      const email = (playerEmailActive?.textContent || '').toLowerCase().trim();
+      const pass = document.getElementById('player-pass-del')?.value || '';
+      try {
+        showToast('info', 'Revogando e deletando conta...');
+        await revokePlayerAccess(gid);
+        try {
+          await deletePlayerAccount(email, pass);
+          showToast('success', 'Conta do Jogador deletada.');
+        } catch (e2) {
+          // Se não conseguiu apagar a conta, pelo menos revogou
+          console.error(e2);
+          showToast('error', `Acesso revogado, mas não consegui deletar a conta: ${e2?.message || 'erro'}`);
+        }
+        await load();
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao deletar.');
+      }
+    });
+
+document.getElementById('btn-add-admin')?.addEventListener('click', () => addAccess('admins'));
+    document.getElementById('btn-add-leader')?.addEventListener('click', () => addAccess('leaders'));
+
+    async function addAccess(type) {
+      try {
+        const email = prompt("Digite o e-mail do usuário:");
+        if (!email) return;
+        const cleanEmail = email.toLowerCase().trim();
+
+        if (!cleanEmail.includes('@')) {
+          showToast('error', 'E-mail inválido.');
+          return;
+        }
+
+        if (!securityData[type]) securityData[type] = [];
+        if (securityData[type].includes(cleanEmail)) {
+          showToast('info', 'Esse e-mail já está na lista.');
+          return;
+        }
+
+        // Opcional: criar conta no Auth se ainda não existir
+        let created = false;
+        try {
+          const pass = prompt('Se a conta não existir, defina uma senha (mín. 6) para criar.\nSe já existir, deixe em branco e continue:');
+          if (pass && String(pass).length >= 6) {
+            const res = await ensureUserAccount(cleanEmail, pass);
+            created = !!res?.created;
+          }
+        } catch (e) {
+          // se der erro aqui, seguimos para apenas liberar acesso
+          console.warn('ensureUserAccount:', e);
+        }
+
+        securityData[type].push(cleanEmail);
+        
+        // Salva otimista (local) + servidor
+        renderList(type, securityData[type]);
+        await saveSecurity();
+
+        showToast('success', created ? 'Conta criada e acesso liberado.' : 'Acesso liberado.');
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao adicionar acesso.');
+        load(); // Reverte em caso de erro
+      }
+    }
+
+    async function removeAccess(type, email) {
+      try {
+        if (!email) return;
+
+        // Bloqueio: Líder master (primeiro líder) nunca pode ser removido
+        if (type === 'leaders') {
+          const masterLeader = (Array.isArray(securityData.leaders) && securityData.leaders.length)
+            ? String(securityData.leaders[0] || '').toLowerCase().trim()
+            : '';
+          const target = String(email || '').toLowerCase().trim();
+          if (masterLeader && target === masterLeader) {
+            showToast('info', 'O Líder Master (criador) não pode ser removido para evitar quebrar a guilda.');
+            return;
+          }
+        }
+
+        if (!confirm(`Remover acesso de ${email}?`)) return;
+
+        securityData[type] = (securityData[type] || []).filter((e) => e !== email);
+        
+        // Update Otimista
+        renderList(type, securityData[type]);
+        
+        await saveSecurity();
+        showToast('success', 'Acesso removido.');
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao remover acesso.');
+        load(); // Reverte
+      }
+    }
+
+    async function saveSecurity() {
+      // Atualiza cache local antes de enviar
+      localStorage.setItem(guildCacheKey(), JSON.stringify(securityData));
+      // ✅ Salva na config da própria guilda (compatível com rules UID)
+      await setDoc(doc(db, 'configGuilda', getGuildContext().guildId), {
+        admins: securityData.admins || [],
+        leaders: securityData.leaders || [],
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    }
+  </script>
+
+  <!-- OTK Footer -->
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+  <div class="mx-auto w-full max-w-5xl px-4 py-10">
+    <div class="flex flex-col items-center gap-4">
+
+      <div class="flex items-center justify-center gap-3">
+        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram gaming: @gameotk" title="@gameotk">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+          <i data-lucide="globe" class="h-5 w-5"></i>
+        </a>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm font-semibold tracking-wide text-slate-800">
+          Ottakubrasil • Guilda Hub
+        </p>
+
+        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+        </p>
+
+        <p class="mt-4 text-xs text-slate-500">
+          © Ottakubrasil • 2026
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+
