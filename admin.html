@@ -118,12 +118,85 @@
             </ul>
           </div>
         </div>
+
+
+          <!-- Card Acesso Jogador -->
+          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="gamepad-2" class="w-5 h-5 text-emerald-600"></i>
+                Acesso do Jogador
+              </h3>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-4">
+              Cria um <b>e-mail único da guilda</b> para acesso de leitura. Quem entrar com esse usuário verá apenas a tela do Jogador
+              (Dashboard + busca por ID), sem qualquer permissão de edição.
+            </p>
+
+            <!-- CREATE -->
+            <div id="player-create-box" class="space-y-3">
+              <div class="text-xs text-gray-500">E-mail do Jogador (gerado automaticamente)</div>
+              <div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+                <code id="player-email-preview" class="text-xs text-gray-800 break-all">jogador.{guildId}@guildahub.app</code>
+                <button id="btn-copy-player-email" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Copiar</button>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Senha do Jogador</label>
+                  <input id="player-pass" type="password" minlength="6" placeholder="Mínimo 6 caracteres"
+                    class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                </div>
+                <div class="flex items-end">
+                  <button id="btn-create-player" class="w-full px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+                    Criar acesso ao Jogador
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-xs text-gray-400">
+                Importante: a senha <b>não é salva</b> no banco. Guarde-a para distribuir ao time ou para apagar a conta depois.
+              </div>
+            </div>
+
+            <!-- MANAGE -->
+            <div id="player-manage-box" class="hidden space-y-3">
+              <div class="text-xs text-gray-500">E-mail atual do Jogador</div>
+              <div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+                <code id="player-email-active" class="text-xs text-gray-800 break-all"></code>
+                <button id="btn-copy-player-email-2" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Copiar</button>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Senha do Jogador (para apagar conta)</label>
+                  <input id="player-pass-del" type="password" minlength="6" placeholder="Senha do Jogador"
+                    class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                </div>
+                <div class="flex items-end gap-2">
+                  <button id="btn-revoke-player" class="w-1/2 px-4 py-2 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200">
+                    Revogar
+                  </button>
+                  <button id="btn-delete-player" class="w-1/2 px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700">
+                    Deletar conta
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-xs text-gray-400">
+                “Revogar” remove o acesso no sistema (sem apagar a conta). “Deletar conta” tenta remover também o usuário do Auth (precisa da senha).
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </main>
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, showToast, logout, auth, db, getGuildContext, ensureUserAccount } from "./logic.js";
+    import { checkAuth, setupSidebar, initIcons, showToast, logout, auth, db, getGuildContext, ensureUserAccount, createPlayerAccess, revokePlayerAccess, deletePlayerAccount } from "./logic.js";
     import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // Inicializa interface (menu mobile + ícones)
@@ -174,6 +247,12 @@
         const newData = snap.exists() ? (snap.data() || {}) : {};
         newData.admins = Array.isArray(newData.admins) ? newData.admins : [];
         newData.leaders = Array.isArray(newData.leaders) ? newData.leaders : [];
+
+
+        // Player access
+        newData.playerEmail = (newData.playerEmail || "").toString().toLowerCase().trim() || null;
+        renderPlayerAccess(newData.playerEmail);
+
 
         // Comparação para evitar refresh desnecessário
         const currentJSON = JSON.stringify(securityData);
@@ -249,7 +328,97 @@
         .replaceAll("'", "&#039;");
     }
 
-    document.getElementById('btn-add-admin')?.addEventListener('click', () => addAccess('admins'));
+    
+    // ===== Acesso Jogador =====
+    const playerCreateBox = document.getElementById('player-create-box');
+    const playerManageBox = document.getElementById('player-manage-box');
+    const playerEmailPreview = document.getElementById('player-email-preview');
+    const playerEmailActive = document.getElementById('player-email-active');
+
+    function getPlayerEmailForGuild() {
+      const gid = getGuildContext().guildId;
+      return `jogador.${gid}@guildahub.app`.toLowerCase();
+    }
+
+    function openCreateUI() {
+      if (playerManageBox) playerManageBox.classList.add('hidden');
+      if (playerCreateBox) playerCreateBox.classList.remove('hidden');
+      if (playerEmailPreview) playerEmailPreview.textContent = getPlayerEmailForGuild();
+    }
+
+    function openManageUI(email) {
+      if (playerCreateBox) playerCreateBox.classList.add('hidden');
+      if (playerManageBox) playerManageBox.classList.remove('hidden');
+      if (playerEmailActive) playerEmailActive.textContent = (email || '').toLowerCase();
+    }
+
+    function renderPlayerAccess(email) {
+      if (email) openManageUI(email);
+      else openCreateUI();
+    }
+
+    function copyText(txt) {
+      try {
+        navigator.clipboard.writeText(String(txt || ''));
+        showToast('success', 'Copiado!');
+      } catch (_) {
+        showToast('error', 'Não foi possível copiar.');
+      }
+    }
+
+    document.getElementById('btn-copy-player-email')?.addEventListener('click', () => copyText(getPlayerEmailForGuild()));
+    document.getElementById('btn-copy-player-email-2')?.addEventListener('click', () => copyText(playerEmailActive?.textContent || ''));
+
+    document.getElementById('btn-create-player')?.addEventListener('click', async () => {
+      const gid = getGuildContext().guildId;
+      const pass = document.getElementById('player-pass')?.value || '';
+      try {
+        showToast('info', 'Criando acesso do Jogador...');
+        const res = await createPlayerAccess(gid, pass);
+        showToast('success', `Acesso criado: ${res.email}`);
+        await load(); // recarrega config
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao criar acesso.');
+      }
+    });
+
+    document.getElementById('btn-revoke-player')?.addEventListener('click', async () => {
+      const gid = getGuildContext().guildId;
+      try {
+        showToast('info', 'Revogando acesso...');
+        await revokePlayerAccess(gid);
+        showToast('success', 'Acesso revogado.');
+        await load();
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao revogar.');
+      }
+    });
+
+    document.getElementById('btn-delete-player')?.addEventListener('click', async () => {
+      const gid = getGuildContext().guildId;
+      const email = (playerEmailActive?.textContent || '').toLowerCase().trim();
+      const pass = document.getElementById('player-pass-del')?.value || '';
+      try {
+        showToast('info', 'Revogando e deletando conta...');
+        await revokePlayerAccess(gid);
+        try {
+          await deletePlayerAccount(email, pass);
+          showToast('success', 'Conta do Jogador deletada.');
+        } catch (e2) {
+          // Se não conseguiu apagar a conta, pelo menos revogou
+          console.error(e2);
+          showToast('error', `Acesso revogado, mas não consegui deletar a conta: ${e2?.message || 'erro'}`);
+        }
+        await load();
+      } catch (e) {
+        console.error(e);
+        showToast('error', e?.message || 'Erro ao deletar.');
+      }
+    });
+
+document.getElementById('btn-add-admin')?.addEventListener('click', () => addAccess('admins'));
     document.getElementById('btn-add-leader')?.addEventListener('click', () => addAccess('leaders'));
 
     async function addAccess(type) {

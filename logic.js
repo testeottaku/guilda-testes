@@ -147,6 +147,9 @@ async function resolveRoleInGuild(guildId, email) {
 
       if (leadersL.includes(e)) return "Líder";
       if (adminsL.includes(e)) return "Admin";
+
+      const playerEmail = cleanEmail(data.playerEmail);
+      if (playerEmail && playerEmail === e) return "Jogador";
     }
 
     // fallback: ownerEmail/ownerUid do doc guildas
@@ -474,7 +477,20 @@ export function checkAuth(redirectToLogin = true) {
         return;
       }
 
-      if (role === "Admin") {
+      
+      if (role === "Jogador") {
+        // Jogador: somente tela de jogador (leitura)
+        const isPlayerPage = path.endsWith("/jogador") || path.endsWith("/jogador.html") || path.includes("jogador.html");
+        if (!isPlayerPage) {
+          window.location.href = "jogador.html";
+          resolve(null);
+          return;
+        }
+        resolve(user);
+        return;
+      }
+
+if (role === "Admin") {
         if (isAdminPage || isCampPage) {
           showToast("error", "Perfil Admin: acesso ao Dashboard, Membros, Lines e Ajustes.");
           window.location.href = "dashboard.html";
@@ -597,6 +613,103 @@ export async function ensureUserAccount(email, password) {
   try {
     await createUserWithEmailAndPassword(secondaryAuth, e, password);
     return { created: true };
+  } finally {
+    try { await signOut(secondaryAuth); } catch (_) {}
+    try { await deleteApp(secondaryApp); } catch (_) {}
+  }
+}
+
+/**
+ * Cria (ou garante) o acesso "Jogador" para a guilda atual.
+ * - Gera um e-mail único por guilda: jogador.<guildId>@guildahub.app
+ * - Cria conta no Auth via app secundário (não derruba o login atual)
+ * - Cria users/{uid} com guildId e role "Jogador"
+ * - Salva playerEmail em configGuilda/{guildId}
+ */
+export async function createPlayerAccess(guildId, password) {
+  if (!guildId) throw new Error("GuildId inválido.");
+  const email = cleanEmail(`jogador.${guildId}@guildahub.app`);
+
+  if (!password || String(password).length < 6) {
+    throw new Error("Defina uma senha com no mínimo 6 caracteres.");
+  }
+
+  const secondaryName = "secondary_player_" + Date.now();
+  const secondaryApp = initializeApp(firebaseConfig, secondaryName);
+  const secondaryAuth = getAuth(secondaryApp);
+  const secondaryDb = getFirestore(secondaryApp);
+
+  try {
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    const uid = cred.user.uid;
+
+    // Cria o perfil do jogador (com o guildId), logado como ele (regras permitem)
+    await setDoc(doc(secondaryDb, "users", uid), {
+      email,
+      username: "Jogador",
+      guildId,
+      role: "Jogador",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    // Registra no config da guilda (precisa ser Líder/Admin no Auth principal)
+    await setDoc(doc(db, "configGuilda", guildId), {
+      playerEmail: email,
+      playerEnabled: true,
+      playerCreatedAt: serverTimestamp()
+    }, { merge: true });
+
+    return { email, uid };
+  } finally {
+    try { await signOut(secondaryAuth); } catch (_) {}
+    try { await deleteApp(secondaryApp); } catch (_) {}
+  }
+}
+
+/**
+ * Remove o acesso do jogador (revoga pelo config). Não apaga a conta do Auth.
+ */
+export async function revokePlayerAccess(guildId) {
+  if (!guildId) throw new Error("GuildId inválido.");
+  await setDoc(doc(db, "configGuilda", guildId), {
+    playerEmail: null,
+    playerEnabled: false,
+    playerRevokedAt: serverTimestamp()
+  }, { merge: true });
+  return true;
+}
+
+/**
+ * Tenta apagar a conta do jogador (Auth) e o doc users/{uid}.
+ * Necessita a senha do jogador (para login recente).
+ */
+export async function deletePlayerAccount(playerEmail, password) {
+  const email = cleanEmail(playerEmail);
+  if (!email) throw new Error("E-mail inválido.");
+  if (!password || String(password).length < 6) throw new Error("Informe a senha do jogador (mínimo 6).");
+
+  const secondaryName = "secondary_delete_" + Date.now();
+  const secondaryApp = initializeApp(firebaseConfig, secondaryName);
+  const secondaryAuth = getAuth(secondaryApp);
+  const secondaryDb = getFirestore(secondaryApp);
+
+  try {
+    // Login recente
+    const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const cred = await signInWithEmailAndPassword(secondaryAuth, email, password);
+    const uid = cred.user.uid;
+
+    // Remove doc users/{uid} (regras precisam permitir delete do próprio doc)
+    try {
+      const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      await deleteDoc(doc(secondaryDb, "users", uid));
+    } catch (_) {}
+
+    // Apaga Auth user
+    await cred.user.delete();
+
+    return { deleted: true };
   } finally {
     try { await signOut(secondaryAuth); } catch (_) {}
     try { await deleteApp(secondaryApp); } catch (_) {}
