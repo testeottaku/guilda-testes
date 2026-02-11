@@ -76,7 +76,7 @@
               <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
             </button>
             <div>
-              <h2 class="text-lg font-extrabold text-gray-900">Lines</h2>
+              <h2 class="text-lg font-extrabold text-gray-900 flex items-center gap-2">Lines <span id="plus-badge-lines" class="hidden inline-flex items-center rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span></h2>
               <p class="text-gray-500 text-sm mt-1" id="lines-count">Carregando...</p>
             </div>
           </div>
@@ -179,17 +179,16 @@
     }
     function applyVip(tier){
       const rank = tierRank(tier);
-      const isPlusOrPro = rank >= 1; // plus/pro
-      const btnNew = document.getElementById('btn-new-line');
-      const btnSave = document.getElementById('btn-save-line');
+      const badge = document.getElementById('plus-badge-lines');
 
-      function lockify(btn, text){
-        if(!btn) return;
-        btn.dataset.originalHtml = btn.dataset.originalHtml || btn.innerHTML;
-        btn.disabled = true;
-        btn.classList.add('opacity-50','cursor-not-allowed');
-        btn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i> ${text}`;
+      // FREE = mostra tag PLUS
+      if(rank === 0){
+        if(badge) badge.classList.remove('hidden');
+      } else {
+        if(badge) badge.classList.add('hidden');
       }
+    }
+
       function restore(btn){
         if(!btn) return;
         btn.disabled = false;
