@@ -81,7 +81,7 @@
             </div>
           </div>
 
-          <button id="btn-new-line" title="Recurso PLUS/PRO" onclick="openLineModal()" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95">
+          <button id="btn-new-line" title="Recurso PLUS" onclick="openLineModal()" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:inline">Adicionar</span>
           </button>
         </div>
@@ -178,13 +178,38 @@
       if(s==='pro') return 2; if(s==='plus') return 1; return 0;
     }
     function applyVip(tier){
-      const pro = tierRank(tier) >= 2;
-      const b = document.getElementById('btn-new-line');
-      if(b && !pro){
-        b.disabled = true;
-        b.classList.add('opacity-50','cursor-not-allowed');
-        b.textContent = 'Novo (PRO)';
+      const rank = tierRank(tier);
+      const isPlusOrPro = rank >= 1; // plus/pro
+      const btnNew = document.getElementById('btn-new-line');
+      const btnSave = document.getElementById('btn-save-line');
+
+      function lockify(btn, text){
+        if(!btn) return;
+        btn.dataset.originalHtml = btn.dataset.originalHtml || btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('opacity-50','cursor-not-allowed');
+        btn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i> ${text}`;
       }
+      function restore(btn){
+        if(!btn) return;
+        btn.disabled = false;
+        btn.classList.remove('opacity-50','cursor-not-allowed');
+        if(btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+      }
+
+      if(!isPlusOrPro){
+        // FREE => bloqueia criar e salvar
+        lockify(btnNew, 'PLUS');
+        lockify(btnSave, 'PLUS');
+      } else {
+        restore(btnNew);
+        restore(btnSave);
+      }
+
+      // Re-render icons after HTML changes
+      try{ if(window.lucide && typeof window.lucide.createIcons==='function') window.lucide.createIcons(); }catch(_){}
+    }
+
     }
 
     // ---- Estado ------------------------------------------------------------
