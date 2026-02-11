@@ -287,7 +287,7 @@ export function checkAuth(redirectToLogin = true) {
         uid: user.uid
       };
 
-      const roleEl = document.getElementById("user-role"); = document.getElementById("user-role");
+      const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
 
       const path = (window.location.pathname || "").toLowerCase();
