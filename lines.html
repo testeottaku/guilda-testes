@@ -189,26 +189,6 @@
       }
     }
 
-      function restore(btn){
-        if(!btn) return;
-        btn.disabled = false;
-        btn.classList.remove('opacity-50','cursor-not-allowed');
-        if(btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
-      }
-
-      if(!isPlusOrPro){
-        // FREE => bloqueia criar e salvar
-        lockify(btnNew, 'PLUS');
-        lockify(btnSave, 'PLUS');
-      } else {
-        restore(btnNew);
-        restore(btnSave);
-      }
-
-      // Re-render icons after HTML changes
-      try{ if(window.lucide && typeof window.lucide.createIcons==='function') window.lucide.createIcons(); }catch(_){}
-    }
-
     // ---- Estado ------------------------------------------------------------
     let guildId = null;
     let members = [];        // cache local de membros (para picker / snapshots)
