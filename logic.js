@@ -18,6 +18,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
   writeBatch,
   serverTimestamp,
   addDoc,
@@ -27,6 +28,8 @@ import {
   getDocs,
   limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
 // Firebase config
 export const firebaseConfig = {
@@ -42,6 +45,7 @@ export const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const functions = getFunctions(app);
 
 // --- Contexto da Guilda -----------------------------------------------------
 let __guildCtx = null;
@@ -61,6 +65,20 @@ try {
         uid: String(cached.uid),
         vipTier: cached.vipTier ? String(cached.vipTier) : 'free'
       };
+    }
+  }
+} catch (_) {}
+
+// --- Cache local do status de Chefe (CEO) ---
+const __CEO_LS_KEY = 'ceo_cache_v1';
+let __isCeo = false;
+try {
+  const raw = localStorage.getItem(__CEO_LS_KEY);
+  if (raw) {
+    const cached = JSON.parse(raw);
+    // cache dura 10 minutos
+    if (cached && cached.email && cached.ts && (Date.now() - cached.ts) < 10 * 60 * 1000) {
+      __isCeo = !!cached.isCeo;
     }
   }
 } catch (_) {}
@@ -92,6 +110,51 @@ function requireGuildId() {
 
 function cleanEmail(email) {
   return (email || "").toString().toLowerCase().trim();
+}
+
+// --- Chefe (CEO) -----------------------------------------------------------
+export function isCeo() {
+  return !!__isCeo;
+}
+
+async function __refreshCeoStatus(emailLower) {
+  const email = cleanEmail(emailLower);
+  if (!email) return false;
+  try {
+    const snap = await getDoc(doc(db, "chefe", "security"));
+    const data = snap.exists() ? (snap.data() || {}) : {};
+    const list = Array.isArray(data.ceo) ? data.ceo : [];
+    const ok = list.map(cleanEmail).includes(email);
+    __isCeo = ok;
+    try {
+      localStorage.setItem(__CEO_LS_KEY, JSON.stringify({ email, isCeo: ok, ts: Date.now() }));
+    } catch (_) {}
+    return ok;
+  } catch (_) {
+    // se não tiver permissão pra ler, assume false sem quebrar UI
+    __isCeo = false;
+    return false;
+  }
+}
+
+export async function ensureCeoStatus() {
+  try {
+    const user = auth.currentUser;
+    const email = cleanEmail(user?.email);
+    return await __refreshCeoStatus(email);
+  } catch (_) {
+    return false;
+  }
+}
+
+export function applyCeoNavVisibility() {
+  try {
+    document.querySelectorAll('[data-ceo-only="true"], #nav-chefe').forEach((el) => {
+      if (!el) return;
+      if (__isCeo) el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    });
+  } catch (_) {}
 }
 
 function uniq(arr) {
@@ -497,15 +560,29 @@ export function checkAuth(redirectToLogin = true) {
 
       const guildName = await getGuildName(guildId);
 
-      // VIP: lê configGuilda/{guildId}.vip (string). 'free' => gratuito; 'pro' => pro; demais => plus
+      // VIP: lê configGuilda/{guildId} (vários campos aceitos)
       let vipTier = 'free';
       try {
         const cfgSnap = await getDoc(doc(db, "configGuilda", guildId));
         if (cfgSnap.exists()) {
           const cfg = cfgSnap.data() || {};
-          vipTier = vipTierFromValue(cfg.vip);
+          const rawVip = cfg.vipTier ?? cfg.vip ?? cfg.planoVip ?? cfg.plano ?? cfg.plan ?? cfg.tier;
+          vipTier = vipTierFromValue(rawVip);
         }
       } catch (_) {}
+
+      // fallback: tenta ler do doc guildas/{guildId} se config não tiver
+      if (!vipTier || vipTier === 'free') {
+        try {
+          const gSnap = await getDoc(doc(db, "guildas", guildId));
+          if (gSnap.exists()) {
+            const g = gSnap.data() || {};
+            const rawVip2 = g.vipTier ?? g.vip ?? g.planoVip ?? g.plano ?? g.plan ?? g.tier;
+            const v2 = vipTierFromValue(rawVip2);
+            if (v2) vipTier = v2;
+          }
+        } catch (_) {}
+      }
 
 
       __guildCtx = {
@@ -523,6 +600,10 @@ export function checkAuth(redirectToLogin = true) {
       } catch (_) {}
       try { applyVipUiAndGates(vipTier); } catch (_) {}
 
+      // Chefe (CEO): mostra/oculta menu e libera tela chefe
+      try { await __refreshCeoStatus(emailLower); } catch (_) {}
+      try { applyCeoNavVisibility(); } catch (_) {}
+
 
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
@@ -534,6 +615,7 @@ export function checkAuth(redirectToLogin = true) {
       const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html") || path.includes("campeonato");
       const isSettingsPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html");
       const isLinesPage = path.endsWith("/lines") || path.endsWith("/lines.html") || path.includes("lines.html");
+      const isChefePage = path.endsWith("/chefe") || path.endsWith("/chefe.html") || path.includes("chefe.html");
 
       // Acesso:
       // - Líder: tudo
@@ -543,6 +625,14 @@ export function checkAuth(redirectToLogin = true) {
         showToast("error", "Acesso negado: conta não autorizada.");
         try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
+        resolve(null);
+        return;
+      }
+
+      // Tela Chefe: só CEO
+      if (isChefePage && !__isCeo) {
+        showToast("error", "Acesso negado: somente o Chefe pode abrir esta tela.");
+        window.location.href = "dashboard.html";
         resolve(null);
         return;
       }
@@ -582,10 +672,7 @@ if (role === "Admin") {
 
 // ================= VIP UI + Gates (cache-first) =================
 function __vipNormalize(tier) {
-  const t = (tier || "").toString().toLowerCase().trim();
-  if (t === "pro") return "pro";
-  if (t === "plus") return "plus";
-  return "free";
+  return normalizeVipTier(tier);
 }
 
 function __setDisabled(btn, disabled, reasonText) {
@@ -642,7 +729,7 @@ export function applyVipUiAndGates(tierRaw) {
   // - pro: hide all PLUS/PRO tags
   __ensureVipTagsIndex();
   const showPlusTags = tier === "free";
-  const showProTags = tier !== "pro"; // show PRO for free/plus; hide for pro
+  const showProTags = (tier !== "pro" && tier !== "business"); // hide for pro/business
   document.querySelectorAll("[data-vip-tag]").forEach((el) => {
     const tag = (el.dataset.vipTag || "").toLowerCase();
     if (tag === "plus") el.style.display = showPlusTags ? "" : "none";

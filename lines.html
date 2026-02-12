@@ -50,6 +50,9 @@
         <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="settings" class="w-5 h-5"></i> Admin
         </a>
+        <a id="nav-chefe" href="chefe.html" class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="crown" class="w-5 h-5"></i> Chefe
+        </a>
       </nav>
 
       
@@ -170,17 +173,15 @@
 
   <script type="module">
 
-    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, getGuildContext, checkIsCeo, ensureCeoNavLink, getVipTier } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, db, showToast, getGuildContext } from './logic.js';
     import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
     initIcons();
 
     function tierRank(t){
-      const s = (t||'free').toString().toLowerCase().trim();
-      if (s==='pro' || s==='business') return 2;
-      if (s==='plus') return 1;
-      return 0;
+      const s=(t||'free').toString().toLowerCase();
+      if(s==='pro' || s==='business') return 2; if(s==='plus') return 1; return 0;
     }
     function applyVip(tier){
       const rank = tierRank(tier);
