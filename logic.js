@@ -514,7 +514,9 @@ export function checkAuth(redirectToLogin = true) {
 
       // Se ainda não resolveu, a conta não está vinculada a nenhuma guilda -> não criar nada automaticamente.
       if (!guildId) {
-        try { await signOut(auth); } catch (_) {}
+        // Não cria nada automaticamente e NÃO faz signOut automático.
+        // Mantém a sessão e apenas volta para o login (evita "logout automático" indevido).
+        try { showToast("error", "Sua conta não está vinculada a nenhuma guilda."); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
         resolve(null);
         return;
@@ -524,7 +526,9 @@ export function checkAuth(redirectToLogin = true) {
         // Importante: não forçar "Minha Guilda" aqui, pois isso sobrescrevia o nome real em alguns cenários.
         await ensureBootstrapDocs(user, username, guildId);
       } catch (e) {
-        try { await signOut(auth); } catch (_) {}
+        // Não deslogar automaticamente aqui; apenas redireciona.
+        console.error("Bootstrap falhou:", e);
+        try { showToast("error", "Falha ao carregar dados da guilda. Tente novamente."); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
         resolve(null);
         return;
@@ -590,7 +594,9 @@ export function checkAuth(redirectToLogin = true) {
       const isChefePage = path.endsWith("/chefe") || path.endsWith("/chefe.html") || path.includes("chefe.html");
 
       if (role === "Membro") {
-        try { await signOut(auth); } catch (_) {}
+        // NÃO derruba a sessão automaticamente.
+        // Apenas bloqueia acesso e volta para o login (igual o behavior antigo).
+        try { showToast("error", "Acesso negado: conta não autorizada."); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
         resolve(null);
         return;
