@@ -152,7 +152,7 @@
         </div>
 
         <!-- Alertas e Gráficos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <!-- Atenção -->
           <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-2 mb-4">
@@ -183,6 +183,15 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, getGuildContext, applyVipUiAndGates, getVipTier } from './logic.js';
+
+    function normalizeTier(raw){
+      const s = (raw || 'free').toString().toLowerCase().trim();
+      if (s.includes('buss') || s.includes('business')) return 'business';
+      if (s.includes('pro')) return 'pro';
+      if (s.includes('plus')) return 'plus';
+      return 'free';
+    }
+
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // 1. CARREGAMENTO IMEDIATO DO CACHE
@@ -220,7 +229,10 @@
       // Atualiza label VIP (Guilda: <vip>) com o tier real resolvido no contexto
       try {
         const ctx = getGuildContext();
-        applyVipUiAndGates(ctx?.vipTier || getVipTier());
+        const tier = normalizeTier(ctx?.vipTier || getVipTier());
+        applyVipUiAndGates(tier);
+        const planEl = document.getElementById('current-plan-name');
+        if (planEl) planEl.textContent = tier.toUpperCase();
       } catch(e) {}
 // Busca dados frescos no Firebase (Background)
       loadDashboard();
