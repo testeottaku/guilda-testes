@@ -21,15 +21,15 @@
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
-            <span class="text-white font-black">G</span>
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200">
+            <i data-lucide="shield" class="w-5 h-5 text-white"></i>
           </div>
           <div>
-            <p class="font-extrabold text-gray-800 leading-tight">Guild Manager</p>
-            <p id="vip-label" class="text-xs text-gray-500">Guilda: <span class="font-bold text-gray-800">free</span></p>
+            <p class="font-extrabold text-gray-800 leading-tight">Guilda e eventos</p>
+            <p id="vip-label" class="text-xs text-gray-500">Guilda: <span class="font-bold text-gray-800 uppercase">free</span></p>
           </div>
         </div>
-</div>
+      </div>
 
       <nav class="p-4 space-y-1">
         <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
@@ -86,7 +86,7 @@
             <div class="flex items-center gap-2 w-full flex-nowrap">
               <h1 class="text-xl font-extrabold text-gray-900 leading-tight">Upgrade</h1>
               <span id="current-plan-pill" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-sm border border-gray-200 whitespace-nowrap ml-auto">
-                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
                 <span>Plano atual: <b id="current-plan-name">—</b></span>
               </span>
             </div>
@@ -97,61 +97,43 @@
 
       <section class="px-4 lg:px-8 py-6">
         <div id="plans" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
-<div class="mt-4 text-sm text-gray-600 bg-white rounded-xl border border-gray-200 p-4"><b>Como funciona a liberação:</b> após solicitar e confirmar o pagamento, a ativação do plano normalmente acontece entre <b>30 minutos</b> e <b>5 horas</b>. Solicitações feitas após <b>22:00</b> podem ser ativadas apenas a partir de <b>06:00</b>.</div>
-</section>
+        <div class="mt-4 text-sm text-gray-600 bg-white rounded-xl border border-gray-200 p-4">
+          <b>Como funciona a liberação:</b> após solicitar e confirmar o pagamento, a ativação do plano normalmente acontece entre <b>30 minutos</b> e <b>5 horas</b>. Solicitações feitas após <b>22:00</b> podem ser ativadas apenas a partir de <b>06:00</b>.
+        </div>
+      </section>
 
-<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
-  <div class="mx-auto w-full max-w-5xl px-4 py-10">
-    <div class="flex flex-col items-center gap-4">
-
-      <div class="flex items-center justify-center gap-3">
-        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
-           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
-           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
-          <i data-lucide="instagram" class="h-5 w-5"></i>
-        </a>
-
-        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
-           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
-           aria-label="Instagram gaming: @gameotk" title="@gameotk">
-          <i data-lucide="instagram" class="h-5 w-5"></i>
-        </a>
-
-        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
-           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
-           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
-          <i data-lucide="globe" class="h-5 w-5"></i>
-        </a>
-      </div>
-
-      <div class="text-center">
-        <p class="text-sm font-semibold tracking-wide text-slate-800">
-          Ottakubrasil • Guilda Hub
-        </p>
-
-        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
-          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
-        </p>
-
-        <p class="mt-4 text-xs text-slate-500">
-          © Ottakubrasil • 2026
-        </p>
-      </div>
-
-    </div>
-  </div>
-</footer>
-
+      <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+        <div class="mx-auto w-full max-w-5xl px-4 py-10">
+          <div class="flex flex-col items-center gap-4">
+            <div class="flex items-center justify-center gap-3">
+              <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10">
+                <i data-lucide="instagram" class="h-5 w-5"></i>
+              </a>
+              <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10">
+                <i data-lucide="instagram" class="h-5 w-5"></i>
+              </a>
+              <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10">
+                <i data-lucide="globe" class="h-5 w-5"></i>
+              </a>
+            </div>
+            <div class="text-center">
+              <p class="text-sm font-semibold tracking-wide text-slate-800">Ottakubrasil • Guilda Hub</p>
+              <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.</p>
+              <p class="mt-4 text-xs text-slate-500">© Ottakubrasil • 2026</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   </div>
 
 <script type="module">
-  import { checkAuth, setupSidebar, initIcons, logout, getVipTier, showToast, createUpgradeSolicitacao } from './logic.js';
+  import { checkAuth, setupSidebar, initIcons, logout, getVipTier, showToast, createUpgradeSolicitacao, getGuildContext, applyVipUiAndGates } from './logic.js';
 
   setupSidebar();
-  initIcons();
 
-  const PLANS_LS_KEY = 'plans_upgrade_cache_v1';
+  // Versão 2 do cache para forçar a atualização das informações corrigidas
+  const PLANS_LS_KEY = 'plans_upgrade_cache_v2';
 
   function normalizeTier(raw){
     const s = (raw || 'free').toString().toLowerCase().trim();
@@ -162,38 +144,23 @@
   }
 
   function computeDiscounts(plans){
-    // Baseline (preço "cheio" para referência de desconto)
     const fullMonthly = 9.99;
     const fullAnnual = fullMonthly * 12;
 
     return plans.map(p => {
       let discount = 0;
-
-      if (p.id === 'free') {
-        discount = 100;
-      } else if (p.id === 'plus') {
-        discount = Math.round((1 - (p.price / fullMonthly)) * 100);
-      } else if (p.id === 'pro') {
-        discount = Math.round((1 - (p.price / fullMonthly)) * 100);
-      } else if (p.id === 'business') {
-        discount = Math.round((1 - (p.price / fullAnnual)) * 100);
-      }
-
-      if (!isFinite(discount)) discount = 0;
-      if (discount < 0) discount = 0;
-      if (discount > 100) discount = 100;
-
-      return { ...p, discount };
+      if (p.id === 'free') discount = 100;
+      else if (p.id === 'plus' || p.id === 'pro') discount = Math.round((1 - (p.price / fullMonthly)) * 100);
+      else if (p.id === 'business') discount = Math.round((1 - (p.price / fullAnnual)) * 100);
+      return { ...p, discount: discount > 0 ? discount : 0 };
     });
   }
 
   function getPlans(){
+    // Mudamos a chave para v2, então se existir v1, ele ignorará e carregará o novo
     try {
       const raw = localStorage.getItem(PLANS_LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length) return parsed;
-      }
+      if (raw) return JSON.parse(raw);
     } catch (_) {}
 
     const basePlans = [
@@ -223,17 +190,16 @@
       },
       {
         id: 'business',
-        name: 'BUSSINES',
+        name: 'BUSINESS',
         price: 61.99,
         priceLabel: 'R$61,99 / ano',
         access: ['Dashboard', 'Membros', 'Configuração de tag', 'Administradores + Líderes', 'Lines', 'Eventos/Camp (BETA)', 'Acesso do jogador (BETA)'],
-        noAccess: [],
+        noAccess: [], // BUSINESS tem acesso a TUDO
         note: 'Equivalente a ~R$5,17/mês'
       },
     ];
 
     const computed = computeDiscounts(basePlans);
-
     try { localStorage.setItem(PLANS_LS_KEY, JSON.stringify(computed)); } catch (_) {}
     return computed;
   }
@@ -248,8 +214,6 @@
     }
   }
 
-  
-  // PIX Copia e Cola por plano
   const PIX_BY_PLAN = {
     plus: '00020126580014br.gov.bcb.pix0136da7134dc-eb07-4189-a126-3e0d3e91fa5752040000530398654045.995802BR5912Kelvin Ortiz6009Sao Paulo62230519daqr812717438068787630483C7',
     pro: '00020126580014br.gov.bcb.pix0136da7134dc-eb07-4189-a126-3e0d3e91fa5752040000530398654048.995802BR5912Kelvin Ortiz6009Sao Paulo62230519daqr812717438571777630418D2',
@@ -283,6 +247,10 @@
     `;
   }
 
+  window.requestUpgrade = (planId) => {
+    openPixModal(planId);
+  };
+
   function openPixModal(planId) {
     const plan = (planId || '').toString().toLowerCase().trim();
     const pix = PIX_BY_PLAN[plan];
@@ -291,163 +259,73 @@
       return;
     }
 
-    const planLabel = plan.toUpperCase();
-
     const root = ensureModalRoot();
     root.innerHTML = modalShell(`
       <div class="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
         <div>
-          <div class="text-sm font-extrabold text-gray-900">Pagamento via PIX — ${planLabel}</div>
+          <div class="text-sm font-extrabold text-gray-900">Pagamento via PIX — ${plan.toUpperCase()}</div>
           <div class="text-xs text-gray-500 mt-0.5">Copie o código abaixo e pague no seu banco.</div>
         </div>
-        <button class="p-2 rounded-lg hover:bg-gray-50 text-gray-500" data-close="1" title="Fechar">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button class="p-2 rounded-lg hover:bg-gray-50 text-gray-500" data-close="1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
       <div class="p-4">
         <label class="text-xs font-bold text-gray-600">PIX Copia e Cola</label>
         <textarea id="pix-code" class="mt-2 w-full h-28 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-200" readonly></textarea>
-
         <div class="mt-3 flex flex-col sm:flex-row gap-2">
-          <button id="btn-copy-pix" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-black transition">
-            <i data-lucide="copy" class="w-4 h-4"></i> Copiar código
-          </button>
-          <button id="btn-already-paid" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition">
-            <i data-lucide="badge-check" class="w-4 h-4"></i> Já paguei
-          </button>
-        </div>
-
-        <div class="mt-3 text-[11px] text-gray-500 leading-relaxed">
-          Importante: o nome informado em <b>“Já paguei”</b> deve ser o mesmo nome do titular da conta bancária que fez o pagamento.
+          <button id="btn-copy-pix" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-black transition"><i data-lucide="copy" class="w-4 h-4"></i> Copiar código</button>
+          <button id="btn-already-paid" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition"><i data-lucide="badge-check" class="w-4 h-4"></i> Já paguei</button>
         </div>
       </div>
     `);
 
     const ta = root.querySelector('#pix-code');
     if (ta) ta.value = pix;
-
-    root.querySelectorAll('[data-close="1"]').forEach(el => {
-      el.addEventListener('click', closeModals);
-    });
-
-    const btnCopy = root.querySelector('#btn-copy-pix');
-    if (btnCopy) {
-      btnCopy.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(pix);
-          showToast('success', 'Código PIX copiado.');
-        } catch {
-          // fallback: seleciona o texto
-          try {
-            ta.focus();
-            ta.select();
-            document.execCommand('copy');
-            showToast('success', 'Código PIX copiado.');
-          } catch {
-            showToast('error', 'Não foi possível copiar automaticamente. Selecione e copie manualmente.');
-          }
-        }
-      });
-    }
-
-    const btnPaid = root.querySelector('#btn-already-paid');
-    if (btnPaid) {
-      btnPaid.addEventListener('click', () => openPaidModal(plan));
-    }
-
+    root.querySelectorAll('[data-close="1"]').forEach(el => el.addEventListener('click', closeModals));
+    root.querySelector('#btn-copy-pix').onclick = () => {
+      navigator.clipboard.writeText(pix);
+      showToast('success', 'Código PIX copiado.');
+    };
+    root.querySelector('#btn-already-paid').onclick = () => openPaidModal(plan);
     try { lucide.createIcons(); } catch (_) {}
   }
 
   function openPaidModal(planId) {
-    const plan = (planId || '').toString().toLowerCase().trim();
-    if (!PIX_BY_PLAN[plan]) {
-      showToast('error', 'Plano inválido.');
-      return;
-    }
-
     const root = ensureModalRoot();
     root.innerHTML = modalShell(`
       <div class="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
-        <div>
-          <div class="text-sm font-extrabold text-gray-900">Confirmar pagamento — ${plan.toUpperCase()}</div>
-          <div class="text-xs text-gray-500 mt-0.5">Informe o nome do titular que pagou o PIX.</div>
-        </div>
-        <button class="p-2 rounded-lg hover:bg-gray-50 text-gray-500" data-close="1" title="Fechar">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="text-sm font-extrabold text-gray-900">Confirmar pagamento — ${planId.toUpperCase()}</div>
+        <button class="p-2 rounded-lg hover:bg-gray-50 text-gray-500" data-close="1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
       <div class="p-4">
         <label class="text-xs font-bold text-gray-600">Nome real do pagador</label>
         <input id="payer-name" class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-200" placeholder="Ex: João da Silva" />
-
         <div class="mt-3 flex flex-col sm:flex-row gap-2">
-          <button id="btn-back" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold hover:bg-gray-200 transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar
-          </button>
-          <button id="btn-send" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition">
-            <i data-lucide="send" class="w-4 h-4"></i> Enviar solicitação
-          </button>
-        </div>
-
-        <div class="mt-3 text-[11px] text-gray-500 leading-relaxed">
-          Ao enviar, a solicitação será registrada e analisada. A ativação costuma ocorrer entre <b>30 min</b> e <b>5 horas</b>.
+          <button id="btn-back" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold transition"><i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar</button>
+          <button id="btn-send" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition"><i data-lucide="send" class="w-4 h-4"></i> Enviar solicitação</button>
         </div>
       </div>
     `);
 
     root.querySelectorAll('[data-close="1"]').forEach(el => el.addEventListener('click', closeModals));
-
-    const inp = root.querySelector('#payer-name');
-    const btnBack = root.querySelector('#btn-back');
-    const btnSend = root.querySelector('#btn-send');
-
-    if (btnBack) btnBack.addEventListener('click', () => openPixModal(plan));
-
-    if (btnSend) {
-      btnSend.addEventListener('click', async () => {
-        const name = (inp?.value || '').toString().trim();
-        if (!name) {
-          showToast('error', 'Informe o nome real do pagador.');
-          inp?.focus();
-          return;
-        }
-
-        btnSend.disabled = true;
-        btnSend.classList.add('opacity-70');
-
-        try {
-          await createUpgradeSolicitacao(plan, name);
-          showToast('success', 'Solicitação enviada. Em breve seu plano será ativado.');
-          closeModals();
-        } catch (e) {
-          showToast('error', (e && e.message) ? e.message : 'Não foi possível enviar a solicitação.');
-          btnSend.disabled = false;
-          btnSend.classList.remove('opacity-70');
-        }
-      });
-    }
-
+    root.querySelector('#btn-back').onclick = () => openPixModal(planId);
+    root.querySelector('#btn-send').onclick = async () => {
+      const name = root.querySelector('#payer-name').value.trim();
+      if (!name) return showToast('error', 'Informe o nome do pagador.');
+      try {
+        await createUpgradeSolicitacao(planId, name);
+        showToast('success', 'Solicitação enviada!');
+        closeModals();
+      } catch (e) { showToast('error', 'Erro ao enviar.'); }
+    };
     try { lucide.createIcons(); } catch (_) {}
-    inp?.focus();
   }
 
-  // Solicitar upgrade (abre modal do PIX)
-  window.requestUpgrade = (planId) => {
-    openPixModal(planId);
-  };
-
-function render(){
+  function render(){
     const plans = getPlans();
     const currentTier = currentTierFromCache();
 
-    const pill = document.getElementById('current-plan-pill');
     const pillName = document.getElementById('current-plan-name');
-    if (pill && pillName) {
-      pill.classList.remove('hidden');
-      pillName.textContent = (currentTier || 'free').toUpperCase();
-    }
+    if (pillName) pillName.textContent = (currentTier || 'free').toUpperCase();
 
     const box = document.getElementById('plans');
     if (!box) return;
@@ -455,71 +333,54 @@ function render(){
     box.innerHTML = plans.map(p => {
       const isCurrent = p.id === currentTier;
       const border = isCurrent ? 'border-emerald-200 ring-2 ring-emerald-100' : 'border-gray-200';
-      const tag = isCurrent
-        ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200"><i data-lucide="check-circle" class="w-4 h-4"></i> Plano atual</span>'
-        : '';
+      const tag = isCurrent ? '<span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">Atual</span>' : '';
 
-      const discountText = (!isCurrent && p.discount > 0)
-        ? `<div class="text-xs text-gray-500 mt-1">Economize ${p.discount}%</div>`
-        : '';
-
-      const actionBtn = isCurrent
-        ? ''
-        : `<button onclick="requestUpgrade('${p.id}')" class="mt-3 w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition">
-             <i data-lucide="send" class="w-4 h-4"></i> Solicitar
-           </button>`;
-
-      const accessList = p.access.map(x => `<li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 mt-0.5"></i><span>${x}</span></li>`).join('');
+      const accessList = p.access.map(x => `<li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 mt-0.5 text-emerald-500"></i><span>${x}</span></li>`).join('');
       const noAccessList = (p.noAccess || []).map(x => `<li class="flex items-start gap-2 text-gray-400"><i data-lucide="x" class="w-3.5 h-3.5 mt-0.5"></i><span>${x}</span></li>`).join('');
 
-      const note = p.note ? `<div class="mt-3 text-xs text-gray-500">${p.note}</div>` : '';
-
       return `
-        <div class="bg-white rounded-xl border ${border} p-3 shadow-sm">
-          <div class="flex items-center justify-between gap-2">
+        <div class="bg-white rounded-xl border ${border} p-3 shadow-sm flex flex-col h-full">
+          <div class="flex items-center justify-between gap-2 mb-2">
             <h3 class="text-sm font-extrabold text-gray-900 truncate">${p.name}</h3>
             ${tag}
           </div>
-
-          <div class="mt-2">
-            <div class="text-lg font-black text-gray-900 leading-none">${p.priceLabel}</div>
-            ${discountText}
+          <div class="text-lg font-black text-gray-900 leading-none">${p.priceLabel}</div>
+          ${p.discount > 0 ? `<div class="text-[10px] text-emerald-600 font-bold mt-1">Economize ${p.discount}%</div>` : ''}
+          
+          <div class="mt-4 flex-1">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Acesso</div>
+            <ul class="space-y-1.5 text-[11px] text-gray-700">${accessList}</ul>
+            ${noAccessList ? `<div class="mt-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Sem acesso</div><ul class="space-y-1.5 text-[11px]">${noAccessList}</ul>` : ''}
           </div>
 
-          <div class="mt-3">
-            <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Acesso</div>
-            <ul class="mt-2 space-y-1 text-xs text-gray-700">${accessList}</ul>
-          </div>
-
-          ${noAccessList ? `
-          <div class="mt-4">
-            <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Sem acesso</div>
-            <ul class="mt-2 space-y-1 text-xs">${noAccessList}</ul>
-          </div>` : ''}
-
-          ${note}
-
-          ${actionBtn}
+          ${p.note ? `<div class="mt-3 text-[10px] text-gray-500 italic">${p.note}</div>` : ''}
+          ${!isCurrent ? `<button onclick="requestUpgrade('${p.id}')" class="mt-3 w-full py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition">Solicitar</button>` : ''}
         </div>
       `;
     }).join('');
-
-    // Re-render icons inside the injected HTML
     try { lucide.createIcons(); } catch (_) {}
   }
 
   render();
 
-  // Sincroniza plano atual depois do auth (caso cache esteja desatualizado)
   checkAuth().then((user) => {
     if (!user) return;
     document.getElementById('btn-logout').onclick = logout;
+    
+    // Sincroniza labels de plano em tempo real
     try {
       const tier = normalizeTier(getVipTier());
+      
+      // Atualiza o header
       const pillName = document.getElementById('current-plan-name');
       if (pillName) pillName.textContent = tier.toUpperCase();
+      
+      // Atualiza o label do menu lateral (Guilda: BUSINESS)
+      const vipLabel = document.querySelector('#vip-label span');
+      if (vipLabel) vipLabel.textContent = tier.toUpperCase();
+
+      render(); // Re-renderiza os cards com o tier correto
     } catch (_) {}
-    render();
   });
 
 </script>
