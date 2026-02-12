@@ -20,6 +20,7 @@ import {
   setDoc,
   writeBatch,
   serverTimestamp,
+  addDoc,
   collection,
   query,
   where,
@@ -399,6 +400,38 @@ function escapeHtml(str) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+// --- Upgrade (PIX / Solicitações) ------------------------------------------
+// Salva a solicitação de plano na coleção "solicita".
+// Campos solicitados: email + uid + plano + nome do pagador.
+export async function createUpgradeSolicitacao(planId, payerName) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Você precisa estar logado para solicitar upgrade.");
+
+  const plan = (planId || "").toString().toLowerCase().trim();
+  if (!plan || !["plus", "pro", "business"].includes(plan)) {
+    throw new Error("Plano inválido.");
+  }
+
+  const name = (payerName || "").toString().trim();
+  if (!name) throw new Error("Informe o nome real do pagador.");
+
+  const email = cleanEmail(user.email);
+  const uid = user.uid;
+  const guildId = (__guildCtx && __guildCtx.guildId) ? String(__guildCtx.guildId) : null;
+
+  await addDoc(collection(db, "solicita"), {
+    email,
+    uid,
+    plano: plan,
+    nomePagador: name,
+    ...(guildId ? { guildId } : {}),
+    status: "pendente",
+    createdAt: serverTimestamp()
+  });
+
+  return true;
 }
 
 // Proteção de rotas (chame no início de cada página privada)
