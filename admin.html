@@ -355,18 +355,8 @@
           }
         } catch (e) { console.warn(e); }
 
-        // CORREÇÃO DO BUG: Criar o vínculo imediato na coleção users + índice por e-mail
-        if (resUid) {
-          await setDoc(doc(db, "users", resUid), {
-            email: cleanEmail,
-            guildId: getGuildContext().guildId,
-            role: type === 'leaders' ? 'Líder' : 'Admin',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          }, { merge: true });
-        }
 
-        // índice por e-mail (ajuda o login a resolver a guilda mesmo quando a query por array-contains falhar)
+        // índice por e-mail (resolve login de contas secundárias sem depender da coleção "users")
         try {
           const emailDocId = cleanEmail.replaceAll('.', ',');
           await setDoc(doc(db, "emailGuilda", emailDocId), {

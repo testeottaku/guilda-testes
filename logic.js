@@ -272,31 +272,18 @@ async function normalizeConfigGuilda(guildId) {
   } catch (_) {}
 }
 
+
 async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
+  // Importante: o site NÃO depende da coleção "users".
+  // Tudo o que precisamos para funcionar:
+  // - garantir /guildas e /configGuilda no primeiro login do dono (guildId === uid)
+  // - manter um índice por e-mail em /emailGuilda para contas secundárias encontrarem a guilda
+
   const uid = user.uid;
   const email = cleanEmail(user.email);
   const uname = (usernameMaybe || "").toString().trim();
 
-  const uRef = doc(db, "users", uid);
-  const uSnap = await getDoc(uRef);
-
-  if (!uSnap.exists()) {
-    await setDoc(uRef, {
-      email,
-      username: uname || null,
-      guildId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  } else {
-    await setDoc(uRef, {
-      ...(uname ? { username: uname } : {}),
-      ...(guildId ? { guildId } : {}),
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  }
-
-  // Índice por e-mail -> guilda (resolve login de contas secundárias mesmo quando o /users não está completo)
+  // Índice por e-mail -> guilda (resolve login de contas secundárias)
   try {
     if (email && guildId) {
       await setDoc(doc(db, "emailGuilda", emailDocId(email)), {
@@ -308,6 +295,7 @@ async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
     }
   } catch (_) {}
 
+  // Se não for o dono (guildId já foi resolvido para outra guilda), não cria nada.
   if (guildId !== uid) return;
 
   const [gSnap, cSnap] = await Promise.all([
@@ -327,7 +315,6 @@ async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
     });
   } else {
     // Não sobrescreve o nome salvo por "Minha Guilda" em logins futuros
-    // (isso acontecia quando o /users não tinha username ou quando era conta secundária)
     const existing = gSnap.data() || {};
     const currentName = (existing.name || "").toString().trim();
     const currentIsDefault = !currentName || currentName.toLowerCase() === "minha guilda";
@@ -500,15 +487,7 @@ export function checkAuth(redirectToLogin = true) {
       let guildId = null;
       let username = "";
 
-      try {
-        const prof = await getDoc(doc(db, "users", user.uid));
-        if (prof.exists()) {
-          const d = prof.data() || {};
-          guildId = (d.guildId || "").toString().trim() || null;
-          username = (d.username || "").toString().trim();
-        }
-      } catch (_) {}
-
+      // A coleção \"users\" não é obrigatória (site não depende dela).
       if (!guildId) {
         try {
           const found = await findGuildByEmail(emailLower);
@@ -823,12 +802,7 @@ export async function ensureUserAccount(email, password) {
 
   const methods = await fetchSignInMethodsForEmail(auth, e);
   if (methods && methods.length) {
-    // Conta já existe. Tentamos descobrir o uid via coleção /users (quando disponível).
-    try {
-      const q0 = query(collection(db, "users"), where("email", "==", e), limit(1));
-      const s0 = await getDocs(q0);
-      if (!s0.empty) return { created: false, uid: s0.docs[0].id };
-    } catch (_) {}
+    // Conta já existe.
     return { created: false, uid: null };
   }
 
@@ -861,20 +835,10 @@ export async function createPlayer_DISABLED_BETAAccess(guildId, email, password)
   const secondaryName = "secondary_player_" + Date.now();
   const secondaryApp = initializeApp(firebaseConfig, secondaryName);
   const secondaryAuth = getAuth(secondaryApp);
-  const secondaryDb = getFirestore(secondaryApp);
 
   try {
     const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
     const uid = cred.user.uid;
-
-    await setDoc(doc(secondaryDb, "users", uid), {
-      email,
-      username: "Jogador",
-      guildId,
-      role: "Jogador",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    }, { merge: true });
 
     await setDoc(doc(db, "configGuilda", guildId), {
       playerEmail: email,
@@ -907,17 +871,11 @@ export async function deletePlayerAccount(playerEmail, password) {
   const secondaryName = "secondary_delete_" + Date.now();
   const secondaryApp = initializeApp(firebaseConfig, secondaryName);
   const secondaryAuth = getAuth(secondaryApp);
-  const secondaryDb = getFirestore(secondaryApp);
 
   try {
     const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
     const cred = await signInWithEmailAndPassword(secondaryAuth, email, password);
     const uid = cred.user.uid;
-
-    try {
-      const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      await deleteDoc(doc(secondaryDb, "users", uid));
-    } catch (_) {}
 
     await cred.user.delete();
 
