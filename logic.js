@@ -495,7 +495,20 @@ export function checkAuth(redirectToLogin = true) {
       let guildId = null;
       let username = "";
 
+      // 0) Primeiro tenta resolver pela coleção /users (mais rápida e evita logout indevido)
+      let roleHint = null;
+      let userProfile = null;
+      try {
+        const uSnap = await getDoc(doc(db, "users", user.uid));
+        if (uSnap.exists()) {
+          userProfile = uSnap.data() || {};
+          if (userProfile.guildId) guildId = String(userProfile.guildId);
+          if (userProfile.role) roleHint = String(userProfile.role);
+        }
+      } catch (_) {}
+
       // Resolve a guilda SOMENTE pela configGuilda.
+
       // - Contas secundárias (admin/líder/jogador) precisam estar dentro dos arrays em /configGuilda/{guildId}
       // - O dono (guildId === uid) é criado no signup (finalizeSignup). Em logins futuros, também será resolvido.
       try {
@@ -514,9 +527,7 @@ export function checkAuth(redirectToLogin = true) {
 
       // Se ainda não resolveu, a conta não está vinculada a nenhuma guilda -> não criar nada automaticamente.
       if (!guildId) {
-        // Não cria nada automaticamente e NÃO faz signOut automático.
-        // Mantém a sessão e apenas volta para o login (evita "logout automático" indevido).
-        try { showToast("error", "Sua conta não está vinculada a nenhuma guilda."); } catch (_) {}
+        try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
         resolve(null);
         return;
@@ -526,15 +537,23 @@ export function checkAuth(redirectToLogin = true) {
         // Importante: não forçar "Minha Guilda" aqui, pois isso sobrescrevia o nome real em alguns cenários.
         await ensureBootstrapDocs(user, username, guildId);
       } catch (e) {
-        // Não deslogar automaticamente aqui; apenas redireciona.
-        console.error("Bootstrap falhou:", e);
-        try { showToast("error", "Falha ao carregar dados da guilda. Tente novamente."); } catch (_) {}
+        try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
         resolve(null);
         return;
       }
 
-      const role = await resolveRoleInGuild(guildId, user.email || "");
+      let role = null;
+
+      // Se o /users já informa o role, usamos como base (e ainda tentamos confirmar via configGuilda).
+      const hint = (roleHint || "").toString().trim();
+      if (hint && ["Líder", "Admin", "Jogador"].includes(hint)) role = hint;
+
+      const resolved = await resolveRoleInGuild(guildId, user.email || "");
+      if (!role || role === "Membro") role = resolved;
+
+      // Se o resolve der "Membro" por algum motivo, mas o /users diz que é Admin/Líder, não derruba o login.
+      if (role === "Membro" && hint && hint !== "Membro") role = hint;
       if (role === "Líder") {
         normalizeConfigGuilda(guildId);
       }
@@ -594,12 +613,16 @@ export function checkAuth(redirectToLogin = true) {
       const isChefePage = path.endsWith("/chefe") || path.endsWith("/chefe.html") || path.includes("chefe.html");
 
       if (role === "Membro") {
-        // NÃO derruba a sessão automaticamente.
-        // Apenas bloqueia acesso e volta para o login (igual o behavior antigo).
-        try { showToast("error", "Acesso negado: conta não autorizada."); } catch (_) {}
-        if (!isLoginPage) window.location.href = "index.html";
-        resolve(null);
-        return;
+        // Só derruba o login quando NÃO existe vínculo em /users e o papel realmente não foi reconhecido.
+        // Isso evita logout indevido de Admin/Líder secundário.
+        const hasUserLink = !!(userProfile && userProfile.guildId);
+        const hint = (roleHint || "").toString().trim();
+        if (!hasUserLink && (!hint || hint === "Membro")) {
+          try { await signOut(auth); } catch (_) {}
+          if (!isLoginPage) window.location.href = "index.html";
+          resolve(null);
+          return;
+        }
       }
 
       if (isChefePage && !__isCeo) {
@@ -813,7 +836,7 @@ export function consumeLoginToasts() {
   } catch (e) {}
 }
 
-export async function ensureUserAccount(email, password) {
+export async function ensureUserAccount(email, password, opts = {}) {
   const e = cleanEmail(email);
   if (!e) throw new Error("E-mail inválido.");
 
@@ -833,7 +856,25 @@ export async function ensureUserAccount(email, password) {
 
   try {
     const cred = await createUserWithEmailAndPassword(secondaryAuth, e, password);
-    return { created: true, uid: cred.user.uid };
+    const uid = cred.user.uid;
+
+    // Se foi criado a partir do Admin (conta secundária), cria/atualiza também em /users/{uid}
+    // para o login conseguir resolver a guilda pelo documento do usuário.
+    try {
+      const guildId = opts && opts.guildId ? String(opts.guildId) : null;
+      const role = opts && opts.role ? String(opts.role) : null;
+      if (guildId) {
+        await setDoc(doc(db, "users", uid), {
+          email: e,
+          guildId,
+          role: role || "Membro",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      }
+    } catch (_) {}
+
+    return { created: true, uid };
   } finally {
     try { await signOut(secondaryAuth); } catch (_) {}
     try { await deleteApp(secondaryApp); } catch (_) {}
