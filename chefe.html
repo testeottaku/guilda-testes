@@ -389,43 +389,109 @@
     $("q").addEventListener("keydown", (e)=>{ if (e.key==="Enter") doSearch(); });
 
     $("btn-save-vip").onclick = async () => {
-      if (!currentEdit) return;
-      const vip = normalizeVip($("edit-vip").value);
-      try {
-        // grava no configGuilda (principal)
-        await updateDoc(doc(db,"configGuilda", currentEdit.guildId), { vip });
-      } catch (e) {
-        // se não existir, cria via update não funciona; então tentamos fallback no doc guildas
-        try { await updateDoc(doc(db,"guildas", currentEdit.guildId), { vip }); } catch (_) {}
-        showToast("Não consegui atualizar configGuilda (doc pode não existir).");
-      }
-      showToast("VIP atualizado.");
-      hide(modalEdit);
-      // atualiza card
-      try {
-        const newCard = await fetchGuildCard(currentEdit.guildId);
-        const listEl = $("results-list");
-        const nodes = Array.from(listEl.children);
-        listEl.innerHTML = "";
-        // Rebusca rapidamente pelo termo atual (mantém coerência)
-        await doSearch();
-      } catch (_) {}
-    };
+  if (!currentEdit) return;
+  const vip = normalizeVip($("edit-vip").value);
 
-    async function deleteGuildAll(guildId){
-      // deletar subcoleções (membros, lines)
-      const delMany = async (colRef) => {
-        const s = await getDocs(colRef);
-        const batch = writeBatch(db);
-        let c = 0;
-        for (const d of s.docs){
-          batch.delete(d.ref);
-          c++;
-          // commit a cada 400
-          if (c >= 400){
-            await batch.commit();
-            c = 0;
-          }
+  try {
+    // ✅ preferencial: Function (valida CEO e aplica em configGuilda/guildas)
+    await callCeoSetVip(currentEdit.guildId, vip);
+    toast("Plano VIP atualizado com sucesso.", "success");
+  } catch (e) {
+    console.warn("Falha ao usar Function ceoSetGuildVip, usando fallback Firestore:", e);
+    try {
+      // grava no configGuilda (principal)
+      await updateDoc(doc(db,"configGuilda", currentEdit.guildId), { vip });
+      toast("Plano VIP atualizado com sucesso.", "success");
+    } catch (e2) {
+      // se não existir, cria via update não funciona; então tentamos fallback no doc guildas
+      try {
+        await updateDoc(doc(db,"guildas", currentEdit.guildId), { vip });
+        toast("Plano VIP atualizado com sucesso.", "success");
+      } catch (e3) {
+        toast("Não foi possível atualizar o VIP dessa guilda.", "error");
+        throw e3;
+      }
+    }
+  }
+
+  closeModal("modal-edit");
+  await doSearch();
+};
+
+    async function localDeleteGuildAll(guildId){
+  // deletar subcoleções (membros, lines)
+  const delMany = async (colRef) => {
+    const s = await getDocs(colRef);
+    const batch = writeBatch(db);
+    let c = 0;
+    for (const d of s.docs){
+      batch.delete(d.ref);
+      c++;
+      if (c >= 400){
+        await batch.commit();
+        c = 0;
+      }
+    }
+    if (c > 0) await batch.commit();
+    return s.size;
+  };
+
+  let removed = { membros:0, lines:0, users:0, solicita:0 };
+
+  try { removed.membros = await delMany(collection(db,"guildas",guildId,"membros")); } catch(_){}
+  try { removed.lines = await delMany(collection(db,"guildas",guildId,"lines")); } catch(_){}
+
+  // users vinculados (por guildId)
+  try {
+    const qU = query(collection(db,"users"), where("guildId","==",guildId));
+    const sU = await getDocs(qU);
+    const batch = writeBatch(db);
+    let c = 0;
+    for (const d of sU.docs){
+      batch.delete(d.ref);
+      removed.users++;
+      c++;
+      if (c >= 400){
+        await batch.commit(); c = 0;
+      }
+    }
+    if (c > 0) await batch.commit();
+  } catch(_){}
+
+  // solicita vinculadas (por guildId)
+  try {
+    const qS = query(collection(db,"solicita"), where("guildId","==",guildId));
+    const sS = await getDocs(qS);
+    const batch = writeBatch(db);
+    let c = 0;
+    for (const d of sS.docs){
+      batch.delete(d.ref);
+      removed.solicita++;
+      c++;
+      if (c >= 400){
+        await batch.commit(); c = 0;
+      }
+    }
+    if (c > 0) await batch.commit();
+  } catch(_){}
+
+  // config + guilda
+  try { await deleteDoc(doc(db,"configGuilda",guildId)); } catch(_){}
+  try { await deleteDoc(doc(db,"guildas",guildId)); } catch(_){}
+
+  return removed;
+}
+
+async function deleteGuildAll(guildId){
+  // ✅ preferencial: Cloud Function (Admin SDK) para apagar Firestore + contas Auth
+  try {
+    const res = await callCeoDeleteGuild(guildId);
+    return (res && res.data) ? res.data : { ok:true };
+  } catch (e) {
+    console.warn('Falha ao usar Function ceoDeleteGuild, usando fallback Firestore:', e);
+    return await localDeleteGuildAll(guildId);
+  }
+}
         }
         if (c > 0) await batch.commit();
         return s.size;

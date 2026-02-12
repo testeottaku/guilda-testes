@@ -27,6 +27,8 @@ import {
   limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
 // Firebase config
 export const firebaseConfig = {
   apiKey: "AIzaSyC7UJxBOViZj8ELjw-Xvy645QYfDfpBzxM",
@@ -41,12 +43,23 @@ export const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const fns = getFunctions(app);
 
 // --- Contexto da Guilda -----------------------------------------------------
 let __guildCtx = null;
 
 // --- Cache local do contexto da guilda (para evitar 'piscar' entre telas) ---
 const __GUILDCTX_LS_KEY = 'guildCtx_cache_v1';
+
+// --- Cache local do status CEO (para evitar piscar do menu Chefe) ---
+const __CEO_LS_KEY = 'ceo_cache_v1';
+let __isCeoCached = null;
+try {
+  const rawCeo = localStorage.getItem(__CEO_LS_KEY);
+  if (rawCeo === 'true') __isCeoCached = true;
+  if (rawCeo === 'false') __isCeoCached = false;
+} catch (_) {}
+
 try {
   const raw = localStorage.getItem(__GUILDCTX_LS_KEY);
   if (raw) {
@@ -735,6 +748,63 @@ async function __applyCeoVisibility() {
   } catch (_) {}
 }
 // Sidebar (mobile)
+
+
+// --- CEO (chefe/security.ceo) ------------------------------------------------
+export async function checkIsCeo(force = false) {
+  if (!force && __isCeoCached !== null) return __isCeoCached;
+
+  if (!auth.currentUser) return false;
+  const email = (auth.currentUser.email || '').toLowerCase().trim();
+  if (!email) return false;
+
+  try {
+    const snap = await getDoc(doc(db, 'chefe', 'security'));
+    const data = snap.exists() ? (snap.data() || {}) : {};
+    const arr = Array.isArray(data.ceo) ? data.ceo : [];
+    const is = arr.map(v => (v || '').toString().toLowerCase().trim()).includes(email);
+    __isCeoCached = is;
+    try { localStorage.setItem(__CEO_LS_KEY, is ? 'true' : 'false'); } catch (_) {}
+    return is;
+  } catch (_) {
+    return false;
+  }
+}
+
+export function ensureCeoNavLink(active = false) {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return null;
+  const nav = sidebar.querySelector('nav');
+  if (!nav) return null;
+
+  let a = sidebar.querySelector('#nav-chefe-ceo');
+  if (!a) {
+    a = document.createElement('a');
+    a.id = 'nav-chefe-ceo';
+    a.href = 'chefe.html';
+    a.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors hidden';
+    a.innerHTML = '<i data-lucide="crown" class="w-5 h-5"></i> Chefe';
+    nav.appendChild(a);
+  }
+
+  // ativa/desativa estilo
+  if (active) {
+    a.classList.remove('text-gray-500', 'hover:bg-gray-50', 'hover:text-gray-700', 'transition-colors', 'hidden');
+    a.classList.add('bg-emerald-50', 'text-emerald-700', 'shadow-sm');
+  }
+  return a;
+}
+
+export async function callCeoDeleteGuild(guildId) {
+  const fn = httpsCallable(fns, 'ceoDeleteGuild');
+  return await fn({ guildId: String(guildId || '').trim() });
+}
+
+export async function callCeoSetVip(guildId, vipTier) {
+  const fn = httpsCallable(fns, 'ceoSetGuildVip');
+  return await fn({ guildId: String(guildId || '').trim(), vipTier: String(vipTier || '').trim().toLowerCase() });
+}
+
 export function setupSidebar() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebar-overlay");

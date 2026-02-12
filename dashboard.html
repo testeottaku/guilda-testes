@@ -179,7 +179,7 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, getGuildContext } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, getGuildContext, getVipTier, checkIsCeo, ensureCeoNavLink } from './logic.js';
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // 1. CARREGAMENTO IMEDIATO DO CACHE

@@ -32,12 +32,18 @@
     {
       "source": "/jogador",
       "destination": "/jogador.html"
-
+    },
+    {
+      "source": "/lines",
+      "destination": "/lines.html"
+    },
+    {
+      "source": "/ajustes",
+      "destination": "/ajustes.html"
     },
     {
       "source": "/upgrade",
       "destination": "/upgrade.html"
-
     },
     {
       "source": "/chefe",
