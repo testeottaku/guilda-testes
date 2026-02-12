@@ -83,365 +83,637 @@
         </div>
       </header>
 
-      <section class="max-w-5xl mx-auto px-4 py-6">
+      
+      <section class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- Top actions -->
         <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-          <div class="flex flex-col sm:flex-row gap-3 sm:items-end">
+          <div class="flex flex-col lg:flex-row gap-4 lg:items-end">
             <div class="flex-1">
-              <label class="block text-xs text-gray-500 mb-1">Pesquisar</label>
-              <input id="chefe-query" type="text" placeholder="Nome da guilda OU e-mail de líder/admin" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
-              <p class="mt-2 text-xs text-gray-400">Dica: se digitar um e-mail, a busca usa as listas leaders/admins (configGuilda).</p>
+              <label class="block text-xs text-gray-500 mb-1">Pesquisar guildas</label>
+              <input id="guild-search" type="text" placeholder="Nome da guilda, ID, e-mail de líder/admin..."
+                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+              <p class="mt-2 text-xs text-gray-400">A lista abaixo carrega todas as guildas. A busca filtra em tempo real.</p>
             </div>
-            <button id="chefe-search" class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Buscar</button>
+
+            <div class="flex gap-2">
+              <button id="btn-reload" class="px-4 py-3 rounded-xl border border-gray-200 bg-white font-bold hover:bg-gray-50">
+                Recarregar
+              </button>
+              <button id="btn-open-solicita" class="px-4 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+                Ver solicitações
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="mt-5 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between">
-            <h3 class="font-bold text-gray-900">Resultado</h3>
-            <span id="results-count" class="text-xs text-gray-500">0</span>
+        <!-- Guilds -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-gray-900">Guildas</h3>
+              <p class="text-xs text-gray-500">Cards com informações completas + ações de VIP, detalhes e exclusão (somente Firestore).</p>
+            </div>
+            <span id="guild-count" class="text-xs text-gray-500">0</span>
           </div>
-          <div id="results-preview" class="mt-3 text-sm text-gray-500">Faça uma busca para listar as guildas.</div>
+
+          <div id="guilds-grid" class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="text-sm text-gray-500">Carregando guildas...</div>
+          </div>
         </div>
+
+        <!-- Solicitações -->
+        <div id="solicita-panel" class="hidden bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-gray-900">Solicitações (solicita)</h3>
+              <p class="text-xs text-gray-500">Editar status/plano e excluir.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="solicita-count" class="text-xs text-gray-500">0</span>
+              <button id="btn-close-solicita" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-bold hover:bg-gray-50">
+                Fechar
+              </button>
+            </div>
+          </div>
+
+          <div id="solicita-grid" class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="text-sm text-gray-500">Carregando solicitações...</div>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>
 
-  <!-- Modal: Lista -->
-  <div id="modal-results" class="hidden fixed inset-0 z-50">
-    <div class="absolute inset-0 bg-black/40"></div>
-    <div class="relative max-w-3xl mx-auto mt-16 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <div>
-          <p class="text-xs text-gray-500">Guildas encontradas</p>
-          <h4 class="font-bold text-gray-900">Lista</h4>
-        </div>
-        <button id="modal-close" class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div id="results-list" class="p-4 space-y-3 max-h-[65vh] overflow-auto"></div>
-    </div>
-  </div>
+  <!-- Bottom Drawer Modal -->
+  <div id="drawer" class="hidden fixed inset-0 z-50">
+    <div id="drawer-backdrop" class="absolute inset-0 bg-black/40"></div>
 
-  <!-- Modal: Edit VIP -->
-  <div id="modal-edit" class="hidden fixed inset-0 z-50">
-    <div class="absolute inset-0 bg-black/40"></div>
-    <div class="relative max-w-lg mx-auto mt-24 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+    <div class="absolute left-0 right-0 bottom-0 bg-white border-t border-gray-200 rounded-t-3xl shadow-2xl">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-start justify-between gap-3">
         <div>
-          <p class="text-xs text-gray-500">Editar plano VIP</p>
-          <h4 id="edit-title" class="font-bold text-gray-900">Guilda</h4>
+          <p id="drawer-subtitle" class="text-xs text-gray-500">Detalhes</p>
+          <h4 id="drawer-title" class="font-bold text-gray-900 text-lg">—</h4>
         </div>
-        <button id="edit-close" class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="p-5">
-        <label class="block text-xs text-gray-500 mb-1">VIP</label>
-        <select id="edit-tier" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200">
-          <option value="free">free</option>
-          <option value="plus">plus</option>
-          <option value="pro">pro</option>
-          <option value="business">business</option>
-        </select>
-        <div class="mt-4 flex gap-2">
-          <button id="edit-save" class="flex-1 px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Salvar</button>
-          <button id="edit-cancel" class="flex-1 px-5 py-3 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200">Cancelar</button>
-        </div>
-        <p class="mt-3 text-xs text-gray-400">Business é tratado como Pro nas liberações.</p>
-      </div>
-    </div>
-  </div>
 
-  <!-- Modal: Confirm Delete -->
-  <div id="modal-delete" class="hidden fixed inset-0 z-50">
-    <div class="absolute inset-0 bg-black/40"></div>
-    <div class="relative max-w-lg mx-auto mt-24 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <div>
-          <p class="text-xs text-gray-500">Excluir guilda + usuários</p>
-          <h4 id="delete-title" class="font-bold text-gray-900">Confirmação</h4>
-        </div>
-        <button id="delete-close" class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center">
+        <button id="drawer-close" class="w-11 h-11 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 inline-flex items-center justify-center">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-5">
-        <p class="text-sm text-gray-600">Isso apaga:</p>
-        <ul class="mt-2 text-sm text-gray-500 list-disc pl-5 space-y-1">
-          <li>guildas/{guildId} + subcoleções (membros, lines)</li>
-          <li>configGuilda/{guildId}</li>
-          <li>users vinculados à guildId</li>
-          <li>contas no Firebase Auth (via Admin SDK/Cloud Function)</li>
-        </ul>
-        <div class="mt-4 flex gap-2">
-          <button id="delete-confirm" class="flex-1 px-5 py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700">Deletar tudo</button>
-          <button id="delete-cancel" class="flex-1 px-5 py-3 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200">Cancelar</button>
+
+      <div class="max-w-6xl mx-auto px-4 pb-6">
+        <div id="drawer-content" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-3 text-sm text-gray-500">—</div>
         </div>
-        <p class="mt-3 text-xs text-gray-400">Requer Cloud Function deployada. Sem isso, apenas Firestore pode ser apagado.</p>
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, showToast, logout, db, functions, isCeo, ensureCeoStatus } from "./logic.js";
-    import { doc, getDoc, query, collection, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+    import {
+      checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility,
+      toast
+    } from './logic.js';
+
+    import {
+      collection, getDocs, getDoc, doc, query, where, updateDoc, deleteDoc, writeBatch, limit
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
     initIcons();
 
-    // Protege tela
+    // Guard: só chefe
     await checkAuth();
     await ensureCeoStatus();
-    if (!isCeo()) {
-      showToast("error", "Acesso negado: somente o Chefe.");
-      window.location.href = "dashboard.html";
+    applyCeoNavVisibility();
+
+    if (!document.body.classList.contains('ceo-ok')) {
+      // A lógica do CSS/HTML usa hidden; aqui só garantimos
     }
 
-    document.getElementById("logout-btn")?.addEventListener("click", logout);
+    document.getElementById('btn-logout')?.addEventListener('click', logout);
 
-    const $ = (id) => document.getElementById(id);
-    const modalResults = $("modal-results");
-    const modalEdit = $("modal-edit");
-    const modalDelete = $("modal-delete");
-
-    const state = {
-      items: [],
-      selected: null
+    const els = {
+      guildSearch: document.getElementById('guild-search'),
+      guildCount: document.getElementById('guild-count'),
+      guildsGrid: document.getElementById('guilds-grid'),
+      btnReload: document.getElementById('btn-reload'),
+      btnOpenSolicita: document.getElementById('btn-open-solicita'),
+      solicitaPanel: document.getElementById('solicita-panel'),
+      solicitaCount: document.getElementById('solicita-count'),
+      solicitaGrid: document.getElementById('solicita-grid'),
+      btnCloseSolicita: document.getElementById('btn-close-solicita'),
+      drawer: document.getElementById('drawer'),
+      drawerBackdrop: document.getElementById('drawer-backdrop'),
+      drawerClose: document.getElementById('drawer-close'),
+      drawerTitle: document.getElementById('drawer-title'),
+      drawerSubtitle: document.getElementById('drawer-subtitle'),
+      drawerContent: document.getElementById('drawer-content'),
     };
 
-    function openModal(m){ m?.classList.remove("hidden"); }
-    function closeModal(m){ m?.classList.add("hidden"); }
 
-    $("modal-close")?.addEventListener("click", () => closeModal(modalResults));
-    $("edit-close")?.addEventListener("click", () => closeModal(modalEdit));
-    $("edit-cancel")?.addEventListener("click", () => closeModal(modalEdit));
-    $("delete-close")?.addEventListener("click", () => closeModal(modalDelete));
-    $("delete-cancel")?.addEventListener("click", () => closeModal(modalDelete));
-
-    function normalizeTier(v){
-      const s = (v||"").toString().toLowerCase().trim();
-      if (!s || s === "free") return "free";
-      if (s === "business" || s.includes("business")) return "business";
-      if (s === "pro" || s.includes("pro")) return "pro";
-      return "plus";
+    function safeText(v) {
+      return (v ?? '').toString().replace(/[<>&"]/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+    }
+    function fmtDateBR(d) {
+      try {
+        const dt = (d instanceof Date) ? d : new Date(d);
+        return dt.toLocaleString('pt-BR');
+      } catch(_) { return '—'; }
     }
 
-    async function loadDetails(guildId) {
-      const out = { guildId, name: "", ownerEmail: "", vipTier: "free", leaders: [], admins: [] };
-      try {
-        const g = await getDoc(doc(db, "guildas", guildId));
-        if (g.exists()) {
-          const d = g.data() || {};
-          out.name = (d.name || d.guildName || "").toString();
-          if (d.ownerEmail) out.ownerEmail = (d.ownerEmail || "").toString();
-          if (d.vipTier || d.vip || d.plan || d.planoVip) out.vipTier = normalizeTier(d.vipTier || d.vip || d.plan || d.planoVip);
-        }
-      } catch (_) {}
 
-      try {
-        const c = await getDoc(doc(db, "configGuilda", guildId));
-        if (c.exists()) {
-          const d = c.data() || {};
-          if (d.ownerEmail) out.ownerEmail = (d.ownerEmail || "").toString();
-          out.leaders = Array.isArray(d.leaders) ? d.leaders : [];
-          out.admins = Array.isArray(d.admins) ? d.admins : [];
-          if (d.vipTier || d.vip || d.plan || d.planoVip) out.vipTier = normalizeTier(d.vipTier || d.vip || d.plan || d.planoVip);
-        }
-      } catch (_) {}
+    let allGuildCards = [];   // { id, name, vip, leaders[], admins[], tag, playerEmail, cfg, guild }
+    let allSolicita = [];     // { id, data }
 
-      return out;
+    function vipNormalize(v) {
+      const s = (v ?? '').toString().toLowerCase().trim();
+      if (!s) return 'free';
+      if (s.includes('business') || s.includes('buss')) return 'business';
+      if (s.includes('pro')) return 'pro';
+      if (s.includes('plus')) return 'plus';
+      if (s === 'vip') return 'pro'; // fallback comum
+      return s;
     }
 
-    async function searchGuilds(term) {
-      const qRaw = (term || "").toString().trim();
-      if (!qRaw) return [];
-      const qLower = qRaw.toLowerCase();
+    function pickVip(obj) {
+      if (!obj) return 'free';
+      const raw = obj.vipTier ?? obj.vip ?? obj.planoVip ?? obj.planoVIP ?? obj.plano ?? obj.plan ?? obj.tier ?? obj.vipLevel ?? obj.vipPlano ?? obj.vipName;
+      return vipNormalize(raw);
+    }
 
-      const guildIds = new Set();
+    function pickTag(cfg) {
+      const raw = cfg?.tag ?? cfg?.tagMembro ?? cfg?.memberTag ?? cfg?.tagMember ?? cfg?.membroTag;
+      return (raw ?? '').toString().trim() || '—';
+    }
 
-      // Busca por e-mail nas listas
-      if (qLower.includes("@")) {
-        try {
-          const q1 = query(collection(db, "configGuilda"), where("leaders", "array-contains", qLower), limit(10));
-          const s1 = await getDocs(q1);
-          s1.forEach(d => guildIds.add(d.id));
-        } catch (_) {}
-        try {
-          const q2 = query(collection(db, "configGuilda"), where("admins", "array-contains", qLower), limit(10));
-          const s2 = await getDocs(q2);
-          s2.forEach(d => guildIds.add(d.id));
-        } catch (_) {}
-        try {
-          const q3 = query(collection(db, "configGuilda"), where("ownerEmail", "==", qLower), limit(10));
-          const s3 = await getDocs(q3);
-          s3.forEach(d => guildIds.add(d.id));
-        } catch (_) {}
-      } else {
-        // Busca por nome (prefixo). Obs: case-sensitive dependendo dos dados.
-        try {
-          const qn = query(collection(db, "guildas"), where("name", ">=", qRaw), where("name", "<=", qRaw + ""), limit(10));
-          const sn = await getDocs(qn);
-          sn.forEach(d => guildIds.add(d.id));
-        } catch (_) {}
-      }
+    function pickName(guild, guildId) {
+      const raw = guild?.name ?? guild?.guildName ?? guild?.nome ?? guild?.title;
+      return (raw ?? '').toString().trim() || `Guilda ${guildId.slice(0, 6)}`;
+    }
 
-      const ids = Array.from(guildIds).slice(0, 20);
-      const items = [];
+    function listToText(arr, max=2) {
+      if (!Array.isArray(arr) || arr.length === 0) return '—';
+      const clean = arr.map(x => (x ?? '').toString().trim()).filter(Boolean);
+      if (clean.length === 0) return '—';
+      if (clean.length <= max) return clean.join(', ');
+      return clean.slice(0, max).join(', ') + ` (+${clean.length - max})`;
+    }
+
+    function openDrawer({ title, subtitle, contentHtml }) {
+      els.drawerTitle.textContent = title || '—';
+      els.drawerSubtitle.textContent = subtitle || 'Detalhes';
+      els.drawerContent.innerHTML = contentHtml || '';
+      els.drawer.classList.remove('hidden');
+      try { initIcons(); } catch(_) {}
+    }
+
+    function closeDrawer() {
+      els.drawer.classList.add('hidden');
+      els.drawerContent.innerHTML = '';
+    }
+
+    els.drawerBackdrop.addEventListener('click', closeDrawer);
+    els.drawerClose.addEventListener('click', closeDrawer);
+
+    async function loadAllGuilds() {
+      els.guildsGrid.innerHTML = `<div class="text-sm text-gray-500">Carregando guildas...</div>`;
+      allGuildCards = [];
+
+      const snap = await getDocs(collection(db, 'guildas'));
+      const ids = [];
+      snap.forEach(d => ids.push(d.id));
+
+      // Para cada guilda, buscamos configGuilda correspondente
       for (const gid of ids) {
-        items.push(await loadDetails(gid));
+        const gDoc = await getDoc(doc(db, 'guildas', gid));
+        const cDoc = await getDoc(doc(db, 'configGuilda', gid));
+
+        const guild = gDoc.exists() ? (gDoc.data() || {}) : {};
+        const cfg = cDoc.exists() ? (cDoc.data() || {}) : {};
+
+        const name = pickName(guild, gid);
+        const vip = pickVip(cfg) !== 'free' ? pickVip(cfg) : pickVip(guild);
+        const leaders = Array.isArray(cfg.leaders) ? cfg.leaders : [];
+        const admins = Array.isArray(cfg.admins) ? cfg.admins : [];
+        const playerEmail = (cfg.playerEmail ?? '').toString().trim() || '—';
+        const tag = pickTag(cfg);
+
+        allGuildCards.push({ id: gid, name, vip, leaders, admins, tag, playerEmail, cfg, guild });
       }
-      return items;
+
+      renderGuilds();
     }
 
-    function renderList(items) {
-      state.items = items;
-      $("results-count").textContent = String(items.length);
+    function renderGuilds() {
+      const q = (els.guildSearch.value || '').toLowerCase().trim();
 
-      if (!items.length) {
-        $("results-preview").textContent = "Nenhuma guilda encontrada.";
+      const filtered = allGuildCards.filter(g => {
+        if (!q) return true;
+        const hay = [
+          g.id, g.name, g.vip, g.tag,
+          ...((g.leaders||[]).map(x => (x||'').toString())),
+          ...((g.admins||[]).map(x => (x||'').toString()))
+        ].join(' ').toLowerCase();
+        return hay.includes(q);
+      });
+
+      els.guildCount.textContent = String(filtered.length);
+
+      if (filtered.length === 0) {
+        els.guildsGrid.innerHTML = `<div class="text-sm text-gray-500">Nenhuma guilda encontrada.</div>`;
         return;
       }
 
-      $("results-preview").textContent = "Clique em Buscar novamente para abrir a lista.";
-
-      const list = $("results-list");
-      list.innerHTML = "";
-
-      for (const it of items) {
-        const leaders = (it.leaders || []).slice(0, 2).join(", ");
-        const admins = (it.admins || []).slice(0, 2).join(", ");
-
-        const row = document.createElement("div");
-        row.className = "p-4 rounded-2xl border border-gray-200 bg-white shadow-sm";
-        row.innerHTML = `
+      els.guildsGrid.innerHTML = filtered.map(g => `
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-xs text-gray-500">${it.guildId}</p>
-              <h5 class="font-bold text-gray-900 truncate">${it.name || "(sem nome)"}</h5>
-              <p class="mt-1 text-sm text-gray-600">VIP: <span class="font-bold text-gray-900">${it.vipTier || "free"}</span></p>
-              <p class="mt-1 text-xs text-gray-500">Owner: ${it.ownerEmail || "-"}</p>
-              <p class="mt-1 text-xs text-gray-400">Leaders: ${leaders || "-"} | Admins: ${admins || "-"}</p>
+              <p class="text-xs text-gray-400 truncate">${safeText(g.id)}</p>
+              <h4 class="font-bold text-gray-900 truncate">${safeText(g.name)}</h4>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 text-xs text-gray-700">
+                  VIP: <b class="ml-1">${safeText(g.vip)}</b>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 text-xs text-gray-700">
+                  Tag: <b class="ml-1">${safeText(g.tag)}</b>
+                </span>
+              </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-2">
-              <button class="btn-edit px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700" data-gid="${it.guildId}">
-                Editar VIP
+            <div class="flex gap-2">
+              <button data-action="details" data-gid="${safeText(g.id)}"
+                class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 inline-flex items-center justify-center">
+                <i data-lucide="info" class="w-5 h-5"></i>
               </button>
-              <button class="btn-del px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700" data-gid="${it.guildId}">
-                Deletar
+            </div>
+          </div>
+
+          <div class="mt-3 text-xs text-gray-600 space-y-1">
+            <div><span class="text-gray-400">Líder:</span> ${safeText(listToText(g.leaders))}</div>
+            <div><span class="text-gray-400">Admins:</span> ${safeText(listToText(g.admins))}</div>
+            <div><span class="text-gray-400">Player:</span> ${safeText(g.playerEmail)}</div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-2">
+            <button data-action="editvip" data-gid="${safeText(g.id)}"
+              class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700">
+              Editar VIP
+            </button>
+            <button data-action="delete" data-gid="${safeText(g.id)}"
+              class="px-3 py-2 rounded-xl border border-red-200 bg-white text-red-700 text-sm font-bold hover:bg-red-50">
+              Excluir dados
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      try { initIcons(); } catch(_) {}
+    }
+
+    async function openGuildDetails(gid) {
+      const g = allGuildCards.find(x => x.id === gid);
+      if (!g) return;
+
+      openDrawer({
+        title: g.name,
+        subtitle: `Guilda • ${g.id}`,
+        contentHtml: `
+          <div class="rounded-2xl border border-gray-200 bg-white p-4">
+            <h5 class="font-bold text-gray-900">Resumo</h5>
+            <div class="mt-2 text-sm text-gray-700 space-y-1">
+              <div><span class="text-gray-400">VIP:</span> <b>${safeText(g.vip)}</b></div>
+              <div><span class="text-gray-400">Tag:</span> <b>${safeText(g.tag)}</b></div>
+              <div><span class="text-gray-400">Líder:</span> ${safeText(listToText(g.leaders, 4))}</div>
+              <div><span class="text-gray-400">Admins:</span> ${safeText(listToText(g.admins, 6))}</div>
+              <div><span class="text-gray-400">Player:</span> ${safeText(g.playerEmail)}</div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-gray-200 bg-white p-4">
+            <h5 class="font-bold text-gray-900">Membros</h5>
+            <div id="members-box" class="mt-2 text-sm text-gray-600">Carregando...</div>
+          </div>
+
+          <div class="rounded-2xl border border-gray-200 bg-white p-4">
+            <h5 class="font-bold text-gray-900">Lines</h5>
+            <div id="lines-box" class="mt-2 text-sm text-gray-600">Carregando...</div>
+          </div>
+        `
+      });
+
+      // Carrega membros/lines
+      try {
+        const memSnap = await getDocs(collection(db, 'guildas', gid, 'membros'));
+        const members = [];
+        memSnap.forEach(d => members.push(d.data()));
+        const memHtml = members.length
+          ? `<div class="max-h-56 overflow-auto space-y-2">${members.slice(0, 80).map(m => `
+              <div class="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
+                <div class="font-semibold text-gray-900">${safeText(m.nome || m.name || m.email || 'Membro')}</div>
+                <div class="text-xs text-gray-500">${safeText(m.email || '')}</div>
+              </div>
+            `).join('')}</div>${members.length>80?`<div class="mt-2 text-xs text-gray-400">Mostrando 80 de ${members.length}.</div>`:''}`
+          : `<div class="text-sm text-gray-500">Sem membros.</div>`;
+        document.getElementById('members-box').innerHTML = memHtml;
+      } catch (e) {
+        document.getElementById('members-box').innerHTML = `<div class="text-sm text-red-600">Erro ao carregar membros.</div>`;
+      }
+
+      try {
+        const lSnap = await getDocs(collection(db, 'guildas', gid, 'lines'));
+        const lines = [];
+        lSnap.forEach(d => lines.push(d.data()));
+        const lHtml = lines.length
+          ? `<div class="max-h-56 overflow-auto space-y-2">${lines.slice(0, 80).map(l => `
+              <div class="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
+                <div class="font-semibold text-gray-900">${safeText(l.nome || l.name || l.titulo || 'Line')}</div>
+                <div class="text-xs text-gray-500">${safeText(l.desc || l.descricao || '')}</div>
+              </div>
+            `).join('')}</div>${lines.length>80?`<div class="mt-2 text-xs text-gray-400">Mostrando 80 de ${lines.length}.</div>`:''}`
+          : `<div class="text-sm text-gray-500">Sem lines.</div>`;
+        document.getElementById('lines-box').innerHTML = lHtml;
+      } catch (e) {
+        document.getElementById('lines-box').innerHTML = `<div class="text-sm text-red-600">Erro ao carregar lines.</div>`;
+      }
+    }
+
+    async function openEditVip(gid) {
+      const g = allGuildCards.find(x => x.id === gid);
+      if (!g) return;
+
+      openDrawer({
+        title: `Editar VIP`,
+        subtitle: `${g.name} • ${g.id}`,
+        contentHtml: `
+          <div class="lg:col-span-3 rounded-2xl border border-gray-200 bg-white p-4">
+            <p class="text-sm text-gray-600">Selecione o novo plano VIP. (Business é liberado igual Pro.)</p>
+
+            <div class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end">
+              <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">VIP</label>
+                <select id="vip-select" class="w-full px-4 py-3 rounded-xl border border-gray-200">
+                  <option value="free">free</option>
+                  <option value="plus">plus</option>
+                  <option value="pro">pro</option>
+                  <option value="business">business</option>
+                </select>
+              </div>
+              <button id="vip-save" class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+                Salvar
+              </button>
+            </div>
+
+            <p class="mt-3 text-xs text-gray-400">Salva em <b>configGuilda/${safeText(gid)}</b> (vipTier) e também tenta atualizar <b>guildas/${safeText(gid)}</b> como fallback.</p>
+          </div>
+        `
+      });
+
+      const sel = document.getElementById('vip-select');
+      sel.value = vipNormalize(g.vip);
+
+      document.getElementById('vip-save').onclick = async () => {
+        const newVip = vipNormalize(sel.value);
+        try {
+          await updateDoc(doc(db, 'configGuilda', gid), { vipTier: newVip });
+        } catch(e) {
+          // se config não existir, cria não é permitido aqui; então tenta guildas
+        }
+        try {
+          await updateDoc(doc(db, 'guildas', gid), { vipTier: newVip });
+        } catch(_) {}
+
+        toast(`VIP atualizado para ${newVip}`, 'success');
+        // refresh local
+        await loadAllGuilds();
+        closeDrawer();
+      };
+    }
+
+    async function deleteGuildData(gid) {
+      const g = allGuildCards.find(x => x.id === gid);
+      const name = g?.name || gid;
+
+      const ok = confirm(`Excluir APENAS os dados do Firestore dessa guilda?\n\nGuilda: ${name}\nID: ${gid}\n\nIsso remove: guildas/${gid} + membros + lines + configGuilda/${gid} + users com guildId==${gid} + solicita da guilda (se houver).`);
+      if (!ok) return;
+
+      toast('Excluindo... aguarde', 'info');
+
+      // 1) delete subcollections membros/lines
+      async function deleteSubcol(pathCol) {
+        const colRef = collection(db, ...pathCol);
+        const snap = await getDocs(colRef);
+        let batch = writeBatch(db);
+        let count = 0;
+        for (const d of snap.docs) {
+          batch.delete(d.ref);
+          count++;
+          if (count >= 450) { // margem
+            await batch.commit();
+            batch = writeBatch(db);
+            count = 0;
+          }
+        }
+        if (count) await batch.commit();
+      }
+
+      try { await deleteSubcol(['guildas', gid, 'membros']); } catch(_) {}
+      try { await deleteSubcol(['guildas', gid, 'lines']); } catch(_) {}
+
+      // 2) delete users docs vinculados
+      try {
+        const q = query(collection(db, 'users'), where('guildId', '==', gid), limit(1000));
+        const us = await getDocs(q);
+        if (!us.empty) {
+          let batch = writeBatch(db);
+          let count = 0;
+          for (const d of us.docs) {
+            batch.delete(d.ref);
+            count++;
+            if (count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
+          }
+          if (count) await batch.commit();
+        }
+      } catch(_) {}
+
+      // 3) delete solicita docs por guildId (se seu schema salvar isso)
+      try {
+        const q2 = query(collection(db, 'solicita'), where('guildId', '==', gid), limit(1000));
+        const ss = await getDocs(q2);
+        if (!ss.empty) {
+          let batch = writeBatch(db);
+          let count = 0;
+          for (const d of ss.docs) {
+            batch.delete(d.ref);
+            count++;
+            if (count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
+          }
+          if (count) await batch.commit();
+        }
+      } catch(_) {}
+
+      // 4) delete config + guild doc
+      try { await deleteDoc(doc(db, 'configGuilda', gid)); } catch(_) {}
+      try { await deleteDoc(doc(db, 'guildas', gid)); } catch(_) {}
+
+      toast('Dados da guilda excluídos.', 'success');
+      await loadAllGuilds();
+    }
+
+    // --- Solicita -----------------------------------------------------------
+    async function loadSolicita() {
+      els.solicitaGrid.innerHTML = `<div class="text-sm text-gray-500">Carregando solicitações...</div>`;
+      allSolicita = [];
+      const snap = await getDocs(collection(db, 'solicita'));
+      snap.forEach(d => allSolicita.push({ id: d.id, data: d.data() || {} }));
+
+      // ordena por createdAt desc (client-side)
+      allSolicita.sort((a,b) => {
+        const ta = a.data?.createdAt?.toMillis ? a.data.createdAt.toMillis() : 0;
+        const tb = b.data?.createdAt?.toMillis ? b.data.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+
+      renderSolicita();
+    }
+
+    function renderSolicita() {
+      els.solicitaCount.textContent = String(allSolicita.length);
+
+      if (allSolicita.length === 0) {
+        els.solicitaGrid.innerHTML = `<div class="text-sm text-gray-500">Nenhuma solicitação.</div>`;
+        return;
+      }
+
+      els.solicitaGrid.innerHTML = allSolicita.map(s => {
+        const d = s.data || {};
+        const plano = (d.plano || d.plan || d.vip || '—').toString();
+        const status = (d.status || 'pendente').toString();
+        const email = (d.email || '—').toString();
+        const nome = (d.nomePagador || d.nome || '—').toString();
+        const dt = d.createdAt?.toMillis ? fmtDateBR(new Date(d.createdAt.toMillis())) : '—';
+
+        return `
+          <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+            <p class="text-xs text-gray-400 truncate">${safeText(s.id)}</p>
+            <h4 class="font-bold text-gray-900 truncate">${safeText(email)}</h4>
+
+            <div class="mt-2 text-xs text-gray-600 space-y-1">
+              <div><span class="text-gray-400">Plano:</span> <b>${safeText(plano)}</b></div>
+              <div><span class="text-gray-400">Status:</span> <b>${safeText(status)}</b></div>
+              <div><span class="text-gray-400">Pagador:</span> ${safeText(nome)}</div>
+              <div><span class="text-gray-400">Data:</span> ${safeText(dt)}</div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-2">
+              <button data-action="editsolicita" data-sid="${safeText(s.id)}"
+                class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700">
+                Editar
+              </button>
+              <button data-action="deletesolicita" data-sid="${safeText(s.id)}"
+                class="px-3 py-2 rounded-xl border border-red-200 bg-white text-red-700 text-sm font-bold hover:bg-red-50">
+                Excluir
               </button>
             </div>
           </div>
         `;
+      }).join('');
 
-        row.querySelector(".btn-edit").addEventListener("click", () => openEdit(it));
-        row.querySelector(".btn-del").addEventListener("click", () => openDelete(it));
-        list.appendChild(row);
-      }
+      try { initIcons(); } catch(_) {}
     }
 
-    function openEdit(it) {
-      state.selected = it;
-      $("edit-title").textContent = it.name || it.guildId;
-      $("edit-tier").value = normalizeTier(it.vipTier);
-      openModal(modalEdit);
+    async function openEditSolicita(sid) {
+      const item = allSolicita.find(x => x.id === sid);
+      if (!item) return;
+
+      const d = item.data || {};
+      const plano0 = (d.plano || d.plan || d.vip || 'free').toString();
+      const status0 = (d.status || 'pendente').toString();
+
+      openDrawer({
+        title: 'Editar solicitação',
+        subtitle: sid,
+        contentHtml: `
+          <div class="lg:col-span-3 rounded-2xl border border-gray-200 bg-white p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Plano</label>
+                <select id="sol-plano" class="w-full px-4 py-3 rounded-xl border border-gray-200">
+                  <option value="free">free</option>
+                  <option value="plus">plus</option>
+                  <option value="pro">pro</option>
+                  <option value="business">business</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Status</label>
+                <select id="sol-status" class="w-full px-4 py-3 rounded-xl border border-gray-200">
+                  <option value="pendente">pendente</option>
+                  <option value="aprovado">aprovado</option>
+                  <option value="recusado">recusado</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="sol-save" class="mt-4 px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+              Salvar
+            </button>
+          </div>
+        `
+      });
+
+      document.getElementById('sol-plano').value = vipNormalize(plano0);
+      document.getElementById('sol-status').value = status0;
+
+      document.getElementById('sol-save').onclick = async () => {
+        const plano = vipNormalize(document.getElementById('sol-plano').value);
+        const status = document.getElementById('sol-status').value;
+
+        await updateDoc(doc(db, 'solicita', sid), { plano, status });
+        toast('Solicitação atualizada.', 'success');
+        await loadSolicita();
+        closeDrawer();
+      };
     }
 
-    function openDelete(it) {
-      state.selected = it;
-      $("delete-title").textContent = `${it.name || it.guildId}`;
-      openModal(modalDelete);
+    async function deleteSolicita(sid) {
+      const ok = confirm('Excluir esta solicitação?');
+      if (!ok) return;
+      await deleteDoc(doc(db, 'solicita', sid));
+      toast('Solicitação excluída.', 'success');
+      await loadSolicita();
     }
 
-    async function callOrFallback(callableName, data, fallbackFn) {
-      try {
-        const fn = httpsCallable(functions, callableName);
-        const res = await fn(data);
-        return res?.data || { ok: true };
-      } catch (e) {
-        if (typeof fallbackFn === "function") return await fallbackFn(e);
-        throw e;
-      }
-    }
+    // Events
+    els.guildSearch.addEventListener('input', renderGuilds);
+    els.btnReload.addEventListener('click', loadAllGuilds);
 
-    $("edit-save").addEventListener("click", async () => {
-      const it = state.selected;
-      if (!it) return;
-      const vipTier = $("edit-tier").value;
-
-      try {
-        $("edit-save").disabled = true;
-        await callOrFallback("ceoSetGuildVip", { guildId: it.guildId, vipTier }, async () => {
-          // fallback direto no Firestore (requer rules liberando para CEO)
-          await updateDoc(doc(db, "configGuilda", it.guildId), { vipTier });
-          await updateDoc(doc(db, "guildas", it.guildId), { vipTier });
-          return { ok: true, fallback: true };
-        });
-
-        showToast("success", "VIP atualizado.");
-        closeModal(modalEdit);
-
-        // atualiza item na lista
-        it.vipTier = vipTier;
-        renderList(state.items);
-      } catch (e) {
-        showToast("error", "Falha ao atualizar VIP.");
-        console.error(e);
-      } finally {
-        $("edit-save").disabled = false;
-      }
+    els.btnOpenSolicita.addEventListener('click', async () => {
+      els.solicitaPanel.classList.remove('hidden');
+      await loadSolicita();
+      els.solicitaPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    $("delete-confirm").addEventListener("click", async () => {
-      const it = state.selected;
-      if (!it) return;
-
-      try {
-        $("delete-confirm").disabled = true;
-        await callOrFallback("ceoDeleteGuild", { guildId: it.guildId }, async () => {
-          showToast("error", "Cloud Function não encontrada. Faça deploy das functions para deletar Auth.");
-          return { ok: false, needsFunctions: true };
-        });
-
-        showToast("success", "Guilda excluída.");
-        closeModal(modalDelete);
-        closeModal(modalResults);
-        $("results-preview").textContent = "Exclusão concluída. Faça nova busca.";
-        $("results-count").textContent = "0";
-        state.items = [];
-      } catch (e) {
-        showToast("error", "Falha ao excluir.");
-        console.error(e);
-      } finally {
-        $("delete-confirm").disabled = false;
-      }
+    els.btnCloseSolicita.addEventListener('click', () => {
+      els.solicitaPanel.classList.add('hidden');
     });
 
-    async function runSearch() {
-      const term = $("chefe-query").value;
-      $("chefe-search").disabled = true;
-      $("results-preview").textContent = "Buscando...";
+    // Delegation: guild cards + solicita
+    document.addEventListener('click', async (ev) => {
+      const btn = ev.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
 
-      try {
-        const items = await searchGuilds(term);
-        renderList(items);
-        openModal(modalResults);
-        try { if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons(); } catch (_) {}
-      } catch (e) {
-        console.error(e);
-        showToast("error", "Falha na busca.");
-        $("results-preview").textContent = "Falha na busca.";
-      } finally {
-        $("chefe-search").disabled = false;
-      }
-    }
+      if (action === 'details') return openGuildDetails(btn.dataset.gid);
+      if (action === 'editvip') return openEditVip(btn.dataset.gid);
+      if (action === 'delete') return deleteGuildData(btn.dataset.gid);
 
-    $("chefe-search").addEventListener("click", runSearch);
-    $("chefe-query").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") runSearch();
+      if (action === 'editsolicita') return openEditSolicita(btn.dataset.sid);
+      if (action === 'deletesolicita') return deleteSolicita(btn.dataset.sid);
     });
 
+    // Boot
+    await loadAllGuilds();
   </script>
 </body>
 </html>

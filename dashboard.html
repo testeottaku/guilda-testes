@@ -182,7 +182,7 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, getGuildContext } from './logic.js';
+    import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, getGuildContext, applyVipUiAndGates, getVipTier } from './logic.js';
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // 1. CARREGAMENTO IMEDIATO DO CACHE
@@ -216,7 +216,13 @@
       document.getElementById('btn-logout').onclick = logout;
       consumeLoginToasts();
       
-      // Busca dados frescos no Firebase (Background)
+      
+      // Atualiza label VIP (Guilda: <vip>) com o tier real resolvido no contexto
+      try {
+        const ctx = getGuildContext();
+        applyVipUiAndGates(ctx?.vipTier || getVipTier());
+      } catch(e) {}
+// Busca dados frescos no Firebase (Background)
       loadDashboard();
     });
 

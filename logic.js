@@ -566,7 +566,7 @@ export function checkAuth(redirectToLogin = true) {
         const cfgSnap = await getDoc(doc(db, "configGuilda", guildId));
         if (cfgSnap.exists()) {
           const cfg = cfgSnap.data() || {};
-          const rawVip = cfg.vipTier ?? cfg.vip ?? cfg.planoVip ?? cfg.plano ?? cfg.plan ?? cfg.tier;
+          const rawVip = cfg.vipTier ?? cfg.vip ?? cfg.planoVip ?? cfg.planoVIP ?? cfg.vipLevel ?? cfg.vipPlano ?? cfg.vipName ?? cfg.plano ?? cfg.plan ?? cfg.tier;
           vipTier = vipTierFromValue(rawVip);
         }
       } catch (_) {}
@@ -577,7 +577,7 @@ export function checkAuth(redirectToLogin = true) {
           const gSnap = await getDoc(doc(db, "guildas", guildId));
           if (gSnap.exists()) {
             const g = gSnap.data() || {};
-            const rawVip2 = g.vipTier ?? g.vip ?? g.planoVip ?? g.plano ?? g.plan ?? g.tier;
+            const rawVip2 = g.vipTier ?? g.vip ?? g.planoVip ?? g.planoVIP ?? g.vipLevel ?? g.vipPlano ?? g.vipName ?? g.plano ?? g.plan ?? g.tier;
             const v2 = vipTierFromValue(rawVip2);
             if (v2) vipTier = v2;
           }
