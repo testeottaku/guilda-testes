@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade - Guild Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-gray-50/80">
+
+  <div class="flex min-h-screen">
+    <!-- Menu Mobile Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
+            <span class="text-white font-black">G</span>
+          </div>
+          <div>
+            <p class="font-extrabold text-gray-800 leading-tight">Guild Manager</p>
+            <p id="vip-label" class="text-xs text-gray-500">Guilda: <span class="font-bold text-gray-800">free</span></p>
+          </div>
+        </div>
+</div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="layers" class="w-5 h-5"></i> Lines
+        </a>
+        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
+        </a>
+        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200">
+        <div class="flex items-center px-4 lg:px-8 py-4 gap-3">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-extrabold text-gray-900 leading-tight">Upgrade</h1>
+              <span id="current-plan-pill" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-sm border border-gray-200 whitespace-nowrap">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>Plano atual: <b id="current-plan-name">—</b></span>
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">Veja os planos disponíveis e o que muda em cada um.</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="px-4 lg:px-8 py-6">
+        <div id="plans" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+</section>
+
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+  <div class="mx-auto w-full max-w-5xl px-4 py-10">
+    <div class="flex flex-col items-center gap-4">
+
+      <div class="flex items-center justify-center gap-3">
+        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Instagram gaming: @gameotk" title="@gameotk">
+          <i data-lucide="instagram" class="h-5 w-5"></i>
+        </a>
+
+        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
+           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
+           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
+          <i data-lucide="globe" class="h-5 w-5"></i>
+        </a>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm font-semibold tracking-wide text-slate-800">
+          Ottakubrasil • Guilda Hub
+        </p>
+
+        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
+        </p>
+
+        <p class="mt-4 text-xs text-slate-500">
+          © Ottakubrasil • 2026
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+    </main>
+  </div>
+
+<script type="module">
+  import { checkAuth, setupSidebar, initIcons, logout, getVipTier } from './logic.js';
+
+  setupSidebar();
+  initIcons();
+
+  const PLANS_LS_KEY = 'plans_upgrade_cache_v1';
+
+  function normalizeTier(raw){
+    const s = (raw || 'free').toString().toLowerCase().trim();
+    if (s.includes('buss') || s.includes('business')) return 'business';
+    if (s.includes('pro')) return 'pro';
+    if (s.includes('plus')) return 'plus';
+    return 'free';
+  }
+
+  function computeDiscounts(plans){
+    // Baseline (preço "cheio" para referência de desconto)
+    const fullMonthly = 9.99;
+    const fullAnnual = fullMonthly * 12;
+
+    return plans.map(p => {
+      let discount = 0;
+
+      if (p.id === 'free') {
+        discount = 100;
+      } else if (p.id === 'plus') {
+        discount = Math.round((1 - (p.price / fullMonthly)) * 100);
+      } else if (p.id === 'pro') {
+        discount = Math.round((1 - (p.price / fullMonthly)) * 100);
+      } else if (p.id === 'business') {
+        discount = Math.round((1 - (p.price / fullAnnual)) * 100);
+      }
+
+      if (!isFinite(discount)) discount = 0;
+      if (discount < 0) discount = 0;
+      if (discount > 100) discount = 100;
+
+      return { ...p, discount };
+    });
+  }
+
+  function getPlans(){
+    try {
+      const raw = localStorage.getItem(PLANS_LS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch (_) {}
+
+    const basePlans = [
+      {
+        id: 'free',
+        name: 'FREE',
+        price: 0,
+        priceLabel: 'R$0 / mês',
+        access: ['Dashboard', 'Membros', 'Configuração de tag'],
+        noAccess: ['Administradores + Líderes', 'Lines', 'Eventos/Camp (BETA)', 'Acesso do jogador (BETA)']
+      },
+      {
+        id: 'plus',
+        name: 'PLUS',
+        price: 5.99,
+        priceLabel: 'R$5,99 / mês',
+        access: ['Dashboard', 'Membros', 'Configuração de tag', 'Administradores + Líderes', 'Lines'],
+        noAccess: ['Eventos/Camp (BETA)', 'Acesso do jogador (BETA)']
+      },
+      {
+        id: 'pro',
+        name: 'PRO',
+        price: 8.99,
+        priceLabel: 'R$8,99 / mês',
+        access: ['Dashboard', 'Membros', 'Configuração de tag', 'Administradores + Líderes', 'Lines', 'Eventos/Camp (BETA)', 'Acesso do jogador (BETA)'],
+        noAccess: []
+      },
+      {
+        id: 'business',
+        name: 'BUSSINES',
+        price: 61.99,
+        priceLabel: 'R$61,99 / ano',
+        access: ['Dashboard', 'Membros', 'Configuração de tag', 'Administradores + Líderes', 'Lines', 'Eventos/Camp (BETA)', 'Acesso do jogador (BETA)'],
+        noAccess: [],
+        note: 'Equivalente a ~R$5,17/mês'
+      },
+    ];
+
+    const computed = computeDiscounts(basePlans);
+
+    try { localStorage.setItem(PLANS_LS_KEY, JSON.stringify(computed)); } catch (_) {}
+    return computed;
+  }
+
+  function currentTierFromCache(){
+    try {
+      const raw = localStorage.getItem('guildCtx_cache_v1');
+      const ctx = raw ? JSON.parse(raw) : null;
+      return normalizeTier(ctx?.vipTier);
+    } catch (_) {
+      return 'free';
+    }
+  }
+
+  
+  // Solicitar upgrade (salva no localStorage para não depender de rede)
+  window.requestUpgrade = async (planId) => {
+    const tier = (planId || 'free').toString().toUpperCase();
+    const msg = `Quero solicitar o plano ${tier} para minha guilda.`;
+    try { localStorage.setItem('upgrade_request_plan_v1', tier); } catch (_) {}
+    try { await navigator.clipboard.writeText(msg); } catch (_) {}
+    alert(msg + "\n\n(Copiado, se o navegador permitir)");
+  };
+
+function render(){
+    const plans = getPlans();
+    const currentTier = currentTierFromCache();
+
+    const pill = document.getElementById('current-plan-pill');
+    const pillName = document.getElementById('current-plan-name');
+    if (pill && pillName) {
+      pill.classList.remove('hidden');
+      pillName.textContent = (currentTier || 'free').toUpperCase();
+    }
+
+    const box = document.getElementById('plans');
+    if (!box) return;
+
+    box.innerHTML = plans.map(p => {
+      const isCurrent = p.id === currentTier;
+      const border = isCurrent ? 'border-emerald-200 ring-2 ring-emerald-100' : 'border-gray-200';
+      const tag = isCurrent
+        ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200"><i data-lucide="check-circle" class="w-4 h-4"></i> Plano atual</span>'
+        : `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-50 text-gray-600 text-xs font-bold border border-gray-200"><i data-lucide="percent" class="w-4 h-4"></i> ${p.discount}% OFF</span>`;
+
+      const actionBtn = isCurrent
+        ? ''
+        : `<button onclick="requestUpgrade('${p.id}')" class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition">
+             <i data-lucide="send" class="w-4 h-4"></i> Solicitar
+           </button>`;
+
+      const accessList = p.access.map(x => `<li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 mt-0.5"></i><span>${x}</span></li>`).join('');
+      const noAccessList = (p.noAccess || []).map(x => `<li class="flex items-start gap-2 text-gray-400"><i data-lucide="x" class="w-4 h-4 mt-0.5"></i><span>${x}</span></li>`).join('');
+
+      const note = p.note ? `<div class="mt-3 text-xs text-gray-500">${p.note}</div>` : '';
+
+      return `
+        <div class="bg-white rounded-2xl border ${border} p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-extrabold text-gray-900">${p.name}</h3>
+            ${tag}
+          </div>
+
+          <div class="mt-3">
+            <div class="text-2xl font-black text-gray-900">${p.priceLabel}</div>
+          </div>
+
+          ${actionBtn}
+
+          <div class="mt-4">
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">Acesso</div>
+            <ul class="mt-2 space-y-2 text-sm text-gray-700">${accessList}</ul>
+          </div>
+
+          ${noAccessList ? `
+          <div class="mt-4">
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">Sem acesso</div>
+            <ul class="mt-2 space-y-2 text-sm">${noAccessList}</ul>
+          </div>` : ''}
+
+          ${note}
+        </div>
+      `;
+    }).join('');
+
+    // Re-render icons inside the injected HTML
+    try { lucide.createIcons(); } catch (_) {}
+  }
+
+  render();
+
+  // Sincroniza plano atual depois do auth (caso cache esteja desatualizado)
+  checkAuth().then((user) => {
+    if (!user) return;
+    document.getElementById('btn-logout').onclick = logout;
+    try {
+      const tier = normalizeTier(getVipTier());
+      const pillName = document.getElementById('current-plan-name');
+      if (pillName) pillName.textContent = tier.toUpperCase();
+    } catch (_) {}
+    render();
+  });
+
+</script>
+
+</body>
+</html>
