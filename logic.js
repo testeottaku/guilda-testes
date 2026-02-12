@@ -612,6 +612,10 @@ export function checkAuth(redirectToLogin = true) {
       const isLinesPage = path.endsWith("/lines") || path.endsWith("/lines.html") || path.includes("lines.html");
       const isChefePage = path.endsWith("/chefe") || path.endsWith("/chefe.html") || path.includes("chefe.html");
 
+      // (Fix) Algumas versões antigas tinham uma tela "camp". Aqui garantimos que a variável exista
+      // para não quebrar o fluxo quando o role for "Admin".
+      const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html");
+
       if (role === "Membro") {
         // Só derruba o login quando NÃO existe vínculo em /users e o papel realmente não foi reconhecido.
         // Isso evita logout indevido de Admin/Líder secundário.
