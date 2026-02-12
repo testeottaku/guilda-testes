@@ -306,9 +306,10 @@ async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
   // Se não for o dono (guildId já foi resolvido para outra guilda), não cria nada.
   if (guildId !== uid) return;
 
-  const [gSnap, cSnap] = await Promise.all([
+  const [gSnap, cSnap, uSnap] = await Promise.all([
     getDoc(doc(db, "guildas", uid)),
-    getDoc(doc(db, "configGuilda", uid))
+    getDoc(doc(db, "configGuilda", uid)),
+    getDoc(doc(db, "users", uid))
   ]);
 
   const batch = writeBatch(db);
@@ -349,6 +350,17 @@ async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
       updatedAt: serverTimestamp()
     }, { merge: true });
   }
+
+  // ✅ Garante /users/{uid} (login identifica guilda/role pelo Firestore)
+  batch.set(doc(db, "users", uid), {
+    uid,
+    email,
+    guildId: uid,
+    role: "Líder",
+    username: uname || "",
+    ...(uSnap && !uSnap.exists() ? { createdAt: serverTimestamp() } : {}),
+    updatedAt: serverTimestamp()
+  }, { merge: true });
 
   await batch.commit();
 }
