@@ -173,57 +173,36 @@
     setupSidebar();
     initIcons();
 
-    // VIP gating (sem piscar): Lines exige PLUS
-    let __vipTier = 'free';
-    try {
-      const ctx0 = getGuildContext();
-      const tier0 = (ctx0?.vipTier || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}').vipTier || 'free');
-      __vipTier = String(tier0);
-      applyVip(__vipTier);
-    } catch(_) {}
-
-
     function tierRank(t){
       const s=(t||'free').toString().toLowerCase();
       if(s==='pro') return 2; if(s==='plus') return 1; return 0;
     }
     function applyVip(tier){
       const rank = tierRank(tier);
-      const isPlus = rank >= 1;
-
-      // Badge "PLUS" (aparece só no FREE)
       const badge = document.getElementById('plus-badge-lines');
+
+      // FREE = mostra tag PLUS
       if(rank === 0){
         if(badge) badge.classList.remove('hidden');
       } else {
         if(badge) badge.classList.add('hidden');
       }
-
-      // Lock/unlock botões (igual o camp, mas aqui é PLUS)
-      const lockify = (btn, lockedHtml) => {
-        if(!btn) return;
-        if(!btn.dataset.originalHtml) btn.dataset.originalHtml = btn.innerHTML;
-
-        if(!isPlus){
-          btn.disabled = true;
-          btn.classList.add('opacity-50','cursor-not-allowed');
-          btn.innerHTML = lockedHtml;
+    
+      // Botão SALVAR: bloqueia apenas no FREE (recurso PLUS)
+      const btnSave = document.getElementById('btn-save-line');
+      if(btnSave){
+        if(!btnSave.dataset.originalHtml) btnSave.dataset.originalHtml = btnSave.innerHTML;
+        if(rank === 0){
+          btnSave.disabled = true;
+          btnSave.classList.add('opacity-50','cursor-not-allowed');
+          btnSave.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> PLUS';
         } else {
-          btn.disabled = false;
-          btn.classList.remove('opacity-50','cursor-not-allowed');
-          btn.innerHTML = btn.dataset.originalHtml;
+          btnSave.disabled = false;
+          btnSave.classList.remove('opacity-50','cursor-not-allowed');
+          btnSave.innerHTML = btnSave.dataset.originalHtml;
         }
-      };
-
-      const bNew  = document.getElementById('btn-new-line');
-      const bSave = document.getElementById('btn-save-line');
-
-      lockify(bNew,  '<i data-lucide="lock" class="w-4 h-4"></i> PLUS');
-      lockify(bSave, '<i data-lucide="lock" class="w-4 h-4"></i> PLUS');
-
-      // Re-render dos ícones
-      initIcons();
-    }
+        try { initIcons(); } catch(e) {}
+      }
 
     }
 
@@ -468,12 +447,6 @@
         if (!guildId) {
           const c = getGuildContext();
           if (c?.guildId) guildId = c.guildId;
-      // Atualiza gating após auth/context
-      try {
-        const tier1 = (c?.vipTier || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}').vipTier || 'free');
-        __vipTier = String(tier1);
-        applyVip(__vipTier);
-      } catch(_) {}
         }
         if (!guildId) return;
 
@@ -604,16 +577,16 @@
     };
 
     window.saveLine = async () => {
-      if (!guildId) { showToast('info','Carregando sua guilda...'); return; }
-      // Recurso PLUS (bloqueia bypass via console)
-      try {
-        const c0 = getGuildContext();
-        const tier = (c0?.vipTier || __vipTier || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}').vipTier || 'free');
-        if (tierRank(tier) < 1) {
-          showToast('info', 'Recurso PLUS. Faça upgrade para liberar Lines.');
+      // Recurso PLUS: permite abrir o modal no FREE, mas impede salvar
+      try{
+        const t = getGuildContext()?.vipTier || 'free';
+        if(tierRank(t) === 0){
+          showToast('info','Recurso disponível apenas no PLUS.');
           return;
         }
-      } catch(_) {}
+      }catch(e){}
+
+      if (!guildId) { showToast('info','Carregando sua guilda...'); return; }
       try {
         if (!guildId) {
           const c = getGuildContext();
