@@ -274,26 +274,9 @@ async function normalizeConfigGuilda(guildId) {
 
 
 async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
-  // Importante: o site NÃO depende da coleção "users".
-  // Tudo o que precisamos para funcionar:
-  // - garantir /guildas e /configGuilda no primeiro login do dono (guildId === uid)
-  // - manter um índice por e-mail em /emailGuilda para contas secundárias encontrarem a guilda
-
   const uid = user.uid;
   const email = cleanEmail(user.email);
   const uname = (usernameMaybe || "").toString().trim();
-
-  // Índice por e-mail -> guilda (resolve login de contas secundárias)
-  try {
-    if (email && guildId) {
-      await setDoc(doc(db, "emailGuilda", emailDocId(email)), {
-        email,
-        uid,
-        guildId,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-    }
-  } catch (_) {}
 
   // Se não for o dono (guildId já foi resolvido para outra guilda), não cria nada.
   if (guildId !== uid) return;
@@ -487,27 +470,30 @@ export function checkAuth(redirectToLogin = true) {
       let guildId = null;
       let username = "";
 
-      // A coleção \"users\" não é obrigatória (site não depende dela).
+      // Resolve a guilda SOMENTE pela configGuilda.
+      // - Contas secundárias (admin/líder/jogador) precisam estar dentro dos arrays em /configGuilda/{guildId}
+      // - O dono (guildId === uid) é criado no signup (finalizeSignup). Em logins futuros, também será resolvido.
+      try {
+        const found = await findGuildByEmail(emailLower);
+        if (found?.guildId) guildId = found.guildId;
+      } catch (_) {}
+
+      // Se não achou por e-mail, só aceitamos como "dono" quando já existe configGuilda com id == uid.
+      // Isso evita o bug de criar uma guilda nova ao logar com contas secundárias.
       if (!guildId) {
         try {
-          const found = await findGuildByEmail(emailLower);
-          if (found?.guildId) guildId = found.guildId;
+          const selfCfg = await getDoc(doc(db, "configGuilda", user.uid));
+          if (selfCfg.exists()) guildId = user.uid;
         } catch (_) {}
       }
 
-      // Fallback extra: índice direto por e-mail (evita criar guilda nova para contas secundárias)
+      // Se ainda não resolveu, a conta não está vinculada a nenhuma guilda -> não criar nada automaticamente.
       if (!guildId) {
-        try {
-          const idx = await getDoc(doc(db, "emailGuilda", emailDocId(emailLower)));
-          if (idx.exists()) {
-            const d = idx.data() || {};
-            const g = (d.guildId || "").toString().trim();
-            if (g) guildId = g;
-          }
-        } catch (_) {}
+        try { await signOut(auth); } catch (_) {}
+        if (!isLoginPage) window.location.href = "index.html";
+        resolve(null);
+        return;
       }
-
-      if (!guildId) guildId = user.uid;
 
       try {
         // Importante: não forçar "Minha Guilda" aqui, pois isso sobrescrevia o nome real em alguns cenários.

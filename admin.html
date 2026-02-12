@@ -356,17 +356,6 @@
         } catch (e) { console.warn(e); }
 
 
-        // índice por e-mail (resolve login de contas secundárias sem depender da coleção "users")
-        try {
-          const emailDocId = cleanEmail.replaceAll('.', ',');
-          await setDoc(doc(db, "emailGuilda", emailDocId), {
-            email: cleanEmail,
-            uid: resUid || null,
-            guildId: getGuildContext().guildId,
-            updatedAt: serverTimestamp()
-          }, { merge: true });
-        } catch (_) {}
-
         securityData[type].push(cleanEmail);
         renderList(type, securityData[type]);
         await saveSecurity();
