@@ -26,7 +26,7 @@
           </div>
           <div>
             <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
-<p class="text-xs text-gray-400">Painel</p>
+            <p id="vip-label" class="text-xs text-gray-400">Guilda: <span class="font-bold">carregando...</span></p>
           </div>
         </div>
       </div>
@@ -79,18 +79,22 @@
       <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
           <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
-          <h1 class="text-lg font-semibold text-gray-900">Dashboard</h1> <span id="current-plan-pill" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-sm border border-gray-200 whitespace-nowrap ml-auto">
-                <i data-lucide="sparkles" class="w-4 h-4"></i>
-                <span>Plano atual: <b id="current-plan-name">—</b></span>
+          <h1 class="text-lg font-semibold text-gray-900 leading-none">Dashboard</h1> 
+          
+          <span id="current-plan-pill" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-sm border border-gray-200 whitespace-nowrap ml-auto">
+            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
+            <span>Plano atual: <b id="current-plan-name">—</b></span>
+          </span>
         </div>
       </header>
 
-      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
         <div>
           <h2 class="text-2xl font-bold text-gray-900">Visão Geral</h2>
           <p class="text-gray-500 text-sm mt-1">Resumo da guilda em tempo real</p>
+        </div>
          
         <!-- Cards de Estatísticas -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
@@ -151,8 +155,8 @@
           </div>
         </div>
 
-        <!-- Alertas e Gráficos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <!-- Alertas e Gráficos - Adicionado mt-8 para espaçamento -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <!-- Atenção -->
           <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-2 mb-4">
@@ -160,7 +164,7 @@
               <h3 class="font-semibold text-gray-900">Atenção</h3>
             </div>
             <div class="space-y-3" id="attention-container">
-              <!-- Placeholder Skeleton (só aparece se não tiver cache) -->
+              <!-- Placeholder Skeleton -->
               <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-pulse"><div class="h-4 bg-gray-200 rounded w-1/2"></div><div class="h-4 bg-gray-200 rounded w-8"></div></div>
             </div>
           </div>
@@ -183,7 +187,9 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, db, consumeLoginToasts, getGuildContext, applyVipUiAndGates, getVipTier } from './logic.js';
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // Função de normalização idêntica à do upgrade.html
     function normalizeTier(raw){
       const s = (raw || 'free').toString().toLowerCase().trim();
       if (s.includes('buss') || s.includes('business')) return 'business';
@@ -192,24 +198,18 @@
       return 'free';
     }
 
-    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // 1. CARREGAMENTO IMEDIATO DO CACHE
-    // Tenta pegar os stats salvos. Se não tiver, tenta calcular usando a lista de membros salva.
     setupSidebar();
     
     let currentStats = null;
     
-    // Tenta carregar stats prontos
+    // 1. CARREGAMENTO IMEDIATO DO CACHE
     const cachedStats = localStorage.getItem('dashboard_stats');
-    // Tenta carregar lista de membros (mais confiável se você veio da tela de membros)
     const cachedMembers = localStorage.getItem('membersList');
 
     if (cachedStats) {
       currentStats = JSON.parse(cachedStats);
       updateUI(currentStats);
     } else if (cachedMembers) {
-      // Se não tem stats prontos, mas tem a lista, calcula agora
       try {
         const members = JSON.parse(cachedMembers);
         if(Array.isArray(members) && members.length > 0) {
@@ -225,37 +225,37 @@
       document.getElementById('btn-logout').onclick = logout;
       consumeLoginToasts();
       
-      
-      // Atualiza label VIP (Guilda: <vip>) com o tier real resolvido no contexto
+      // Atualiza o Plano Atual no Header (resolvendo o problema relatado)
       try {
+        const tier = normalizeTier(getVipTier());
+        const pillName = document.getElementById('current-plan-name');
+        if (pillName) pillName.textContent = tier.toUpperCase();
+        
+        // Atualiza UI baseada no VIP
         const ctx = getGuildContext();
-        const tier = normalizeTier(ctx?.vipTier || getVipTier());
-        applyVipUiAndGates(tier);
-        const planEl = document.getElementById('current-plan-name');
-        if (planEl) planEl.textContent = tier.toUpperCase();
-      } catch(e) {}
-// Busca dados frescos no Firebase (Background)
+        applyVipUiAndGates(ctx?.vipTier || getVipTier());
+      } catch(e) {
+        console.warn("Erro ao atualizar plano no dashboard:", e);
+      }
+
       loadDashboard();
     });
 
     async function loadDashboard() {
       try {
-        const snap = await getDocs(collection(db, "guildas", getGuildContext().guildId, "membros"));
+        const ctx = getGuildContext();
+        if(!ctx?.guildId) return;
+
+        const snap = await getDocs(collection(db, "guildas", ctx.guildId, "membros"));
         const members = [];
         snap.forEach(d => members.push(d.data()));
 
         const newStats = calculateStats(members);
         
-        // Compara para ver se mudou algo
         if (JSON.stringify(newStats) !== JSON.stringify(currentStats)) {
-            // Se mudou, atualiza a tela e o cache
             localStorage.setItem('dashboard_stats', JSON.stringify(newStats));
-            // Também atualiza a lista de membros no cache pra garantir consistência
-            // Nota: só salvamos ids e dados básicos se quiséssemos economizar, mas vamos deixar simples
             updateUI(newStats);
             currentStats = newStats;
-        } else {
-            console.log("Dashboard sincronizado (sem alterações).");
         }
       } catch(e) {
         console.error(e);
@@ -291,22 +291,22 @@
       const noTag = total - hasTag;
 
       document.getElementById('attention-container').innerHTML = `
-        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl animate-in">
+        <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl">
           <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-sm text-red-700">Sem Guerra de Guilda</span></div>
           <span class="text-sm font-bold text-red-700">${noWar}</span>
         </div>
-        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl animate-in">
+        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl">
           <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-orange-500"></div><span class="text-sm text-orange-700">Meta Semanal Pendente</span></div>
           <span class="text-sm font-bold text-orange-700">${noMeta}</span>
         </div>
-        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl animate-in">
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
           <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-400"></div><span class="text-sm text-gray-600">Sem Tag</span></div>
           <span class="text-sm font-bold text-gray-600">${noTag}</span>
         </div>
       `;
 
       const renderBar = (label, val, color) => `
-        <div class="animate-in">
+        <div>
           <div class="flex items-center justify-between mb-1">
             <span class="text-sm text-gray-600">${label}</span>
             <span class="text-sm font-semibold text-gray-900">${total > 0 ? Math.round((val/total)*100) : 0}%</span>
@@ -330,45 +330,31 @@
 <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
   <div class="mx-auto w-full max-w-5xl px-4 py-10">
     <div class="flex flex-col items-center gap-4">
-
       <div class="flex items-center justify-center gap-3">
         <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
            class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
            aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
           <i data-lucide="instagram" class="h-5 w-5"></i>
         </a>
-
         <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
            class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
            aria-label="Instagram gaming: @gameotk" title="@gameotk">
           <i data-lucide="instagram" class="h-5 w-5"></i>
         </a>
-
         <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
            class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
            aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
           <i data-lucide="globe" class="h-5 w-5"></i>
         </a>
       </div>
-
       <div class="text-center">
-        <p class="text-sm font-semibold tracking-wide text-slate-800">
-          Ottakubrasil • Guilda Hub
-        </p>
-
-        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
-          Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
-        </p>
-
-        <p class="mt-4 text-xs text-slate-500">
-          © Ottakubrasil • 2026
-        </p>
+        <p class="text-sm font-semibold tracking-wide text-slate-800">Ottakubrasil • Guilda Hub</p>
+        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.</p>
+        <p class="mt-4 text-xs text-slate-500">© Ottakubrasil • 2026</p>
       </div>
-
     </div>
   </div>
 </footer>
 
 </body>
 </html>
-
