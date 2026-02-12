@@ -349,7 +349,7 @@
         try {
           const pass = prompt('Se a conta não existir, defina uma senha (mín. 6) para criar.\nSe já existir, deixe em branco:');
           if (pass && pass.length >= 6) {
-            const res = await ensureUserAccount(cleanEmail, pass);
+            const res = await ensureUserAccount(cleanEmail, pass, { guildId: getGuildContext().guildId, role: (type === 'leaders' ? 'Líder' : 'Admin') });
             created = res.created;
             resUid = res.uid;
           }
