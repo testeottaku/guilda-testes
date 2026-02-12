@@ -298,70 +298,60 @@ async function normalizeConfigGuilda(guildId) {
 }
 
 
-async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
+// Bootstrap de primeira criação (signup): NÃO faz leituras antes, porque as regras
+// podem bloquear read quando a guilda ainda não existe.
+async function bootstrapNewGuildAndUser(user, username) {
   const uid = user.uid;
   const email = cleanEmail(user.email);
-  const uname = (usernameMaybe || "").toString().trim();
+  const uname = (username || "").toString().trim();
 
-  // Se não for o dono (guildId já foi resolvido para outra guilda), não cria nada.
-  if (guildId !== uid) return;
-
-  const [gSnap, cSnap, uSnap] = await Promise.all([
-    getDoc(doc(db, "guildas", uid)),
-    getDoc(doc(db, "configGuilda", uid)),
-    getDoc(doc(db, "users", uid))
-  ]);
+  if (!uid) throw new Error("UID inválido.");
+  if (!uname) throw new Error("Nome de guilda inválido.");
 
   const batch = writeBatch(db);
 
-  if (!gSnap.exists()) {
-    batch.set(doc(db, "guildas", uid), {
-      name: uname || "Minha Guilda",
-      ownerUid: uid,
-      ownerEmail: email,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-  } else {
-    // Não sobrescreve o nome salvo por "Minha Guilda" em logins futuros
-    const existing = gSnap.data() || {};
-    const currentName = (existing.name || "").toString().trim();
-    const currentIsDefault = !currentName || currentName.toLowerCase() === "minha guilda";
-    const shouldUpdateName = !!uname && currentIsDefault;
-
-    batch.set(doc(db, "guildas", uid), {
-      ...(shouldUpdateName ? { name: uname } : {}),
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  }
-
-  if (!cSnap.exists()) {
-    batch.set(doc(db, "configGuilda", uid), {
-      ownerUid: uid,
-      ownerEmail: email,
-      tagMembros: "",
-      leaders: email ? [email] : [],
-      admins: [],
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-  } else {
-    batch.set(doc(db, "configGuilda", uid), {
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  }
-
-  // ✅ Garante /users/{uid} (login identifica guilda/role pelo Firestore)
+  // ✅ users/{uid}
   batch.set(doc(db, "users", uid), {
     uid,
     email,
     guildId: uid,
     role: "Líder",
-    username: uname || "",
-    ...(uSnap && !uSnap.exists() ? { createdAt: serverTimestamp() } : {}),
+    createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   }, { merge: true });
 
+  // ✅ guildas/{uid}
+  batch.set(doc(db, "guildas", uid), {
+    name: uname || "Minha Guilda",
+    ownerUid: uid,
+    ownerEmail: email,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+
+  // ✅ configGuilda/{uid}
+  batch.set(doc(db, "configGuilda", uid), {
+    ownerUid: uid,
+    ownerEmail: email,
+    tagMembros: "",
+    leaders: email ? [email] : [],
+    admins: [],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+
+  await batch.commit();
+}
+
+// Garantia leve (logins futuros do dono): não mexe no nome, só garante timestamps.
+async function ensureOwnerDocsLight(user) {
+  const uid = user.uid;
+  if (!uid) return;
+
+  const batch = writeBatch(db);
+  batch.set(doc(db, "guildas", uid), { updatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "configGuilda", uid), { updatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "users", uid), { updatedAt: serverTimestamp() }, { merge: true });
   await batch.commit();
 }
 
@@ -370,9 +360,8 @@ export async function finalizeSignup(user, username) {
   const uname = (username || "").toString().trim();
   if (!uname) throw new Error("Nome de usuário inválido.");
 
-  const guildId = user.uid;
-  await ensureBootstrapDocs(user, uname, guildId);
-  return { guildId };
+  await bootstrapNewGuildAndUser(user, uname);
+  return { guildId: user.uid };
 }
 
 export async function getMemberTagConfig() {
@@ -545,14 +534,14 @@ export function checkAuth(redirectToLogin = true) {
         return;
       }
 
+      // Após o login: não tente ler antes de existir (regras podem bloquear).
+      // Se for o dono (guildId === uid), apenas garante docs com merge sem mexer em nome.
       try {
-        // Importante: não forçar "Minha Guilda" aqui, pois isso sobrescrevia o nome real em alguns cenários.
-        await ensureBootstrapDocs(user, username, guildId);
+        if (guildId === user.uid) {
+          await ensureOwnerDocsLight(user);
+        }
       } catch (e) {
-        try { await signOut(auth); } catch (_) {}
-        if (!isLoginPage) window.location.href = "index.html";
-        resolve(null);
-        return;
+        // Se falhar aqui, não derruba o login: isso é apenas uma garantia leve.
       }
 
       let role = null;
