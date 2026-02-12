@@ -32,11 +32,6 @@
     {
       "source": "/jogador",
       "destination": "/jogador.html"
-    },
-    {
-      "source": "/upgrade",
-      "destination": "/upgrade.html"
-      
     }
   ]
 }

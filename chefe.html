@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chefe • Administração Global</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+          <p class="text-xs text-gray-400">Painel</p>
+        </div>
+      </div>
+      <button id="btn-close-sidebar" class="lg:hidden p-2 rounded-lg hover:bg-gray-50" aria-label="Fechar menu">
+        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+      </button>
+    </div>
+
+    <div class="p-5 space-y-3">
+      <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+        <p class="text-xs text-gray-400 mb-1">Logado como</p>
+        <p id="user-email" class="text-sm font-semibold text-gray-800 break-all">—</p>
+        <div class="flex items-center justify-between mt-3">
+          <span id="user-role" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">—</span>
+          <span id="vip-label" class="text-xs text-gray-600">Guilda: <span class="font-bold text-gray-800">—</span></span>
+        </div>
+      </div>
+
+      <nav class="flex flex-col gap-2">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
+        </a>
+        <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="layers" class="w-5 h-5"></i> Lines
+        </a>
+        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
+        </a>
+        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
+        </a>
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+        </a>
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+        </a>
+
+        <!-- Chefe (apenas CEO) -->
+        <a id="nav-chefe-ceo" href="chefe.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="crown" class="w-5 h-5"></i> Chefe
+        </a>
+      </nav>
+
+      <button id="btn-logout" class="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i> Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="lg:pl-72">
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+      <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button id="btn-open-sidebar" class="lg:hidden p-2 rounded-xl hover:bg-gray-50 border border-gray-200" aria-label="Abrir menu">
+            <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
+          </button>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 leading-tight">Administração Global</h2>
+            <p class="text-xs text-gray-500">Acesso total (apenas CEO)</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-gray-500">Status</p>
+          <p id="ceo-status" class="text-sm font-semibold text-gray-900">Verificando…</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <section class="rounded-2xl bg-white border border-gray-200 p-5">
+        <h3 class="font-bold text-gray-900">Buscar guilda</h3>
+        <p class="text-sm text-gray-500 mt-1">Pesquise por nome da guilda ou e-mail de líder/admin. Os resultados aparecem em um modal.</p>
+
+        <div class="mt-4 flex gap-3">
+          <input id="q" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-emerald-200" placeholder="Ex.: 'Mercys', 'lider@email.com'…" />
+          <button id="btn-search" class="px-4 py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition flex items-center gap-2">
+            <i data-lucide="search" class="w-4 h-4"></i> Buscar
+          </button>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
+            <p class="text-xs text-gray-500">Ações</p>
+            <p class="text-sm font-semibold text-gray-900 mt-1">Editar plano VIP</p>
+            <p class="text-xs text-gray-500 mt-1">Free / Plus / Pro / Business</p>
+          </div>
+          <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
+            <p class="text-xs text-gray-500">Ações</p>
+            <p class="text-sm font-semibold text-gray-900 mt-1">Deletar guilda</p>
+            <p class="text-xs text-gray-500 mt-1">Remove docs e subcoleções</p>
+          </div>
+          <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
+            <p class="text-xs text-gray-500">Observação</p>
+            <p class="text-sm font-semibold text-gray-900 mt-1">Conta Auth</p>
+            <p class="text-xs text-gray-500 mt-1">Excluir conta do Firebase Auth exige Cloud Function (Admin SDK)</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: resultados -->
+  <div id="modal-results" class="fixed inset-0 z-[100] hidden items-end sm:items-center justify-center">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative w-full sm:max-w-3xl bg-white rounded-t-3xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h4 class="font-bold text-gray-900">Resultados</h4>
+          <p class="text-xs text-gray-500">Clique em editar ou deletar.</p>
+        </div>
+        <button id="btn-close-results" class="p-2 rounded-xl hover:bg-gray-50" aria-label="Fechar">
+          <i data-lucide="x" class="w-5 h-5 text-gray-700"></i>
+        </button>
+      </div>
+      <div id="results-list" class="p-5 space-y-3 max-h-[70vh] overflow-auto"></div>
+    </div>
+  </div>
+
+  <!-- Modal: editar plano -->
+  <div id="modal-edit" class="fixed inset-0 z-[110] hidden items-end sm:items-center justify-center">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h4 class="font-bold text-gray-900">Editar VIP</h4>
+          <p id="edit-sub" class="text-xs text-gray-500">—</p>
+        </div>
+        <button id="btn-close-edit" class="p-2 rounded-xl hover:bg-gray-50" aria-label="Fechar">
+          <i data-lucide="x" class="w-5 h-5 text-gray-700"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <label class="text-sm font-semibold text-gray-800">Plano VIP</label>
+        <select id="edit-vip" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-emerald-200">
+          <option value="free">free</option>
+          <option value="plus">plus</option>
+          <option value="pro">pro</option>
+          <option value="business">business</option>
+        </select>
+        <button id="btn-save-vip" class="w-full px-4 py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition">
+          Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: confirmar delete -->
+  <div id="modal-delete" class="fixed inset-0 z-[120] hidden items-end sm:items-center justify-center">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h4 class="font-bold text-gray-900">Deletar guilda</h4>
+          <p id="del-sub" class="text-xs text-gray-500">—</p>
+        </div>
+        <button id="btn-close-delete" class="p-2 rounded-xl hover:bg-gray-50" aria-label="Fechar">
+          <i data-lucide="x" class="w-5 h-5 text-gray-700"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <p class="text-sm text-gray-600">
+          Esta ação remove <b>docs e subcoleções</b> da guilda (membros, lines, configGuilda, users vinculados).
+          <span class="text-gray-500 block mt-2">Excluir contas do Firebase Auth de outros usuários exige Cloud Function (Admin SDK).</span>
+        </p>
+        <label class="text-sm font-semibold text-gray-800">Digite o ID da guilda para confirmar</label>
+        <input id="del-confirm" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-emerald-200" placeholder="guildId"/>
+        <button id="btn-do-delete" class="w-full px-4 py-3 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition">
+          Deletar agora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db, setupSidebar, checkAuth, getGuildContext, logout, showToast, isCeo } from "./logic.js";
+    import { doc, getDoc, getDocs, collection, query, where, limit, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    lucide.createIcons();
+
+    setupSidebar();
+
+    const $ = (id) => document.getElementById(id);
+
+    function show(el){ el.classList.remove("hidden"); el.classList.add("flex"); }
+    function hide(el){ el.classList.add("hidden"); el.classList.remove("flex"); }
+
+    const modalResults = $("modal-results");
+    const modalEdit = $("modal-edit");
+    const modalDelete = $("modal-delete");
+
+    $("btn-close-results").onclick = () => hide(modalResults);
+    $("btn-close-edit").onclick = () => hide(modalEdit);
+    $("btn-close-delete").onclick = () => hide(modalDelete);
+
+    $("btn-logout").onclick = () => logout();
+
+    let currentEdit = null; // { guildId, guildName }
+    let currentDelete = null;
+
+    async function ensureCeoOrRedirect() {
+      const ok = await isCeo();
+      $("ceo-status").textContent = ok ? "CEO liberado" : "Sem permissão";
+      if (!ok) {
+        showToast("Acesso negado (apenas CEO).");
+        setTimeout(() => { window.location.href = "dashboard.html"; }, 600);
+      }
+      return ok;
+    }
+
+    function normalizeVip(v){
+      const s = (v||"free").toString().toLowerCase().trim();
+      if (!s || s==="free") return "free";
+      if (s==="business" || s.includes("business") || s.includes("buss")) return "business";
+      if (s==="pro" || s.includes("pro")) return "pro";
+      return "plus";
+    }
+
+    async function readVip(guildId){
+      try {
+        const c = await getDoc(doc(db,"configGuilda",guildId));
+        if (c.exists()){
+          const d=c.data()||{};
+          return normalizeVip(d.vip ?? d.vipTier ?? d.planoVip ?? d.plano ?? d.plan ?? d.tier);
+        }
+      } catch(_){}
+      try {
+        const g = await getDoc(doc(db,"guildas",guildId));
+        if (g.exists()){
+          const d=g.data()||{};
+          return normalizeVip(d.vip ?? d.vipTier ?? d.planoVip ?? d.plano ?? d.plan ?? d.tier);
+        }
+      } catch(_){}
+      return "free";
+    }
+
+    async function fetchGuildCard(guildId){
+      const gSnap = await getDoc(doc(db,"guildas",guildId));
+      const cfgSnap = await getDoc(doc(db,"configGuilda",guildId));
+      const g = gSnap.exists()? (gSnap.data()||{}) : {};
+      const cfg = cfgSnap.exists()? (cfgSnap.data()||{}) : {};
+      const vip = normalizeVip(cfg.vip ?? g.vip);
+      const name = (g.nome || g.name || cfg.nome || cfg.name || guildId || "—");
+      const leaders = Array.isArray(cfg.leaders) ? cfg.leaders : [];
+      const admins = Array.isArray(cfg.admins) ? cfg.admins : [];
+      const playerEmail = (cfg.playerEmail || "").toString();
+      return { guildId, name, vip, leaders, admins, playerEmail };
+    }
+
+    function renderResult(item){
+      const wrap = document.createElement("div");
+      wrap.className = "rounded-2xl border border-gray-200 bg-white p-4";
+      const leadersText = (item.leaders||[]).slice(0,4).join(", ");
+      wrap.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-900 truncate">${item.name}</p>
+            <p class="text-xs text-gray-500 mt-1 break-all">ID: <span class="font-mono">${item.guildId}</span></p>
+            <p class="text-xs text-gray-500 mt-1">VIP: <span class="font-semibold text-gray-800">${item.vip}</span></p>
+            <p class="text-xs text-gray-500 mt-2 break-all">Líderes: ${leadersText || "—"}</p>
+            <p class="text-xs text-gray-500 mt-1 break-all">PlayerEmail: ${item.playerEmail || "—"}</p>
+          </div>
+          <div class="flex flex-col gap-2 shrink-0">
+            <button class="btn-edit px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">Editar</button>
+            <button class="btn-del px-3 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700">Deletar</button>
+          </div>
+        </div>
+      `;
+      wrap.querySelector(".btn-edit").onclick = () => openEdit(item);
+      wrap.querySelector(".btn-del").onclick = () => openDelete(item);
+      return wrap;
+    }
+
+    function openEdit(item){
+      currentEdit = item;
+      $("edit-sub").textContent = `${item.name} • ${item.guildId}`;
+      $("edit-vip").value = item.vip;
+      show(modalEdit);
+    }
+
+    function openDelete(item){
+      currentDelete = item;
+      $("del-sub").textContent = `${item.name} • ${item.guildId}`;
+      $("del-confirm").value = "";
+      show(modalDelete);
+    }
+
+    async function doSearch(){
+      const term = ($("q").value || "").trim();
+      if (!term) { showToast("Digite algo para buscar."); return; }
+
+      const listEl = $("results-list");
+      listEl.innerHTML = `<div class="text-sm text-gray-500">Buscando…</div>`;
+      show(modalResults);
+
+      const out = new Map(); // guildId -> item
+
+      const termLower = term.toLowerCase();
+
+      // Busca por e-mail em arrays leaders/admins (se parecer e-mail)
+      const looksEmail = termLower.includes("@");
+      try {
+        if (looksEmail) {
+          const q1 = query(collection(db,"configGuilda"), where("leaders","array-contains", termLower), limit(20));
+          const s1 = await getDocs(q1);
+          s1.forEach(d => out.set(d.id, null));
+          const q2 = query(collection(db,"configGuilda"), where("admins","array-contains", termLower), limit(20));
+          const s2 = await getDocs(q2);
+          s2.forEach(d => out.set(d.id, null));
+          const q3 = query(collection(db,"configGuilda"), where("playerEmail","==", termLower), limit(20));
+          const s3 = await getDocs(q3);
+          s3.forEach(d => out.set(d.id, null));
+        }
+      } catch (_) {}
+
+      // Busca por nome (fallback): varre até 200 guildas e filtra
+      try {
+        const s = await getDocs(query(collection(db,"guildas"), limit(200)));
+        s.forEach(d => {
+          const data = d.data()||{};
+          const name = (data.nome || data.name || "").toString().toLowerCase();
+          if (name && name.includes(termLower)) out.set(d.id, null);
+        });
+      } catch (_) {}
+
+      // Se nada, tenta guildId direto
+      if (out.size === 0) {
+        // tenta como id direto
+        out.set(term, null);
+      }
+
+      // Monta cards
+      listEl.innerHTML = "";
+      const ids = Array.from(out.keys()).slice(0, 30);
+      const cards = [];
+      for (const gid of ids) {
+        try {
+          const item = await fetchGuildCard(gid);
+          // se o user digitou e-mail e não bateu nada real, pula ids "falsos"
+          if (!item || !item.guildId) continue;
+          // filtro final: se busca era email, garante que aparece em leaders/admins/playerEmail
+          if (looksEmail) {
+            const hit = (item.playerEmail||"").toLowerCase() === termLower
+              || (item.leaders||[]).map(x=>String(x).toLowerCase()).includes(termLower)
+              || (item.admins||[]).map(x=>String(x).toLowerCase()).includes(termLower);
+            if (!hit) continue;
+          } else {
+            // busca nome: se o gid foi inserido por fallback, valida (se tiver nome e não contém termo, pula)
+            const nm = (item.name||"").toLowerCase();
+            if (nm && !nm.includes(termLower) && gid !== term) continue;
+          }
+          cards.push(item);
+        } catch (_) {}
+      }
+
+      if (cards.length === 0) {
+        listEl.innerHTML = `<div class="text-sm text-gray-500">Nada encontrado.</div>`;
+        return;
+      }
+
+      for (const item of cards) listEl.appendChild(renderResult(item));
+      try { lucide.createIcons(); } catch (_) {}
+    }
+
+    $("btn-search").onclick = doSearch;
+    $("q").addEventListener("keydown", (e)=>{ if (e.key==="Enter") doSearch(); });
+
+    $("btn-save-vip").onclick = async () => {
+      if (!currentEdit) return;
+      const vip = normalizeVip($("edit-vip").value);
+      try {
+        // grava no configGuilda (principal)
+        await updateDoc(doc(db,"configGuilda", currentEdit.guildId), { vip });
+      } catch (e) {
+        // se não existir, cria via update não funciona; então tentamos fallback no doc guildas
+        try { await updateDoc(doc(db,"guildas", currentEdit.guildId), { vip }); } catch (_) {}
+        showToast("Não consegui atualizar configGuilda (doc pode não existir).");
+      }
+      showToast("VIP atualizado.");
+      hide(modalEdit);
+      // atualiza card
+      try {
+        const newCard = await fetchGuildCard(currentEdit.guildId);
+        const listEl = $("results-list");
+        const nodes = Array.from(listEl.children);
+        listEl.innerHTML = "";
+        // Rebusca rapidamente pelo termo atual (mantém coerência)
+        await doSearch();
+      } catch (_) {}
+    };
+
+    async function deleteGuildAll(guildId){
+      // deletar subcoleções (membros, lines)
+      const delMany = async (colRef) => {
+        const s = await getDocs(colRef);
+        const batch = writeBatch(db);
+        let c = 0;
+        for (const d of s.docs){
+          batch.delete(d.ref);
+          c++;
+          // commit a cada 400
+          if (c >= 400){
+            await batch.commit();
+            c = 0;
+          }
+        }
+        if (c > 0) await batch.commit();
+        return s.size;
+      };
+
+      let removed = { membros:0, lines:0, users:0, solicita:0 };
+
+      try { removed.membros = await delMany(collection(db,"guildas",guildId,"membros")); } catch(_){}
+      try { removed.lines = await delMany(collection(db,"guildas",guildId,"lines")); } catch(_){}
+
+      // users vinculados
+      try {
+        const sUsers = await getDocs(query(collection(db,"users"), where("guildId","==", guildId), limit(500)));
+        const batch = writeBatch(db);
+        let c = 0;
+        for (const d of sUsers.docs){
+          batch.delete(d.ref);
+          c++;
+          if (c >= 400){ await batch.commit(); c=0; }
+        }
+        if (c>0) await batch.commit();
+        removed.users = sUsers.size;
+      } catch(_){}
+
+      // solicita vinculados (se existir campo guildId)
+      try {
+        const sSol = await getDocs(query(collection(db,"solicita"), where("guildId","==", guildId), limit(500)));
+        const batch = writeBatch(db);
+        let c=0;
+        for (const d of sSol.docs){
+          batch.delete(d.ref);
+          c++;
+          if (c>=400){ await batch.commit(); c=0; }
+        }
+        if (c>0) await batch.commit();
+        removed.solicita = sSol.size;
+      } catch(_){}
+
+      // docs raiz
+      try { await deleteDoc(doc(db,"configGuilda",guildId)); } catch(_){}
+      try { await deleteDoc(doc(db,"guildas",guildId)); } catch(_){}
+
+      return removed;
+    }
+
+    $("btn-do-delete").onclick = async () => {
+      if (!currentDelete) return;
+      const gid = currentDelete.guildId;
+      const confirm = ($("del-confirm").value||"").trim();
+      if (confirm !== gid) { showToast("Confirmação inválida."); return; }
+      try {
+        $("btn-do-delete").disabled = true;
+        $("btn-do-delete").textContent = "Deletando…";
+        const r = await deleteGuildAll(gid);
+        showToast(`Guilda removida. membros:${r.membros} lines:${r.lines} users:${r.users}`);
+      } catch (e) {
+        showToast("Erro ao deletar.");
+      } finally {
+        $("btn-do-delete").disabled = false;
+        $("btn-do-delete").textContent = "Deletar agora";
+        hide(modalDelete);
+        await doSearch();
+      }
+    };
+
+    // Carrega contexto/auth e valida CEO
+    await checkAuth(true);
+
+    (async () => {
+      const ctx = getGuildContext();
+      if (ctx?.email) $("user-email").textContent = ctx.email;
+      if (ctx?.role) $("user-role").textContent = ctx.role;
+
+      await ensureCeoOrRedirect();
+    })();
+  </script>
+</body>
+</html>

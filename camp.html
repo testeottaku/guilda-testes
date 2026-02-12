@@ -122,8 +122,10 @@
     setupSidebar();
 
     function tierRank(t){
-      const s=(t||'free').toString().toLowerCase();
-      if(s==='pro') return 2; if(s==='plus') return 1; return 0;
+      const s = (t||'free').toString().toLowerCase().trim();
+      if (s==='pro' || s==='business') return 2;
+      if (s==='plus') return 1;
+      return 0;
     }
     function applyVip(tier){
       const pro = tierRank(tier) >= 2;

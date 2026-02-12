@@ -20,7 +20,6 @@ import {
   setDoc,
   writeBatch,
   serverTimestamp,
-  addDoc,
   collection,
   query,
   where,
@@ -402,38 +401,6 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-// --- Upgrade (PIX / Solicitações) ------------------------------------------
-// Salva a solicitação de plano na coleção "solicita".
-// Campos solicitados: email + uid + plano + nome do pagador.
-export async function createUpgradeSolicitacao(planId, payerName) {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Você precisa estar logado para solicitar upgrade.");
-
-  const plan = (planId || "").toString().toLowerCase().trim();
-  if (!plan || !["plus", "pro", "business"].includes(plan)) {
-    throw new Error("Plano inválido.");
-  }
-
-  const name = (payerName || "").toString().trim();
-  if (!name) throw new Error("Informe o nome real do pagador.");
-
-  const email = cleanEmail(user.email);
-  const uid = user.uid;
-  const guildId = (__guildCtx && __guildCtx.guildId) ? String(__guildCtx.guildId) : null;
-
-  await addDoc(collection(db, "solicita"), {
-    email,
-    uid,
-    plano: plan,
-    nomePagador: name,
-    ...(guildId ? { guildId } : {}),
-    status: "pendente",
-    createdAt: serverTimestamp()
-  });
-
-  return true;
-}
-
 // Proteção de rotas (chame no início de cada página privada)
 export function checkAuth(redirectToLogin = true) {
   return new Promise((resolve) => {
@@ -497,15 +464,29 @@ export function checkAuth(redirectToLogin = true) {
 
       const guildName = await getGuildName(guildId);
 
-      // VIP: lê configGuilda/{guildId}.vip (string). 'free' => gratuito; 'pro' => pro; demais => plus
+      // VIP: lê configGuilda/{guildId} e/ou guildas/{guildId} (campos aceitos: vip, vipTier, plano, planoVip)
       let vipTier = 'free';
       try {
         const cfgSnap = await getDoc(doc(db, "configGuilda", guildId));
         if (cfgSnap.exists()) {
           const cfg = cfgSnap.data() || {};
-          vipTier = vipTierFromValue(cfg.vip);
+          const raw = (cfg.vip ?? cfg.vipTier ?? cfg.planoVip ?? cfg.plano ?? cfg.plan ?? cfg.tier);
+          vipTier = vipTierFromValue(raw);
         }
       } catch (_) {}
+
+      // fallback: algumas bases salvam o plano direto em /guildas/{guildId}
+      if (!vipTier || vipTier === 'free') {
+        try {
+          const gSnap = await getDoc(doc(db, "guildas", guildId));
+          if (gSnap.exists()) {
+            const g = gSnap.data() || {};
+            const rawG = (g.vip ?? g.vipTier ?? g.planoVip ?? g.plano ?? g.plan ?? g.tier);
+            const tmp = vipTierFromValue(rawG);
+            if (tmp) vipTier = tmp;
+          }
+        } catch (_) {}
+      }
 
 
       __guildCtx = {
@@ -522,6 +503,7 @@ export function checkAuth(redirectToLogin = true) {
         localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
       } catch (_) {}
       try { applyVipUiAndGates(vipTier); } catch (_) {}
+      try { __applyCeoVisibility(); } catch (_) {}
 
 
       const roleEl = document.getElementById("user-role");
@@ -681,6 +663,7 @@ export function applyVipUiAndGates(tierRaw) {
   try {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => applyVipUiAndGates(getVipTier()));
+        try { __applyCeoVisibility(); } catch (_) {}
     } else {
       applyVipUiAndGates(getVipTier());
     }
@@ -688,6 +671,69 @@ export function applyVipUiAndGates(tierRaw) {
 })();
 // ================================================================
 
+
+// ================================================================
+// CEO (chefe) — acesso total (apenas e-mail na coleção chefe/security.ceo)
+// ================================================================
+let __ceoCache = null; // { isCeo: boolean, email: string, ts: number }
+
+export async function isCeo() {
+  const ctx = getGuildContext();
+  const email = (ctx?.email || (auth?.currentUser?.email || "")).toString().toLowerCase().trim();
+  if (!email) return false;
+
+  // cache 2 minutos
+  if (__ceoCache && __ceoCache.email === email && (Date.now() - __ceoCache.ts) < 120000) {
+    return !!__ceoCache.isCeo;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, "chefe", "security"));
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      const arr = Array.isArray(data.ceo) ? data.ceo : [];
+      const ok = arr.map(v => (v||"").toString().toLowerCase().trim()).includes(email);
+      __ceoCache = { isCeo: ok, email, ts: Date.now() };
+      return ok;
+    }
+  } catch (_) {}
+
+  __ceoCache = { isCeo: false, email, ts: Date.now() };
+  return false;
+}
+
+function __ensureCeoMenuLink() {
+  const sidebarNav = document.querySelector("#sidebar nav");
+  if (!sidebarNav) return;
+  if (document.getElementById("nav-chefe-ceo")) return;
+
+  const a = document.createElement("a");
+  a.id = "nav-chefe-ceo";
+  a.href = "chefe.html";
+  a.className = "w-full hidden items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors";
+  a.innerHTML = `<i data-lucide="crown" class="w-5 h-5"></i> Chefe`;
+
+  // insere antes do final
+  sidebarNav.appendChild(a);
+
+  try { lucide.createIcons(); } catch (_) {}
+}
+
+async function __applyCeoVisibility() {
+  try {
+    __ensureCeoMenuLink();
+    const el = document.getElementById("nav-chefe-ceo");
+    if (!el) return;
+    const ok = await isCeo();
+    if (ok) {
+      el.classList.remove("hidden");
+      el.classList.add("flex");
+    } else {
+      el.classList.add("hidden");
+      el.classList.remove("flex");
+    }
+  } catch (_) {}
+}
 // Sidebar (mobile)
 export function setupSidebar() {
   const sidebar = document.getElementById("sidebar");
