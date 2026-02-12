@@ -623,11 +623,16 @@ export function applyVipUiAndGates(tierRaw) {
   __setDisabled(document.getElementById("btn-add-admin"), !isPlusOrPro, "Recurso PLUS");
   __setDisabled(document.getElementById("btn-add-leader"), !isPlusOrPro, "Recurso PLUS");
 
-  // Lines: criar lines = PLUS/PRO (bloqueia no free)
+  // Lines: criar lines = LIVRE (abre modal), mas SALVAR = PLUS/PRO
   const __btnNewLine = document.getElementById("btn-new-line");
   const __btnSaveLine = document.getElementById("btn-save-line");
-  __setDisabled(__btnNewLine, !isPlusOrPro, "Recurso PLUS/PRO");
-  __setDisabled(__btnSaveLine, !isPlusOrPro, "Recurso PLUS/PRO");
+
+  // Sempre permitir abrir o modal (FREE também)
+  __setDisabled(__btnNewLine, false);
+  __restoreLabel(__btnNewLine);
+
+  // Salvar: exige PLUS/PRO
+  __setDisabled(__btnSaveLine, !isPlusOrPro, "Recurso PLUS");
   // quando FREE, deixar o botão Salvar no estilo "cadeado + PLUS"
   if (!isPlusOrPro) {
     __setLockedLabel(__btnSaveLine, "PLUS");

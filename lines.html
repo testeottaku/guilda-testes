@@ -41,6 +41,9 @@
         <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
         </a>
+        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
+        </a>
         <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
         </a>
@@ -187,23 +190,6 @@
       } else {
         if(badge) badge.classList.add('hidden');
       }
-    
-      // Botão SALVAR: bloqueia apenas no FREE (recurso PLUS)
-      const btnSave = document.getElementById('btn-save-line');
-      if(btnSave){
-        if(!btnSave.dataset.originalHtml) btnSave.dataset.originalHtml = btnSave.innerHTML;
-        if(rank === 0){
-          btnSave.disabled = true;
-          btnSave.classList.add('opacity-50','cursor-not-allowed');
-          btnSave.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> PLUS';
-        } else {
-          btnSave.disabled = false;
-          btnSave.classList.remove('opacity-50','cursor-not-allowed');
-          btnSave.innerHTML = btnSave.dataset.originalHtml;
-        }
-        try { initIcons(); } catch(e) {}
-      }
-
     }
 
     // ---- Estado ------------------------------------------------------------
@@ -577,16 +563,19 @@
     };
 
     window.saveLine = async () => {
-      // Recurso PLUS: permite abrir o modal no FREE, mas impede salvar
-      try{
-        const t = getGuildContext()?.vipTier || 'free';
-        if(tierRank(t) === 0){
-          showToast('info','Recurso disponível apenas no PLUS.');
+      if (!guildId) { showToast('info','Carregando sua guilda...'); return; }
+
+      // Gate local (evita bypass via console)
+      try {
+        const raw = localStorage.getItem('guildCtx_cache_v1');
+        const ctx = raw ? JSON.parse(raw) : null;
+        const tier = (ctx?.vipTier || 'free').toString().toLowerCase();
+        const isPlusOrPro = tier !== 'free';
+        if (!isPlusOrPro) {
+          showToast('warn', 'Recurso PLUS: faça upgrade para salvar Lines.');
           return;
         }
-      }catch(e){}
-
-      if (!guildId) { showToast('info','Carregando sua guilda...'); return; }
+      } catch (_) {}
       try {
         if (!guildId) {
           const c = getGuildContext();
