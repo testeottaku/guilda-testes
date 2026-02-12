@@ -179,6 +179,7 @@ async function getGuildName(guildId) {
 async function findGuildByEmail(emailLower) {
   if (!emailLower) return null;
 
+  // 1) Tentativas rápidas (indexáveis) — requer que os e-mails estejam normalizados (lowercase) no Firestore
   try {
     const q1 = query(collection(db, "configGuilda"), where("leaders", "array-contains", emailLower), limit(1));
     const s1 = await getDocs(q1);
@@ -201,6 +202,30 @@ async function findGuildByEmail(emailLower) {
     const q4 = query(collection(db, "configGuilda"), where("playerEmail", "==", emailLower), limit(1));
     const s4 = await getDocs(q4);
     if (!s4.empty) return { guildId: s4.docs[0].id, source: "playerEmail" };
+  } catch (_) {}
+
+  // 2) Fallback robusto (varredura): cobre casos em que o Firestore tem e-mails salvos com maiúsculas/espacos,
+  // e portanto "array-contains" / "==" não bate. Isso evita logout de admin/líder secundário.
+  // Observação: ideal é salvar tudo em lowercase, mas isso resolve sem mexer no cadastro.
+  try {
+    const qAll = query(collection(db, "configGuilda"), limit(300));
+    const snap = await getDocs(qAll);
+
+    for (const d of snap.docs) {
+      const data = d.data() || {};
+      const leaders = Array.isArray(data.leaders) ? data.leaders : [];
+      const admins  = Array.isArray(data.admins) ? data.admins : [];
+      const ownerEmail = cleanEmail(data.ownerEmail);
+      const playerEmail = cleanEmail(data.playerEmail);
+
+      const leadersL = uniq(leaders.map((x) => cleanEmail(x))).filter(Boolean);
+      const adminsL  = uniq(admins.map((x) => cleanEmail(x))).filter(Boolean);
+
+      if (leadersL.includes(emailLower)) return { guildId: d.id, source: "scan-leaders" };
+      if (adminsL.includes(emailLower))  return { guildId: d.id, source: "scan-admins" };
+      if (ownerEmail && ownerEmail === emailLower) return { guildId: d.id, source: "scan-ownerEmail" };
+      if (playerEmail && playerEmail === emailLower) return { guildId: d.id, source: "scan-playerEmail" };
+    }
   } catch (_) {}
 
   return null;
@@ -471,12 +496,15 @@ export function checkAuth(redirectToLogin = true) {
       let username = "";
 
       // Resolve a guilda SOMENTE pela configGuilda.
+      // - Contas secundárias (admin/líder/jogador) precisam estar dentro dos arrays em /configGuilda/{guildId}
+      // - O dono (guildId === uid) é criado no signup (finalizeSignup). Em logins futuros, também será resolvido.
       try {
         const found = await findGuildByEmail(emailLower);
         if (found?.guildId) guildId = found.guildId;
       } catch (_) {}
 
       // Se não achou por e-mail, só aceitamos como "dono" quando já existe configGuilda com id == uid.
+      // Isso evita o bug de criar uma guilda nova ao logar com contas secundárias.
       if (!guildId) {
         try {
           const selfCfg = await getDoc(doc(db, "configGuilda", user.uid));
@@ -493,24 +521,16 @@ export function checkAuth(redirectToLogin = true) {
       }
 
       try {
-        // Bootstrap apenas quando for dono (ensureBootstrapDocs já checa isso internamente).
+        // Importante: não forçar "Minha Guilda" aqui, pois isso sobrescrevia o nome real em alguns cenários.
         await ensureBootstrapDocs(user, username, guildId);
       } catch (e) {
-        console.error("Bootstrap falhou:", e);
+        try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
         resolve(null);
         return;
       }
 
-      // Resolve role (com retry leve para evitar race/latência de escrita em arrays admins/leaders)
-      let role = await resolveRoleInGuild(guildId, user.email || "");
-      if (!role || role === "Membro") {
-        try {
-          await new Promise((r) => setTimeout(r, 220));
-          role = await resolveRoleInGuild(guildId, user.email || "");
-        } catch (_) {}
-      }
-
+      const role = await resolveRoleInGuild(guildId, user.email || "");
       if (role === "Líder") {
         normalizeConfigGuilda(guildId);
       }
@@ -539,25 +559,27 @@ export function checkAuth(redirectToLogin = true) {
         } catch (_) {}
       }
 
+
       __guildCtx = {
         guildId,
         guildName,
-        role: role || "Membro",
+        role,
         vipTier,
         email: emailLower,
         uid: user.uid
       };
 
       try {
-        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role: (role || "Membro"), vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
+        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
       } catch (_) {}
       try { applyVipUiAndGates(vipTier); } catch (_) {}
 
       try { await __refreshCeoStatus(emailLower); } catch (_) {}
       try { applyCeoNavVisibility(); } catch (_) {}
 
+
       const roleEl = document.getElementById("user-role");
-      if (roleEl) roleEl.textContent = role || "Membro";
+      if (roleEl) roleEl.textContent = role;
 
       const path = (window.location.pathname || "").toLowerCase();
       const isAdminPage = path.endsWith("/admin") || path.endsWith("/admin.html") || path.includes("admin.html");
@@ -566,7 +588,13 @@ export function checkAuth(redirectToLogin = true) {
       const isSettingsPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html");
       const isLinesPage = path.endsWith("/lines") || path.endsWith("/lines.html") || path.includes("lines.html");
       const isChefePage = path.endsWith("/chefe") || path.endsWith("/chefe.html") || path.includes("chefe.html");
-      const isCampPage = path.endsWith("/campeonato") || path.endsWith("/campeonato.html") || path.includes("campeonato.html");
+
+      if (role === "Membro") {
+        try { await signOut(auth); } catch (_) {}
+        if (!isLoginPage) window.location.href = "index.html";
+        resolve(null);
+        return;
+      }
 
       if (isChefePage && !__isCeo) {
         window.location.href = "dashboard.html";
@@ -574,21 +602,11 @@ export function checkAuth(redirectToLogin = true) {
         return;
       }
 
+      
       if (role === "Jogador") {
         const isPlayerPage = path.endsWith("/jogador") || path.endsWith("/jogador.html") || path.includes("jogador.html");
         if (!isPlayerPage) {
           window.location.href = "jogador.html";
-          resolve(null);
-          return;
-        }
-        resolve(user);
-        return;
-      }
-
-      // NÃO deslogar automaticamente quando role vier "Membro".
-      if (!role || role === "Membro") {
-        if (!isDashboardPage && !isLoginPage) {
-          window.location.href = "dashboard.html";
           resolve(null);
           return;
         }
