@@ -6,6 +6,9 @@
   <title>Chefe - Guilda Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body class="bg-gray-50/80">
@@ -23,7 +26,7 @@
           </div>
           <div>
             <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
-            <p class="text-xs text-gray-400">Chefe</p>
+            <p id="vip-label" class="text-xs text-gray-500">Guilda: <span class="font-bold text-gray-800 uppercase">free</span></p>
           </div>
         </div>
       </div>
@@ -64,135 +67,119 @@
               <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
             </div>
           </div>
-          <button id="logout-btn" class="text-sm text-gray-400 hover:text-gray-600">Sair</button>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
         </div>
       </div>
     </aside>
 
     <!-- Main -->
-    <main class="flex-1 lg:ml-0">
-      <header class="sticky top-0 z-30 bg-gray-50/80 backdrop-blur border-b border-gray-200">
+    <main class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200">
         <div class="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button id="mobile-menu-btn" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white">
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-gray-100">
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
-          <div>
-            <h2 class="text-lg font-bold text-gray-900">Painel do Chefe</h2>
-            <p class="text-xs text-gray-500">Pesquisar guildas, alterar VIP e excluir tudo (com Auth via Cloud Functions).</p>
+          <div class="flex-1 min-w-0">
+            <h2 class="text-lg font-bold text-gray-900 truncate">Painel do Chefe</h2>
+            <p class="text-xs text-gray-500">Gestão global de guildas e VIPs.</p>
           </div>
         </div>
       </header>
 
-      
       <section class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-
-        <!-- Top actions -->
+        <!-- Busca -->
         <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
           <div class="flex flex-col lg:flex-row gap-4 lg:items-end">
             <div class="flex-1">
-              <label class="block text-xs text-gray-500 mb-1">Pesquisar guildas</label>
-              <input id="guild-search" type="text" placeholder="Nome da guilda, ID, e-mail de líder/admin..."
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Pesquisar Guildas</label>
+              <input id="guild-search" type="text" placeholder="Nome, ID, E-mail..."
                      class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
-              <p class="mt-2 text-xs text-gray-400">A lista abaixo carrega todas as guildas. A busca filtra em tempo real.</p>
             </div>
-
             <div class="flex gap-2">
-              <button id="btn-reload" class="px-4 py-3 rounded-xl border border-gray-200 bg-white font-bold hover:bg-gray-50">
-                Recarregar
+              <button id="btn-reload" class="px-4 py-3 rounded-xl border border-gray-200 bg-white font-bold hover:bg-gray-50 transition">
+                Atualizar
               </button>
-              <button id="btn-open-solicita" class="px-4 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
-                Ver solicitações
+              <button id="btn-open-solicita" class="px-4 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">
+                Solicitações
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Guilds -->
+        <!-- Grid de Guildas -->
         <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h3 class="font-bold text-gray-900">Guildas</h3>
-              <p class="text-xs text-gray-500">Cards com informações completas + ações de VIP, detalhes e exclusão (somente Firestore).</p>
-            </div>
-            <span id="guild-count" class="text-xs text-gray-500">0</span>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-900">Guildas Registradas</h3>
+            <span id="guild-count" class="px-2 py-1 bg-gray-100 rounded-lg text-xs font-bold text-gray-600">0</span>
           </div>
-
-          <div id="guilds-grid" class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div class="text-sm text-gray-500">Carregando guildas...</div>
+          <div id="guilds-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="col-span-full py-10 text-center text-gray-400">Carregando dados...</div>
           </div>
         </div>
 
-        <!-- Solicitações -->
+        <!-- Painel de Solicitações (Escondido) -->
         <div id="solicita-panel" class="hidden bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h3 class="font-bold text-gray-900">Solicitações (solicita)</h3>
-              <p class="text-xs text-gray-500">Editar status/plano e excluir.</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <span id="solicita-count" class="text-xs text-gray-500">0</span>
-              <button id="btn-close-solicita" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-bold hover:bg-gray-50">
-                Fechar
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-900">Solicitações de Upgrade</h3>
+            <div class="flex items-center gap-3">
+              <span id="solicita-count" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">0</span>
+              <button id="btn-close-solicita" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400">
+                <i data-lucide="x" class="w-5 h-5"></i>
               </button>
             </div>
           </div>
-
-          <div id="solicita-grid" class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div class="text-sm text-gray-500">Carregando solicitações...</div>
-          </div>
+          <div id="solicita-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
         </div>
-
       </section>
     </main>
   </div>
 
-  <!-- Bottom Drawer Modal -->
+  <!-- Drawer para Detalhes/Edição -->
   <div id="drawer" class="hidden fixed inset-0 z-50">
-    <div id="drawer-backdrop" class="absolute inset-0 bg-black/40"></div>
-
-    <div class="absolute left-0 right-0 bottom-0 bg-white border-t border-gray-200 rounded-t-3xl shadow-2xl">
-      <div class="max-w-6xl mx-auto px-4 py-4 flex items-start justify-between gap-3">
+    <div id="drawer-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="absolute left-0 right-0 bottom-0 bg-white border-t border-gray-200 rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white px-4 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
-          <p id="drawer-subtitle" class="text-xs text-gray-500">Detalhes</p>
-          <h4 id="drawer-title" class="font-bold text-gray-900 text-lg">—</h4>
+          <p id="drawer-subtitle" class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none">Detalhes</p>
+          <h4 id="drawer-title" class="font-bold text-gray-900 text-lg leading-tight mt-1">—</h4>
         </div>
-
-        <button id="drawer-close" class="w-11 h-11 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 inline-flex items-center justify-center">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button id="drawer-close" class="p-2 rounded-xl bg-gray-50 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
       </div>
-
-      <div class="max-w-6xl mx-auto px-4 pb-6">
-        <div id="drawer-content" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div class="lg:col-span-3 text-sm text-gray-500">—</div>
-        </div>
-      </div>
+      <div id="drawer-content" class="p-4 space-y-4"></div>
     </div>
   </div>
 
   <script type="module">
-    import {
-      checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility,
-      toast
-    } from './logic.js';
-
-    import {
-      collection, getDocs, getDoc, doc, query, where, updateDoc, deleteDoc, writeBatch, limit
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
+    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, limit, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
-    initIcons();
 
-    // Guard: só chefe
-    await checkAuth();
-    await ensureCeoStatus();
-    applyCeoNavVisibility();
-
-    if (!document.body.classList.contains('ceo-ok')) {
-      // A lógica do CSS/HTML usa hidden; aqui só garantimos
+    // Sincronização de VIP no menu
+    function syncVipLabel() {
+      const tier = (getVipTier() || 'free').toUpperCase();
+      const label = document.querySelector('#vip-label span');
+      if (label) label.textContent = tier;
     }
 
-    document.getElementById('btn-logout')?.addEventListener('click', logout);
+    // Auth e Boot
+    checkAuth().then(async (user) => {
+      if (!user) return;
+      document.getElementById('btn-logout').onclick = logout;
+      
+      const isCEO = await ensureCeoStatus();
+      if (!isCEO) {
+        showToast('error', 'Acesso negado.');
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      
+      applyCeoNavVisibility();
+      syncVipLabel();
+      loadAllGuilds();
+    });
 
     const els = {
       guildSearch: document.getElementById('guild-search'),
@@ -212,508 +199,174 @@
       drawerContent: document.getElementById('drawer-content'),
     };
 
-
-    function safeText(v) {
-      return (v ?? '').toString().replace(/[<>&"]/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-    }
-    function fmtDateBR(d) {
-      try {
-        const dt = (d instanceof Date) ? d : new Date(d);
-        return dt.toLocaleString('pt-BR');
-      } catch(_) { return '—'; }
-    }
-
-
-    let allGuildCards = [];   // { id, name, vip, leaders[], admins[], tag, playerEmail, cfg, guild }
-    let allSolicita = [];     // { id, data }
+    let allGuilds = [];
+    let allSolicita = [];
 
     function vipNormalize(v) {
-      const s = (v ?? '').toString().toLowerCase().trim();
-      if (!s) return 'free';
-      if (s.includes('business') || s.includes('buss')) return 'business';
+      const s = (v || 'free').toString().toLowerCase().trim();
+      if (s.includes('buss')) return 'business';
       if (s.includes('pro')) return 'pro';
       if (s.includes('plus')) return 'plus';
-      if (s === 'vip') return 'pro'; // fallback comum
-      return s;
+      return 'free';
     }
-
-    function pickVip(obj) {
-      if (!obj) return 'free';
-      const raw = obj.vipTier ?? obj.vip ?? obj.planoVip ?? obj.planoVIP ?? obj.plano ?? obj.plan ?? obj.tier ?? obj.vipLevel ?? obj.vipPlano ?? obj.vipName;
-      return vipNormalize(raw);
-    }
-
-    function pickTag(cfg) {
-      const raw = cfg?.tag ?? cfg?.tagMembro ?? cfg?.memberTag ?? cfg?.tagMember ?? cfg?.membroTag;
-      return (raw ?? '').toString().trim() || '—';
-    }
-
-    function pickName(guild, guildId) {
-      const raw = guild?.name ?? guild?.guildName ?? guild?.nome ?? guild?.title;
-      return (raw ?? '').toString().trim() || `Guilda ${guildId.slice(0, 6)}`;
-    }
-
-    function listToText(arr, max=2) {
-      if (!Array.isArray(arr) || arr.length === 0) return '—';
-      const clean = arr.map(x => (x ?? '').toString().trim()).filter(Boolean);
-      if (clean.length === 0) return '—';
-      if (clean.length <= max) return clean.join(', ');
-      return clean.slice(0, max).join(', ') + ` (+${clean.length - max})`;
-    }
-
-    function openDrawer({ title, subtitle, contentHtml }) {
-      els.drawerTitle.textContent = title || '—';
-      els.drawerSubtitle.textContent = subtitle || 'Detalhes';
-      els.drawerContent.innerHTML = contentHtml || '';
-      els.drawer.classList.remove('hidden');
-      try { initIcons(); } catch(_) {}
-    }
-
-    function closeDrawer() {
-      els.drawer.classList.add('hidden');
-      els.drawerContent.innerHTML = '';
-    }
-
-    els.drawerBackdrop.addEventListener('click', closeDrawer);
-    els.drawerClose.addEventListener('click', closeDrawer);
 
     async function loadAllGuilds() {
-      els.guildsGrid.innerHTML = `<div class="text-sm text-gray-500">Carregando guildas...</div>`;
-      allGuildCards = [];
+      els.guildsGrid.innerHTML = `<div class="col-span-full py-10 text-center text-gray-400">Carregando...</div>`;
+      try {
+        const snap = await getDocs(collection(db, 'guildas'));
+        const configsSnap = await getDocs(collection(db, 'configGuilda'));
+        
+        const configMap = {};
+        configsSnap.forEach(d => configMap[d.id] = d.data());
 
-      const snap = await getDocs(collection(db, 'guildas'));
-      const ids = [];
-      snap.forEach(d => ids.push(d.id));
+        allGuilds = snap.docs.map(d => {
+          const data = d.data();
+          const cfg = configMap[d.id] || {};
+          return {
+            id: d.id,
+            name: data.name || cfg.name || `ID: ${d.id.slice(0,5)}`,
+            vip: vipNormalize(cfg.vipTier || data.vipTier),
+            leaders: cfg.leaders || [data.ownerEmail],
+            tag: cfg.tagMembros || '—'
+          };
+        });
 
-      // Para cada guilda, buscamos configGuilda correspondente
-      for (const gid of ids) {
-        const gDoc = await getDoc(doc(db, 'guildas', gid));
-        const cDoc = await getDoc(doc(db, 'configGuilda', gid));
-
-        const guild = gDoc.exists() ? (gDoc.data() || {}) : {};
-        const cfg = cDoc.exists() ? (cDoc.data() || {}) : {};
-
-        const name = pickName(guild, gid);
-        const vip = pickVip(cfg) !== 'free' ? pickVip(cfg) : pickVip(guild);
-        const leaders = Array.isArray(cfg.leaders) ? cfg.leaders : [];
-        const admins = Array.isArray(cfg.admins) ? cfg.admins : [];
-        const playerEmail = (cfg.playerEmail ?? '').toString().trim() || '—';
-        const tag = pickTag(cfg);
-
-        allGuildCards.push({ id: gid, name, vip, leaders, admins, tag, playerEmail, cfg, guild });
+        renderGuilds();
+      } catch(e) {
+        showToast('error', 'Erro ao carregar guildas.');
       }
-
-      renderGuilds();
     }
 
     function renderGuilds() {
-      const q = (els.guildSearch.value || '').toLowerCase().trim();
+      const q = els.guildSearch.value.toLowerCase().trim();
+      const filtered = allGuilds.filter(g => 
+        g.name.toLowerCase().includes(q) || 
+        g.id.toLowerCase().includes(q) || 
+        g.leaders.join(' ').toLowerCase().includes(q)
+      );
 
-      const filtered = allGuildCards.filter(g => {
-        if (!q) return true;
-        const hay = [
-          g.id, g.name, g.vip, g.tag,
-          ...((g.leaders||[]).map(x => (x||'').toString())),
-          ...((g.admins||[]).map(x => (x||'').toString()))
-        ].join(' ').toLowerCase();
-        return hay.includes(q);
-      });
-
-      els.guildCount.textContent = String(filtered.length);
-
-      if (filtered.length === 0) {
-        els.guildsGrid.innerHTML = `<div class="text-sm text-gray-500">Nenhuma guilda encontrada.</div>`;
-        return;
-      }
-
+      els.guildCount.textContent = filtered.length;
       els.guildsGrid.innerHTML = filtered.map(g => `
-        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-          <div class="flex items-start justify-between gap-3">
+        <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+          <div class="flex items-start justify-between mb-3">
             <div class="min-w-0">
-              <p class="text-xs text-gray-400 truncate">${safeText(g.id)}</p>
-              <h4 class="font-bold text-gray-900 truncate">${safeText(g.name)}</h4>
-              <div class="mt-2 flex flex-wrap gap-2">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 text-xs text-gray-700">
-                  VIP: <b class="ml-1">${safeText(g.vip)}</b>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 text-xs text-gray-700">
-                  Tag: <b class="ml-1">${safeText(g.tag)}</b>
-                </span>
-              </div>
+              <h4 class="font-bold text-gray-900 truncate">${g.name}</h4>
+              <p class="text-[10px] text-gray-400 font-mono">${g.id}</p>
             </div>
-            <div class="flex gap-2">
-              <button data-action="details" data-gid="${safeText(g.id)}"
-                class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 inline-flex items-center justify-center">
-                <i data-lucide="info" class="w-5 h-5"></i>
-              </button>
-            </div>
+            <span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">${g.vip}</span>
           </div>
-
-          <div class="mt-3 text-xs text-gray-600 space-y-1">
-            <div><span class="text-gray-400">Líder:</span> ${safeText(listToText(g.leaders))}</div>
-            <div><span class="text-gray-400">Admins:</span> ${safeText(listToText(g.admins))}</div>
-            <div><span class="text-gray-400">Player:</span> ${safeText(g.playerEmail)}</div>
+          <div class="text-[11px] text-gray-500 space-y-1">
+             <p><b class="text-gray-700">Líder:</b> ${g.leaders[0] || '—'}</p>
+             <p><b class="text-gray-700">Tag:</b> ${g.tag}</p>
           </div>
-
           <div class="mt-4 grid grid-cols-2 gap-2">
-            <button data-action="editvip" data-gid="${safeText(g.id)}"
-              class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700">
-              Editar VIP
-            </button>
-            <button data-action="delete" data-gid="${safeText(g.id)}"
-              class="px-3 py-2 rounded-xl border border-red-200 bg-white text-red-700 text-sm font-bold hover:bg-red-50">
-              Excluir dados
-            </button>
+            <button onclick="window.openEditVip('${g.id}')" class="py-2 rounded-xl bg-gray-900 text-white text-[11px] font-bold hover:bg-black transition">Editar VIP</button>
+            <button onclick="window.deleteGuild('${g.id}')" class="py-2 rounded-xl bg-red-50 text-red-600 text-[11px] font-bold hover:bg-red-100 transition">Excluir</button>
           </div>
         </div>
       `).join('');
-
-      try { initIcons(); } catch(_) {}
+      initIcons();
     }
 
-    async function openGuildDetails(gid) {
-      const g = allGuildCards.find(x => x.id === gid);
+    window.openEditVip = async (gid) => {
+      const g = allGuilds.find(x => x.id === gid);
       if (!g) return;
 
-      openDrawer({
-        title: g.name,
-        subtitle: `Guilda • ${g.id}`,
-        contentHtml: `
-          <div class="rounded-2xl border border-gray-200 bg-white p-4">
-            <h5 class="font-bold text-gray-900">Resumo</h5>
-            <div class="mt-2 text-sm text-gray-700 space-y-1">
-              <div><span class="text-gray-400">VIP:</span> <b>${safeText(g.vip)}</b></div>
-              <div><span class="text-gray-400">Tag:</span> <b>${safeText(g.tag)}</b></div>
-              <div><span class="text-gray-400">Líder:</span> ${safeText(listToText(g.leaders, 4))}</div>
-              <div><span class="text-gray-400">Admins:</span> ${safeText(listToText(g.admins, 6))}</div>
-              <div><span class="text-gray-400">Player:</span> ${safeText(g.playerEmail)}</div>
-            </div>
+      els.drawerTitle.textContent = g.name;
+      els.drawerSubtitle.textContent = 'Alterar Plano';
+      els.drawerContent.innerHTML = `
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-bold text-gray-500 uppercase">Novo Plano</label>
+            <select id="edit-vip-select" class="w-full mt-2 p-3 rounded-xl border border-gray-200">
+              <option value="free" ${g.vip === 'free' ? 'selected' : ''}>FREE</option>
+              <option value="plus" ${g.vip === 'plus' ? 'selected' : ''}>PLUS</option>
+              <option value="pro" ${g.vip === 'pro' ? 'selected' : ''}>PRO</option>
+              <option value="business" ${g.vip === 'business' ? 'selected' : ''}>BUSINESS</option>
+            </select>
           </div>
+          <button id="btn-save-vip" class="w-full py-4 rounded-2xl bg-emerald-600 text-white font-black hover:bg-emerald-700 transition">SALVAR ALTERAÇÃO</button>
+        </div>
+      `;
+      els.drawer.classList.remove('hidden');
 
-          <div class="rounded-2xl border border-gray-200 bg-white p-4">
-            <h5 class="font-bold text-gray-900">Membros</h5>
-            <div id="members-box" class="mt-2 text-sm text-gray-600">Carregando...</div>
-          </div>
-
-          <div class="rounded-2xl border border-gray-200 bg-white p-4">
-            <h5 class="font-bold text-gray-900">Lines</h5>
-            <div id="lines-box" class="mt-2 text-sm text-gray-600">Carregando...</div>
-          </div>
-        `
-      });
-
-      // Carrega membros/lines
-      try {
-        const memSnap = await getDocs(collection(db, 'guildas', gid, 'membros'));
-        const members = [];
-        memSnap.forEach(d => members.push(d.data()));
-        const memHtml = members.length
-          ? `<div class="max-h-56 overflow-auto space-y-2">${members.slice(0, 80).map(m => `
-              <div class="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
-                <div class="font-semibold text-gray-900">${safeText(m.nome || m.name || m.email || 'Membro')}</div>
-                <div class="text-xs text-gray-500">${safeText(m.email || '')}</div>
-              </div>
-            `).join('')}</div>${members.length>80?`<div class="mt-2 text-xs text-gray-400">Mostrando 80 de ${members.length}.</div>`:''}`
-          : `<div class="text-sm text-gray-500">Sem membros.</div>`;
-        document.getElementById('members-box').innerHTML = memHtml;
-      } catch (e) {
-        document.getElementById('members-box').innerHTML = `<div class="text-sm text-red-600">Erro ao carregar membros.</div>`;
-      }
-
-      try {
-        const lSnap = await getDocs(collection(db, 'guildas', gid, 'lines'));
-        const lines = [];
-        lSnap.forEach(d => lines.push(d.data()));
-        const lHtml = lines.length
-          ? `<div class="max-h-56 overflow-auto space-y-2">${lines.slice(0, 80).map(l => `
-              <div class="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
-                <div class="font-semibold text-gray-900">${safeText(l.nome || l.name || l.titulo || 'Line')}</div>
-                <div class="text-xs text-gray-500">${safeText(l.desc || l.descricao || '')}</div>
-              </div>
-            `).join('')}</div>${lines.length>80?`<div class="mt-2 text-xs text-gray-400">Mostrando 80 de ${lines.length}.</div>`:''}`
-          : `<div class="text-sm text-gray-500">Sem lines.</div>`;
-        document.getElementById('lines-box').innerHTML = lHtml;
-      } catch (e) {
-        document.getElementById('lines-box').innerHTML = `<div class="text-sm text-red-600">Erro ao carregar lines.</div>`;
-      }
-    }
-
-    async function openEditVip(gid) {
-      const g = allGuildCards.find(x => x.id === gid);
-      if (!g) return;
-
-      openDrawer({
-        title: `Editar VIP`,
-        subtitle: `${g.name} • ${g.id}`,
-        contentHtml: `
-          <div class="lg:col-span-3 rounded-2xl border border-gray-200 bg-white p-4">
-            <p class="text-sm text-gray-600">Selecione o novo plano VIP. (Business é liberado igual Pro.)</p>
-
-            <div class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end">
-              <div class="flex-1">
-                <label class="block text-xs text-gray-500 mb-1">VIP</label>
-                <select id="vip-select" class="w-full px-4 py-3 rounded-xl border border-gray-200">
-                  <option value="free">free</option>
-                  <option value="plus">plus</option>
-                  <option value="pro">pro</option>
-                  <option value="business">business</option>
-                </select>
-              </div>
-              <button id="vip-save" class="px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
-                Salvar
-              </button>
-            </div>
-
-            <p class="mt-3 text-xs text-gray-400">Salva em <b>configGuilda/${safeText(gid)}</b> (vipTier) e também tenta atualizar <b>guildas/${safeText(gid)}</b> como fallback.</p>
-          </div>
-        `
-      });
-
-      const sel = document.getElementById('vip-select');
-      sel.value = vipNormalize(g.vip);
-
-      document.getElementById('vip-save').onclick = async () => {
-        const newVip = vipNormalize(sel.value);
+      document.getElementById('btn-save-vip').onclick = async () => {
+        const nv = document.getElementById('edit-vip-select').value;
         try {
-          await updateDoc(doc(db, 'configGuilda', gid), { vipTier: newVip });
-        } catch(e) {
-          // se config não existir, cria não é permitido aqui; então tenta guildas
-        }
-        try {
-          await updateDoc(doc(db, 'guildas', gid), { vipTier: newVip });
-        } catch(_) {}
-
-        toast(`VIP atualizado para ${newVip}`, 'success');
-        // refresh local
-        await loadAllGuilds();
-        closeDrawer();
+          await updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv });
+          await updateDoc(doc(db, 'guildas', gid), { vipTier: nv });
+          showToast('success', 'Plano atualizado!');
+          els.drawer.classList.add('hidden');
+          loadAllGuilds();
+        } catch(e) { showToast('error', 'Falha ao salvar.'); }
       };
-    }
+    };
 
-    async function deleteGuildData(gid) {
-      const g = allGuildCards.find(x => x.id === gid);
-      const name = g?.name || gid;
-
-      const ok = confirm(`Excluir APENAS os dados do Firestore dessa guilda?\n\nGuilda: ${name}\nID: ${gid}\n\nIsso remove: guildas/${gid} + membros + lines + configGuilda/${gid} + users com guildId==${gid} + solicita da guilda (se houver).`);
-      if (!ok) return;
-
-      toast('Excluindo... aguarde', 'info');
-
-      // 1) delete subcollections membros/lines
-      async function deleteSubcol(pathCol) {
-        const colRef = collection(db, ...pathCol);
-        const snap = await getDocs(colRef);
-        let batch = writeBatch(db);
-        let count = 0;
-        for (const d of snap.docs) {
-          batch.delete(d.ref);
-          count++;
-          if (count >= 450) { // margem
-            await batch.commit();
-            batch = writeBatch(db);
-            count = 0;
-          }
-        }
-        if (count) await batch.commit();
-      }
-
-      try { await deleteSubcol(['guildas', gid, 'membros']); } catch(_) {}
-      try { await deleteSubcol(['guildas', gid, 'lines']); } catch(_) {}
-
-      // 2) delete users docs vinculados
+    window.deleteGuild = async (gid) => {
+      if (!confirm(`TEM CERTEZA? Isso deletará todos os dados da guilda ID: ${gid}`)) return;
       try {
-        const q = query(collection(db, 'users'), where('guildId', '==', gid), limit(1000));
-        const us = await getDocs(q);
-        if (!us.empty) {
-          let batch = writeBatch(db);
-          let count = 0;
-          for (const d of us.docs) {
-            batch.delete(d.ref);
-            count++;
-            if (count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
-          }
-          if (count) await batch.commit();
-        }
-      } catch(_) {}
+        await deleteDoc(doc(db, 'guildas', gid));
+        await deleteDoc(doc(db, 'configGuilda', gid));
+        showToast('success', 'Guilda removida!');
+        loadAllGuilds();
+      } catch(e) { showToast('error', 'Erro ao deletar.'); }
+    };
 
-      // 3) delete solicita docs por guildId (se seu schema salvar isso)
-      try {
-        const q2 = query(collection(db, 'solicita'), where('guildId', '==', gid), limit(1000));
-        const ss = await getDocs(q2);
-        if (!ss.empty) {
-          let batch = writeBatch(db);
-          let count = 0;
-          for (const d of ss.docs) {
-            batch.delete(d.ref);
-            count++;
-            if (count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
-          }
-          if (count) await batch.commit();
-        }
-      } catch(_) {}
-
-      // 4) delete config + guild doc
-      try { await deleteDoc(doc(db, 'configGuilda', gid)); } catch(_) {}
-      try { await deleteDoc(doc(db, 'guildas', gid)); } catch(_) {}
-
-      toast('Dados da guilda excluídos.', 'success');
-      await loadAllGuilds();
-    }
-
-    // --- Solicita -----------------------------------------------------------
     async function loadSolicita() {
-      els.solicitaGrid.innerHTML = `<div class="text-sm text-gray-500">Carregando solicitações...</div>`;
-      allSolicita = [];
+      els.solicitaGrid.innerHTML = `<div class="col-span-full py-5 text-center text-gray-400 text-sm">Carregando...</div>`;
       const snap = await getDocs(collection(db, 'solicita'));
-      snap.forEach(d => allSolicita.push({ id: d.id, data: d.data() || {} }));
-
-      // ordena por createdAt desc (client-side)
-      allSolicita.sort((a,b) => {
-        const ta = a.data?.createdAt?.toMillis ? a.data.createdAt.toMillis() : 0;
-        const tb = b.data?.createdAt?.toMillis ? b.data.createdAt.toMillis() : 0;
-        return tb - ta;
-      });
-
-      renderSolicita();
-    }
-
-    function renderSolicita() {
-      els.solicitaCount.textContent = String(allSolicita.length);
-
-      if (allSolicita.length === 0) {
-        els.solicitaGrid.innerHTML = `<div class="text-sm text-gray-500">Nenhuma solicitação.</div>`;
-        return;
-      }
-
-      els.solicitaGrid.innerHTML = allSolicita.map(s => {
-        const d = s.data || {};
-        const plano = (d.plano || d.plan || d.vip || '—').toString();
-        const status = (d.status || 'pendente').toString();
-        const email = (d.email || '—').toString();
-        const nome = (d.nomePagador || d.nome || '—').toString();
-        const dt = d.createdAt?.toMillis ? fmtDateBR(new Date(d.createdAt.toMillis())) : '—';
-
-        return `
-          <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p class="text-xs text-gray-400 truncate">${safeText(s.id)}</p>
-            <h4 class="font-bold text-gray-900 truncate">${safeText(email)}</h4>
-
-            <div class="mt-2 text-xs text-gray-600 space-y-1">
-              <div><span class="text-gray-400">Plano:</span> <b>${safeText(plano)}</b></div>
-              <div><span class="text-gray-400">Status:</span> <b>${safeText(status)}</b></div>
-              <div><span class="text-gray-400">Pagador:</span> ${safeText(nome)}</div>
-              <div><span class="text-gray-400">Data:</span> ${safeText(dt)}</div>
-            </div>
-
-            <div class="mt-4 grid grid-cols-2 gap-2">
-              <button data-action="editsolicita" data-sid="${safeText(s.id)}"
-                class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700">
-                Editar
-              </button>
-              <button data-action="deletesolicita" data-sid="${safeText(s.id)}"
-                class="px-3 py-2 rounded-xl border border-red-200 bg-white text-red-700 text-sm font-bold hover:bg-red-50">
-                Excluir
-              </button>
-            </div>
+      allSolicita = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      els.solicitaCount.textContent = allSolicita.length;
+      els.solicitaGrid.innerHTML = allSolicita.map(s => `
+        <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <h5 class="font-bold text-gray-900 text-xs truncate w-2/3">${s.email || '—'}</h5>
+            <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-bold">${(s.status || 'pendente').toUpperCase()}</span>
           </div>
-        `;
-      }).join('');
-
-      try { initIcons(); } catch(_) {}
-    }
-
-    async function openEditSolicita(sid) {
-      const item = allSolicita.find(x => x.id === sid);
-      if (!item) return;
-
-      const d = item.data || {};
-      const plano0 = (d.plano || d.plan || d.vip || 'free').toString();
-      const status0 = (d.status || 'pendente').toString();
-
-      openDrawer({
-        title: 'Editar solicitação',
-        subtitle: sid,
-        contentHtml: `
-          <div class="lg:col-span-3 rounded-2xl border border-gray-200 bg-white p-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Plano</label>
-                <select id="sol-plano" class="w-full px-4 py-3 rounded-xl border border-gray-200">
-                  <option value="free">free</option>
-                  <option value="plus">plus</option>
-                  <option value="pro">pro</option>
-                  <option value="business">business</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Status</label>
-                <select id="sol-status" class="w-full px-4 py-3 rounded-xl border border-gray-200">
-                  <option value="pendente">pendente</option>
-                  <option value="aprovado">aprovado</option>
-                  <option value="recusado">recusado</option>
-                </select>
-              </div>
-            </div>
-
-            <button id="sol-save" class="mt-4 px-5 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
-              Salvar
-            </button>
+          <div class="text-[10px] text-gray-500">
+            <p><b>Plano:</b> ${s.plano || '—'}</p>
+            <p><b>Pagador:</b> ${s.nomePagador || '—'}</p>
           </div>
-        `
-      });
-
-      document.getElementById('sol-plano').value = vipNormalize(plano0);
-      document.getElementById('sol-status').value = status0;
-
-      document.getElementById('sol-save').onclick = async () => {
-        const plano = vipNormalize(document.getElementById('sol-plano').value);
-        const status = document.getElementById('sol-status').value;
-
-        await updateDoc(doc(db, 'solicita', sid), { plano, status });
-        toast('Solicitação atualizada.', 'success');
-        await loadSolicita();
-        closeDrawer();
-      };
+          <div class="mt-3 flex gap-2">
+            <button onclick="window.approveSolicita('${s.id}', '${s.uid}', '${s.plano}')" class="flex-1 py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-bold">Aprovar</button>
+            <button onclick="window.deleteSolicita('${s.id}')" class="p-2 bg-red-50 text-red-600 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      `).join('');
+      initIcons();
     }
 
-    async function deleteSolicita(sid) {
-      const ok = confirm('Excluir esta solicitação?');
-      if (!ok) return;
+    window.approveSolicita = async (sid, uid, plano) => {
+      try {
+        // Tenta descobrir a guilda do usuário pelo doc de user
+        const uSnap = await getDoc(doc(db, 'users', uid));
+        const gid = uSnap.exists() ? uSnap.data().guildId : uid;
+
+        await updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano });
+        await updateDoc(doc(db, 'guildas', gid), { vipTier: plano });
+        await updateDoc(doc(db, 'solicita', sid), { status: 'aprovado' });
+        
+        showToast('success', 'Upgrade aprovado e ativado!');
+        loadSolicita();
+        loadAllGuilds();
+      } catch(e) { showToast('error', 'Erro ao processar.'); }
+    };
+
+    window.deleteSolicita = async (sid) => {
+      if(!confirm('Deletar solicitação?')) return;
       await deleteDoc(doc(db, 'solicita', sid));
-      toast('Solicitação excluída.', 'success');
-      await loadSolicita();
-    }
+      loadSolicita();
+    };
 
-    // Events
-    els.guildSearch.addEventListener('input', renderGuilds);
-    els.btnReload.addEventListener('click', loadAllGuilds);
+    // Eventos Simples
+    els.btnReload.onclick = loadAllGuilds;
+    els.guildSearch.oninput = renderGuilds;
+    els.btnOpenSolicita.onclick = () => { els.solicitaPanel.classList.toggle('hidden'); loadSolicita(); };
+    els.btnCloseSolicita.onclick = () => { els.solicitaPanel.classList.add('hidden'); };
+    els.drawerClose.onclick = () => { els.drawer.classList.add('hidden'); };
+    els.drawerBackdrop.onclick = () => { els.drawer.classList.add('hidden'); };
 
-    els.btnOpenSolicita.addEventListener('click', async () => {
-      els.solicitaPanel.classList.remove('hidden');
-      await loadSolicita();
-      els.solicitaPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-
-    els.btnCloseSolicita.addEventListener('click', () => {
-      els.solicitaPanel.classList.add('hidden');
-    });
-
-    // Delegation: guild cards + solicita
-    document.addEventListener('click', async (ev) => {
-      const btn = ev.target.closest('button[data-action]');
-      if (!btn) return;
-      const action = btn.dataset.action;
-
-      if (action === 'details') return openGuildDetails(btn.dataset.gid);
-      if (action === 'editvip') return openEditVip(btn.dataset.gid);
-      if (action === 'delete') return deleteGuildData(btn.dataset.gid);
-
-      if (action === 'editsolicita') return openEditSolicita(btn.dataset.sid);
-      if (action === 'deletesolicita') return deleteSolicita(btn.dataset.sid);
-    });
-
-    // Boot
-    await loadAllGuilds();
   </script>
 </body>
 </html>
