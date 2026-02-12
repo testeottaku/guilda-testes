@@ -193,7 +193,7 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, showToast, logout, auth, db, getGuildContext, ensureUserAccount, createPlayer_DISABLED_BETAAccess, revokePlayerAccess, deletePlayerAccount } from "./logic.js";
-    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { doc, getDoc, setDoc, deleteDoc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
     initIcons();
@@ -355,7 +355,7 @@
           }
         } catch (e) { console.warn(e); }
 
-        // CORREÇÃO DO BUG: Criar o vínculo imediato na coleção users
+        // CORREÇÃO DO BUG: Criar o vínculo imediato na coleção users (quando temos UID)
         if (resUid) {
           await setDoc(doc(db, "users", resUid), {
             email: cleanEmail,
@@ -365,6 +365,14 @@
             updatedAt: serverTimestamp()
           }, { merge: true });
         }
+
+        // Fallback robusto: mapa público email -> guilda (funciona mesmo quando regras bloqueiam consultas)
+        await setDoc(doc(db, "emailGuild", cleanEmail), {
+          email: cleanEmail,
+          guildId: getGuildContext().guildId,
+          role: type === 'leaders' ? 'Líder' : 'Admin',
+          updatedAt: serverTimestamp()
+        }, { merge: true });
 
         securityData[type].push(cleanEmail);
         renderList(type, securityData[type]);
@@ -379,6 +387,9 @@
       securityData[type] = securityData[type].filter(e => e !== email);
       renderList(type, securityData[type]);
       await saveSecurity();
+
+      // Remove o mapa email->guilda (evita que o usuário removido continue entrando na guilda)
+      try { await deleteDoc(doc(db, 'emailGuild', String(email||'').toLowerCase().trim())); } catch (_) {}
       showToast('success', 'Acesso removido.');
     }
 
@@ -389,6 +400,23 @@
         leaders: securityData.leaders || [],
         updatedAt: serverTimestamp()
       }, { merge: true });
+
+      // Mantém todos os emails da lista mapeados (caso algum tenha sido incluído antes sem mapear)
+      try {
+        const batch = writeBatch(db);
+        const gid = getGuildContext().guildId;
+        (securityData.admins||[]).forEach((e) => {
+          const em = String(e||'').toLowerCase().trim();
+          if (!em) return;
+          batch.set(doc(db, 'emailGuild', em), { email: em, guildId: gid, role: 'Admin', updatedAt: serverTimestamp() }, { merge: true });
+        });
+        (securityData.leaders||[]).forEach((e) => {
+          const em = String(e||'').toLowerCase().trim();
+          if (!em) return;
+          batch.set(doc(db, 'emailGuild', em), { email: em, guildId: gid, role: 'Líder', updatedAt: serverTimestamp() }, { merge: true });
+        });
+        await batch.commit();
+      } catch (_) {}
     }
 
     document.getElementById('btn-create-player-disabled-beta')?.addEventListener('click', async () => {

@@ -12,6 +12,7 @@ import {
   getFirestore,
   doc,
   getDoc,
+  deleteDoc,
   setDoc,
   updateDoc,
   writeBatch,
@@ -173,6 +174,16 @@ async function getGuildName(guildId) {
 async function findGuildByEmail(emailLower) {
   if (!emailLower) return null;
 
+  // Fallback rápido (evita query e funciona mesmo quando regras bloqueiam consultas)
+  try {
+    const mapSnap = await getDoc(doc(db, "emailGuild", emailLower));
+    if (mapSnap.exists()) {
+      const m = mapSnap.data() || {};
+      const gid = (m.guildId || "").toString().trim();
+      if (gid) return { guildId: gid, source: "emailGuild" };
+    }
+  } catch (_) {}
+
   try {
     const q1 = query(collection(db, "configGuilda"), where("leaders", "array-contains", emailLower), limit(1));
     const s1 = await getDocs(q1);
@@ -198,6 +209,34 @@ async function findGuildByEmail(emailLower) {
   } catch (_) {}
 
   return null;
+}
+
+async function upsertEmailGuildMap(emailLower, guildId, role) {
+  const e = cleanEmail(emailLower);
+  const gid = (guildId || "").toString().trim();
+  if (!e || !gid) return;
+  try {
+    await setDoc(doc(db, "emailGuild", e), {
+      email: e,
+      guildId: gid,
+      role: (role || "").toString() || null,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (_) {}
+}
+
+async function removeEmailGuildMap(emailLower, guildId) {
+  const e = cleanEmail(emailLower);
+  if (!e) return;
+  try {
+    const ref = doc(db, "emailGuild", e);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+    const data = snap.data() || {};
+    const gid = (data.guildId || "").toString().trim();
+    if (guildId && gid && gid !== String(guildId)) return; // não apaga mapa de outra guilda
+    await deleteDoc(ref);
+  } catch (_) {}
 }
 
 async function resolveRoleInGuild(guildId, email) {
@@ -290,6 +329,11 @@ async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
     }, { merge: true });
   }
 
+  // Se esta conta pertence a uma guilda existente (ex.: Admin/Líder secundário),
+  // gravamos um mapa público email -> guilda para o login conseguir resolver a guilda
+  // mesmo quando as regras bloqueiam queries em configGuilda.
+  try { await upsertEmailGuildMap(email, guildId, null); } catch (_) {}
+
   if (guildId !== uid) return;
 
   const [gSnap, cSnap] = await Promise.all([
@@ -331,6 +375,9 @@ async function ensureBootstrapDocs(user, usernameMaybe, guildId) {
   }
 
   await batch.commit();
+
+  // Mapa email -> guilda (ajuda a resolver a guilda no login de contas secundárias)
+  try { await upsertEmailGuildMap(email, uid, "Líder"); } catch (_) {}
 }
 
 export async function finalizeSignup(user, username) {
@@ -493,8 +540,11 @@ export function checkAuth(redirectToLogin = true) {
 
       if (!guildId) guildId = user.uid;
 
+      // IMPORTANTE: não sobrescrever o nome da guilda com "Minha Guilda" quando não conseguimos ler o username.
+      // Se não vier username do Firestore, passamos null para não forçar update no doc da guilda.
+      const unameSafe = (username && username.trim()) ? username.trim() : null;
       try {
-        await ensureBootstrapDocs(user, username || "Minha Guilda", guildId);
+        await ensureBootstrapDocs(user, unameSafe, guildId);
       } catch (e) {
         try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
