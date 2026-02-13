@@ -58,6 +58,8 @@ try {
         email: String(cached.email),
         uid: String(cached.uid),
         vipTier: cached.vipTier ? String(cached.vipTier) : 'free'
+        vipExpiresAt: cached.vipExpiresAtMillis ? new Date(cached.vipExpiresAtMillis) : null,
+        vipDaysLeft: cached.vipDaysLeft ?? null,
       };
 
       try { applyVipUiAndGates(vipTier); } catch(_) {}
