@@ -21,8 +21,7 @@ import {
   query,
   where,
   getDocs,
-  limit,
-  Timestamp // Importante: adicionei Timestamp aqui
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
@@ -58,9 +57,11 @@ try {
         role: String(cached.role),
         email: String(cached.email),
         uid: String(cached.uid),
-        vipTier: cached.vipTier ? String(cached.vipTier) : 'free',
-        vipDaysLeft: cached.vipDaysLeft !== undefined ? cached.vipDaysLeft : null // CORREÇÃO: Recupera dias do cache
+        vipTier: cached.vipTier ? String(cached.vipTier) : 'free'
       };
+
+      try { applyVipUiAndGates(vipTier); } catch(_) {}
+
     }
   }
 } catch (_) {}
@@ -105,6 +106,8 @@ function cleanEmail(email) {
 }
 
 function emailDocId(emailLower) {
+  // Firestore doc IDs não aceitam '/', então usamos uma normalização simples.
+  // Mantém estável para lookup futuro.
   return cleanEmail(emailLower).replaceAll('.', ',');
 }
 
@@ -179,6 +182,7 @@ async function getGuildName(guildId) {
 async function findGuildByEmail(emailLower) {
   if (!emailLower) return null;
 
+  // 1) Tentativas rápidas (indexáveis) — requer que os e-mails estejam normalizados (lowercase) no Firestore
   try {
     const q1 = query(collection(db, "configGuilda"), where("leaders", "array-contains", emailLower), limit(1));
     const s1 = await getDocs(q1);
@@ -203,6 +207,9 @@ async function findGuildByEmail(emailLower) {
     if (!s4.empty) return { guildId: s4.docs[0].id, source: "playerEmail" };
   } catch (_) {}
 
+  // 2) Fallback robusto (varredura): cobre casos em que o Firestore tem e-mails salvos com maiúsculas/espacos,
+  // e portanto "array-contains" / "==" não bate. Isso evita logout de admin/líder secundário.
+  // Observação: ideal é salvar tudo em lowercase, mas isso resolve sem mexer no cadastro.
   try {
     const qAll = query(collection(db, "configGuilda"), limit(300));
     const snap = await getDocs(qAll);
@@ -294,7 +301,8 @@ async function normalizeConfigGuilda(guildId) {
 }
 
 
-// Bootstrap de primeira criação (signup)
+// Bootstrap de primeira criação (signup): NÃO faz leituras antes, porque as regras
+// podem bloquear read quando a guilda ainda não existe.
 async function bootstrapNewGuildAndUser(user, username) {
   const uid = user.uid;
   const email = cleanEmail(user.email);
@@ -305,6 +313,7 @@ async function bootstrapNewGuildAndUser(user, username) {
 
   const batch = writeBatch(db);
 
+  // ✅ users/{uid}
   batch.set(doc(db, "users", uid), {
     uid,
     email,
@@ -314,6 +323,7 @@ async function bootstrapNewGuildAndUser(user, username) {
     updatedAt: serverTimestamp()
   }, { merge: true });
 
+  // ✅ guildas/{uid}
   batch.set(doc(db, "guildas", uid), {
     name: uname || "Minha Guilda",
     ownerUid: uid,
@@ -322,6 +332,7 @@ async function bootstrapNewGuildAndUser(user, username) {
     updatedAt: serverTimestamp()
   }, { merge: true });
 
+  // ✅ configGuilda/{uid}
   batch.set(doc(db, "configGuilda", uid), {
     ownerUid: uid,
     ownerEmail: email,
@@ -335,6 +346,7 @@ async function bootstrapNewGuildAndUser(user, username) {
   await batch.commit();
 }
 
+// Garantia leve (logins futuros do dono): não mexe no nome, só garante timestamps.
 async function ensureOwnerDocsLight(user) {
   const uid = user.uid;
   if (!uid) return;
@@ -508,7 +520,7 @@ function __vipBuildExpiresAt(tier) {
   return Timestamp.fromDate(new Date(Date.now() + ms));
 }
 
-// Rebaixa para free se expirou
+// Rebaixa para free se expirou (tenta gravar; se não tiver permissão, apenas não quebra)
 async function __vipHandleExpirationOnLoad(cfgRef, cfgData) {
   if (!cfgData) return { tier: "free", expiresAt: null, daysLeft: null };
 
@@ -551,6 +563,8 @@ export function checkAuth(redirectToLogin = true) {
 
       let guildId = null;
       let username = "";
+
+      // 0) Primeiro tenta resolver pela coleção /users (mais rápida e evita logout indevido)
       let roleHint = null;
       let userProfile = null;
       try {
@@ -562,11 +576,17 @@ export function checkAuth(redirectToLogin = true) {
         }
       } catch (_) {}
 
+      // Resolve a guilda SOMENTE pela configGuilda.
+
+      // - Contas secundárias (admin/líder/jogador) precisam estar dentro dos arrays em /configGuilda/{guildId}
+      // - O dono (guildId === uid) é criado no signup (finalizeSignup). Em logins futuros, também será resolvido.
       try {
         const found = await findGuildByEmail(emailLower);
         if (found?.guildId) guildId = found.guildId;
       } catch (_) {}
 
+      // Se não achou por e-mail, só aceitamos como "dono" quando já existe configGuilda com id == uid.
+      // Isso evita o bug de criar uma guilda nova ao logar com contas secundárias.
       if (!guildId) {
         try {
           const selfCfg = await getDoc(doc(db, "configGuilda", user.uid));
@@ -574,6 +594,7 @@ export function checkAuth(redirectToLogin = true) {
         } catch (_) {}
       }
 
+      // Se ainda não resolveu, a conta não está vinculada a nenhuma guilda -> não criar nada automaticamente.
       if (!guildId) {
         try { await signOut(auth); } catch (_) {}
         if (!isLoginPage) window.location.href = "index.html";
@@ -581,19 +602,26 @@ export function checkAuth(redirectToLogin = true) {
         return;
       }
 
+      // Após o login: não tente ler antes de existir (regras podem bloquear).
+      // Se for o dono (guildId === uid), apenas garante docs com merge sem mexer em nome.
       try {
         if (guildId === user.uid) {
           await ensureOwnerDocsLight(user);
         }
-      } catch (e) {}
+      } catch (e) {
+        // Se falhar aqui, não derruba o login: isso é apenas uma garantia leve.
+      }
 
       let role = null;
+
+      // Se o /users já informa o role, usamos como base (e ainda tentamos confirmar via configGuilda).
       const hint = (roleHint || "").toString().trim();
       if (hint && ["Líder", "Admin", "Jogador"].includes(hint)) role = hint;
 
       const resolved = await resolveRoleInGuild(guildId, user.email || "");
       if (!role || role === "Membro") role = resolved;
 
+      // Se o resolve der "Membro" por algum motivo, mas o /users diz que é Admin/Líder, não derruba o login.
       if (role === "Membro" && hint && hint !== "Membro") role = hint;
       if (role === "Líder") {
         normalizeConfigGuilda(guildId);
@@ -604,7 +632,6 @@ export function checkAuth(redirectToLogin = true) {
       let vipTier = 'free';
       let vipExpiresAt = null;
       let vipDaysLeft = null;
-      
       try {
         const cfgRef = doc(db, "configGuilda", guildId);
         const cfgSnap = await getDoc(cfgRef);
@@ -612,15 +639,14 @@ export function checkAuth(redirectToLogin = true) {
           const cfg = cfgSnap.data() || {};
           const rawVip = cfg.vipTier ?? cfg.vip ?? cfg.planoVip ?? cfg.planoVIP ?? cfg.vipLevel ?? cfg.vipPlano ?? cfg.vipName ?? cfg.plano ?? cfg.plan ?? cfg.tier;
           vipTier = vipTierFromValue(rawVip);
-          
+          // vipExpiresAt pode não existir ainda (null-safe)
           const handled = await __vipHandleExpirationOnLoad(cfgRef, cfg);
           vipTier = handled.tier || vipTier || "free";
           vipExpiresAt = handled.expiresAt ?? null;
           vipDaysLeft = handled.daysLeft ?? null;
         }
       } catch (_) {}
-
-      if (!vipTier || vipTier === 'free') {
+if (!vipTier || vipTier === 'free') {
         try {
           const gSnap = await getDoc(doc(db, "guildas", guildId));
           if (gSnap.exists()) {
@@ -632,34 +658,24 @@ export function checkAuth(redirectToLogin = true) {
         } catch (_) {}
       }
 
-      // CORREÇÃO: Adicionando vipDaysLeft ao contexto global
+
       __guildCtx = {
         guildId,
         guildName,
         role,
         vipTier,
-        vipDaysLeft, // <--- Aqui estava faltando
-        vipExpiresAt,
         email: emailLower,
         uid: user.uid
       };
 
       try {
-        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ 
-          guildId, 
-          guildName, 
-          role, 
-          vipTier,
-          vipDaysLeft, // <--- Adicionando no cache também
-          email: emailLower, 
-          uid: user.uid, 
-          ts: Date.now() 
-        }));
+        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
       } catch (_) {}
-      
       try { applyVipUiAndGates(vipTier); } catch (_) {}
+
       try { await __refreshCeoStatus(emailLower); } catch (_) {}
       try { applyCeoNavVisibility(); } catch (_) {}
+
 
       const roleEl = document.getElementById("user-role");
       if (roleEl) roleEl.textContent = role;
@@ -671,9 +687,14 @@ export function checkAuth(redirectToLogin = true) {
       const isSettingsPage = path.endsWith("/ajustes") || path.endsWith("/ajustes.html") || path.includes("ajustes.html");
       const isLinesPage = path.endsWith("/lines") || path.endsWith("/lines.html") || path.includes("lines.html");
       const isChefePage = path.endsWith("/chefe") || path.endsWith("/chefe.html") || path.includes("chefe.html");
+
+      // (Fix) Algumas versões antigas tinham uma tela "camp". Aqui garantimos que a variável exista
+      // para não quebrar o fluxo quando o role for "Admin".
       const isCampPage = path.endsWith("/camp") || path.endsWith("/camp.html") || path.includes("camp.html");
 
       if (role === "Membro") {
+        // Só derruba o login quando NÃO existe vínculo em /users e o papel realmente não foi reconhecido.
+        // Isso evita logout indevido de Admin/Líder secundário.
         const hasUserLink = !!(userProfile && userProfile.guildId);
         const hint = (roleHint || "").toString().trim();
         if (!hasUserLink && (!hint || hint === "Membro")) {
@@ -689,6 +710,7 @@ export function checkAuth(redirectToLogin = true) {
         resolve(null);
         return;
       }
+
       
       if (role === "Jogador") {
         const isPlayerPage = path.endsWith("/jogador") || path.endsWith("/jogador.html") || path.includes("jogador.html");
@@ -772,9 +794,8 @@ export function applyVipUiAndGates(tierRaw) {
   const vipLabel = document.getElementById("vip-label");
   if (vipLabel) {
     const isDashboard = /dashboard\.html$/i.test(window.location.pathname || "");
-    // Agora vai funcionar porque __guildCtx.vipDaysLeft existe
     const days = (isDashboard && typeof __guildCtx === "object") ? (__guildCtx.vipDaysLeft ?? null) : null;
-    const labelText = (days !== null && tier !== "free") ? `${tier.toUpperCase()} • ${days} dias` : tier.toUpperCase();
+    const labelText = (days !== null && tier !== "free") ? `${tier} • ${days} dias` : tier;
     vipLabel.innerHTML = `Guilda: <span class="font-bold text-gray-800">${labelText}</span>`;
   }
 
@@ -904,6 +925,7 @@ export async function ensureUserAccount(email, password, opts = {}) {
 
   const methods = await fetchSignInMethodsForEmail(auth, e);
   if (methods && methods.length) {
+    // Conta já existe.
     return { created: false, uid: null };
   }
 
@@ -919,6 +941,8 @@ export async function ensureUserAccount(email, password, opts = {}) {
     const cred = await createUserWithEmailAndPassword(secondaryAuth, e, password);
     const uid = cred.user.uid;
 
+    // Se foi criado a partir do Admin (conta secundária), cria/atualiza também em /users/{uid}
+    // para o login conseguir resolver a guilda pelo documento do usuário.
     try {
       const guildId = opts && opts.guildId ? String(opts.guildId) : null;
       const role = opts && opts.role ? String(opts.role) : null;
