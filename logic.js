@@ -52,15 +52,15 @@ try {
     const cached = JSON.parse(raw);
     if (cached && cached.guildId && cached.uid && cached.email && cached.role) {
       __guildCtx = {
-        guildId: String(cached.guildId),
-        guildName: cached.guildName ? String(cached.guildName) : null,
-        role: String(cached.role),
-        email: String(cached.email),
-        uid: String(cached.uid),
-        vipTier: cached.vipTier ? String(cached.vipTier) : 'free'
-        vipExpiresAt: cached.vipExpiresAtMillis ? new Date(cached.vipExpiresAtMillis) : null,
-        vipDaysLeft: cached.vipDaysLeft ?? null,
-      };
+          guildId: String(cached.guildId),
+          guildName: cached.guildName ? String(cached.guildName) : null,
+          role: String(cached.role),
+          email: String(cached.email),
+          uid: String(cached.uid),
+          vipTier: cached.vipTier ? String(cached.vipTier) : 'free',
+          vipDaysLeft: typeof cached.vipDaysLeft === 'number' ? cached.vipDaysLeft : null,
+          vipExpiresAt: cached.vipExpiresAtMillis ? new Date(cached.vipExpiresAtMillis) : null
+        };
 
       try { applyVipUiAndGates(vipTier); } catch(_) {}
 
@@ -671,7 +671,18 @@ if (!vipTier || vipTier === 'free') {
       };
 
       try {
-        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({ guildId, guildName, role, vipTier, email: emailLower, uid: user.uid, ts: Date.now() }));
+        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({
+          guildId,
+          guildName,
+          role,
+          vipTier,
+          vipDaysLeft,
+          vipExpiresAtMillis: (vipExpiresAt && typeof vipExpiresAt.toMillis === 'function')
+            ? vipExpiresAt.toMillis()
+            : null,
+          email: emailLower,
+          uid: user.uid
+        }));
       } catch (_) {}
       try { applyVipUiAndGates(vipTier); } catch (_) {}
 
