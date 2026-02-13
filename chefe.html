@@ -160,7 +160,7 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
-    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
 
@@ -436,20 +436,44 @@ function fmtDate(ts) {
       initIcons();
     }
 
+    
     window.approveSolicita = async (sid, uid, plano) => {
       try {
         const uSnap = await getDoc(doc(db, 'users', uid));
-        const gid = uSnap.exists() ? uSnap.data().guildId : uid;
+        if (!uSnap.exists()) throw new Error("Usuário não encontrado.");
 
-        if(!gid) throw new Error("Não foi possível localizar a guilda.");
+        const gid = uSnap.data().guildId;
+        if (!gid) throw new Error("Guilda não localizada.");
 
-        await updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) });
-        
+        const normalizedPlano = normalizeVip(plano);
+
+        // salva em configGuilda (cria se não existir)
+        await setDoc(doc(db, 'configGuilda', gid), {
+          vipTier: normalizedPlano,
+          vipExpiresAt: buildVipExpiresAt(normalizedPlano)
+        }, { merge: true });
+
+        // mantém vipTier sincronizado em guildas
+        await setDoc(doc(db, 'guildas', gid), {
+          vipTier: normalizedPlano
+        }, { merge: true });
+
+        // marca solicitação como aprovada
+        await updateDoc(doc(db, 'solicita', sid), {
+          status: 'aprovado',
+          updatedAt: serverTimestamp()
+        });
+
         showToast('success', 'Upgrade aprovado e ativo para a guilda!');
         loadSolicita();
         loadData();
-      } catch(e) { showToast('error', 'Erro ao aprovar: ' + e.message); }
+
+      } catch (e) {
+        console.error(e);
+        showToast('error', 'Erro ao aprovar: ' + e.message);
+      }
     };
+
 
     window.rejectSolicita = async (sid) => {
        await updateDoc(doc(db, 'solicita', sid), { status: 'recusado', updatedAt: serverTimestamp() });
