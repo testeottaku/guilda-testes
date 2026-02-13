@@ -354,10 +354,7 @@ function fmtDate(ts) {
       document.getElementById('btn-save-vip').onclick = async () => {
         const nv = document.getElementById('edit-vip-sel').value;
         try {
-          await Promise.all([
-            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) }),
-            updateDoc(doc(db, 'guildas', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) })
-          ]);
+          updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv);
           showToast('success', `Plano da guilda ${g.name} alterado para ${nv.toUpperCase()}`);
           closeDrawer();
           loadData();
@@ -446,11 +443,7 @@ function fmtDate(ts) {
 
         if(!gid) throw new Error("Não foi possível localizar a guilda.");
 
-        await Promise.all([
-          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: buildVipExpiresAt(plano) }),
-          updateDoc(doc(db, 'guildas', gid), { vipTier: plano, vipExpiresAt: buildVipExpiresAt(plano) }),
-          updateDoc(doc(db, 'solicita', sid), { status: 'aprovado', updatedAt: serverTimestamp() })
-        ]);
+        updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: buildVipExpiresAt(plano);
         
         showToast('success', 'Upgrade aprovado e ativo para a guilda!');
         loadSolicita();
