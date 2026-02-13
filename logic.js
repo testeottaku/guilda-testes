@@ -21,7 +21,8 @@ import {
   query,
   where,
   getDocs,
-  limit
+  limit,
+  Timestamp          // <-- IMPORTANTE: adicionado para usar em funções VIP
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
@@ -666,6 +667,8 @@ if (!vipTier || vipTier === 'free') {
         guildName,
         role,
         vipTier,
+        vipDaysLeft,        // <-- AGORA INCLUÍDO
+        vipExpiresAt,       // <-- AGORA INCLUÍDO
         email: emailLower,
         uid: user.uid
       };
