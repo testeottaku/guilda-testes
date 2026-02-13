@@ -89,7 +89,41 @@ export function getVipExpiresAtMs() {
   return (__guildCtx && __guildCtx.vipExpiresAtMs != null) ? Number(__guildCtx.vipExpiresAtMs) : null;
 }
 
+
+function __maybeDowngradeVipSync() {
+  try {
+    if (!__guildCtx) return;
+    const tier = String(__guildCtx.vipTier || 'free');
+    const exp = (__guildCtx.vipExpiresAtMs != null) ? Number(__guildCtx.vipExpiresAtMs) : null;
+    if (tier !== 'free' && exp != null && isFinite(exp) && Date.now() > exp) {
+      __guildCtx.vipTier = 'free';
+      __guildCtx.vipExpiresAtMs = null;
+      try {
+        localStorage.setItem(__GUILDCTX_LS_KEY, JSON.stringify({
+          guildId: __guildCtx.guildId,
+          guildName: __guildCtx.guildName,
+          role: __guildCtx.role,
+          vipTier: __guildCtx.vipTier,
+          vipExpiresAtMs: __guildCtx.vipExpiresAtMs,
+          email: __guildCtx.email,
+          uid: __guildCtx.uid,
+          ts: Date.now()
+        }));
+      } catch (_) {}
+
+      // tenta gravar no banco (não bloqueia UI)
+      try {
+        setDoc(doc(db, 'configGuilda', __guildCtx.guildId), { vipTier: 'free', vipExpiresAt: null, updatedAt: serverTimestamp() }, { merge: true });
+      } catch (_) {}
+      try {
+        setDoc(doc(db, 'guildas', __guildCtx.guildId), { vipTier: 'free', updatedAt: serverTimestamp() }, { merge: true });
+      } catch (_) {}
+    }
+  } catch (_) {}
+}
+
 export function getVipRemainingDays() {
+  __maybeDowngradeVipSync();
   const ms = getVipExpiresAtMs();
   if (!ms) return null;
   const diff = ms - Date.now();
@@ -620,10 +654,10 @@ export function checkAuth(redirectToLogin = true) {
 
           // Tenta gravar no banco (não quebra caso não tenha permissão)
           try {
-            await updateDoc(doc(db, 'configGuilda', guildId), { vipTier: 'free', vipExpiresAt: null, updatedAt: serverTimestamp() });
+            await setDoc(doc(db, 'configGuilda', guildId), { vipTier: 'free', vipExpiresAt: null, updatedAt: serverTimestamp() }, { merge: true });
           } catch (_) {}
           try {
-            await updateDoc(doc(db, 'guildas', guildId), { vipTier: 'free', updatedAt: serverTimestamp() });
+            await setDoc(doc(db, 'guildas', guildId), { vipTier: 'free', updatedAt: serverTimestamp() }, { merge: true });
           } catch (_) {}
         }
       }

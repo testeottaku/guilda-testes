@@ -361,8 +361,8 @@
         const nv = document.getElementById('edit-vip-sel').value;
         try {
           await Promise.all([
-            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: computeVipExpiresAt(nv), updatedAt: serverTimestamp() }),
-            updateDoc(doc(db, 'guildas', gid), { vipTier: nv })
+            setDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: computeVipExpiresAt(nv), updatedAt: serverTimestamp() }, { merge: true }),
+            setDoc(doc(db, 'guildas', gid), { vipTier: nv }, { merge: true })
           ]);
           showToast('success', `Plano da guilda ${g.name} alterado para ${nv.toUpperCase()}`);
           closeDrawer();
@@ -453,8 +453,8 @@
         if(!gid) throw new Error("Não foi possível localizar a guilda.");
 
         await Promise.all([
-          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: computeVipExpiresAt(plano), updatedAt: serverTimestamp() }),
-          updateDoc(doc(db, 'guildas', gid), { vipTier: plano }),
+          setDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: computeVipExpiresAt(plano), updatedAt: serverTimestamp() }, { merge: true }),
+          setDoc(doc(db, 'guildas', gid), { vipTier: plano }, { merge: true }),
           updateDoc(doc(db, 'solicita', sid), { status: 'aprovado', updatedAt: serverTimestamp() })
         ]);
         
