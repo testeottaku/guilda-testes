@@ -159,8 +159,17 @@
   </div>
 
   <script type="module">
-    import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
-    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { checkAuth, 
+    function vipExpiryForTier(tier) {
+      const t = (tier || 'free').toString().toLowerCase().trim();
+      const now = Date.now();
+      if (t === 'plus' || t === 'pro') return Timestamp.fromDate(new Date(now + 30 * 24 * 60 * 60 * 1000));
+      if (t === 'business') return Timestamp.fromDate(new Date(now + 365 * 24 * 60 * 60 * 1000));
+      return null; // free
+    }
+
+setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
+    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
 
@@ -341,8 +350,8 @@
         const nv = document.getElementById('edit-vip-sel').value;
         try {
           await Promise.all([
-            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv }),
-            updateDoc(doc(db, 'guildas', gid), { vipTier: nv })
+            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: vipExpiryForTier(nv) }),
+            updateDoc(doc(db, 'guildas', gid), { vipTier: nv, vipExpiresAt: vipExpiryForTier(nv) })
           ]);
           showToast('success', `Plano da guilda ${g.name} alterado para ${nv.toUpperCase()}`);
           closeDrawer();
@@ -433,8 +442,8 @@
         if(!gid) throw new Error("Não foi possível localizar a guilda.");
 
         await Promise.all([
-          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano }),
-          updateDoc(doc(db, 'guildas', gid), { vipTier: plano }),
+          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: vipExpiryForTier(plano) }),
+          updateDoc(doc(db, 'guildas', gid), { vipTier: plano, vipExpiresAt: vipExpiryForTier(plano) }),
           updateDoc(doc(db, 'solicita', sid), { status: 'aprovado', updatedAt: serverTimestamp() })
         ]);
         
