@@ -171,24 +171,30 @@
       if (s.includes('pro')) return 'pro';
       if (s.includes('plus')) return 'plus';
       return 'free';
+    
+    // vipExpiresAt: regra de expiração por plano
+    function computeVipExpiresAt(plano) {
+      const p = normalizeVip(plano);
+      if (p === 'free') return null;
+      const days = (p === 'business') ? 365 : 30; // plus/pro = 30, business = 365
+      const ms = Date.now() + (days * 86400000);
+      return Timestamp.fromMillis(ms);
     }
+
+    function remainingDaysFrom(ts) {
+      try {
+        if (!ts) return null;
+        const ms = ts.toMillis ? ts.toMillis() : (typeof ts === 'number' ? ts : Date.parse(String(ts)));
+        if (!isFinite(ms)) return null;
+        const d = Math.ceil((ms - Date.now()) / 86400000);
+        return Math.max(0, d);
+      } catch (_) { return null; }
+    }
+
+}
 
     // Formatação de data
-    
-    // VIP expiração por tier (reinicia sempre a partir de agora)
-    function vipDurationDays(tier) {
-      const t = normalizeVip(tier);
-      if (t === 'plus' || t === 'pro') return 30;
-      if (t === 'business') return 365;
-      return null;
-    }
-    function buildVipExpiresAt(tier) {
-      const days = vipDurationDays(tier);
-      if (!days) return null;
-      return Timestamp.fromDate(new Date(Date.now() + days * 24 * 60 * 60 * 1000));
-    }
-
-function fmtDate(ts) {
+    function fmtDate(ts) {
       if(!ts) return '—';
       const d = ts.toMillis ? new Date(ts.toMillis()) : new Date(ts);
       return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
@@ -354,11 +360,14 @@ function fmtDate(ts) {
       document.getElementById('btn-save-vip').onclick = async () => {
         const nv = document.getElementById('edit-vip-sel').value;
         try {
-          await updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) });
+          await Promise.all([
+            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: computeVipExpiresAt(nv), updatedAt: serverTimestamp() }),
+            updateDoc(doc(db, 'guildas', gid), { vipTier: nv })
+          ]);
           showToast('success', `Plano da guilda ${g.name} alterado para ${nv.toUpperCase()}`);
           closeDrawer();
           loadData();
-        } catch(e) { console.error('VIP save error:', e); showToast('error', 'Erro ao salvar VIP.'); }
+        } catch(e) { showToast('error', 'Erro ao salvar VIP.'); }
       };
     };
 
@@ -443,7 +452,11 @@ function fmtDate(ts) {
 
         if(!gid) throw new Error("Não foi possível localizar a guilda.");
 
-        await updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) });
+        await Promise.all([
+          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: computeVipExpiresAt(plano), updatedAt: serverTimestamp() }),
+          updateDoc(doc(db, 'guildas', gid), { vipTier: plano }),
+          updateDoc(doc(db, 'solicita', sid), { status: 'aprovado', updatedAt: serverTimestamp() })
+        ]);
         
         showToast('success', 'Upgrade aprovado e ativo para a guilda!');
         loadSolicita();
