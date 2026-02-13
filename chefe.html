@@ -159,17 +159,8 @@
   </div>
 
   <script type="module">
-    import { checkAuth, 
-    function vipExpiryForTier(tier) {
-      const t = (tier || 'free').toString().toLowerCase().trim();
-      const now = Date.now();
-      if (t === 'plus' || t === 'pro') return Timestamp.fromDate(new Date(now + 30 * 24 * 60 * 60 * 1000));
-      if (t === 'business') return Timestamp.fromDate(new Date(now + 365 * 24 * 60 * 60 * 1000));
-      return null; // free
-    }
-
-setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
-    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
+    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
 
@@ -183,7 +174,21 @@ setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, sho
     }
 
     // Formatação de data
-    function fmtDate(ts) {
+    
+    // VIP expiração por tier (reinicia sempre a partir de agora)
+    function vipDurationDays(tier) {
+      const t = normalizeVip(tier);
+      if (t === 'plus' || t === 'pro') return 30;
+      if (t === 'business') return 365;
+      return null;
+    }
+    function buildVipExpiresAt(tier) {
+      const days = vipDurationDays(tier);
+      if (!days) return null;
+      return Timestamp.fromDate(new Date(Date.now() + days * 24 * 60 * 60 * 1000));
+    }
+
+function fmtDate(ts) {
       if(!ts) return '—';
       const d = ts.toMillis ? new Date(ts.toMillis()) : new Date(ts);
       return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
@@ -350,8 +355,8 @@ setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, sho
         const nv = document.getElementById('edit-vip-sel').value;
         try {
           await Promise.all([
-            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: vipExpiryForTier(nv) }),
-            updateDoc(doc(db, 'guildas', gid), { vipTier: nv, vipExpiresAt: vipExpiryForTier(nv) })
+            updateDoc(doc(db, 'configGuilda', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) }),
+            updateDoc(doc(db, 'guildas', gid), { vipTier: nv, vipExpiresAt: buildVipExpiresAt(nv) })
           ]);
           showToast('success', `Plano da guilda ${g.name} alterado para ${nv.toUpperCase()}`);
           closeDrawer();
@@ -442,8 +447,8 @@ setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, sho
         if(!gid) throw new Error("Não foi possível localizar a guilda.");
 
         await Promise.all([
-          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: vipExpiryForTier(plano) }),
-          updateDoc(doc(db, 'guildas', gid), { vipTier: plano, vipExpiresAt: vipExpiryForTier(plano) }),
+          updateDoc(doc(db, 'configGuilda', gid), { vipTier: plano, vipExpiresAt: buildVipExpiresAt(plano) }),
+          updateDoc(doc(db, 'guildas', gid), { vipTier: plano, vipExpiresAt: buildVipExpiresAt(plano) }),
           updateDoc(doc(db, 'solicita', sid), { status: 'aprovado', updatedAt: serverTimestamp() })
         ]);
         
