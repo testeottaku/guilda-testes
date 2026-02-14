@@ -108,23 +108,21 @@
         </div>
 
         <!-- Filtro -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-          <div class="flex flex-col md:flex-row gap-3">
-            <div class="relative flex-1">
-              <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-              <input id="guild-search" type="text" placeholder="Procurar por nome, ID ou e-mail de líder..."
-                     class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" />
-            </div>
-
-            <div class="w-full md:w-56">
-              <select id="vip-filter" class="w-full py-4 px-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm font-bold">
-                <option value="all">Todos os planos</option>
-                <option value="free">Free</option>
-                <option value="plus">Plus</option>
-                <option value="pro">Pro</option>
-                <option value="business">Business</option>
-              </select>
-            </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+          <div class="relative">
+            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+            <input id="guild-search" type="text" placeholder="Procurar por nome, ID ou e-mail de líder..." 
+                   class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" />
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Filtro:</span>
+            <select id="vip-filter" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-[11px] font-black">
+              <option value="all">Todos</option>
+              <option value="free">Free</option>
+              <option value="plus">Plus</option>
+              <option value="pro">Pro</option>
+              <option value="business">Business</option>
+            </select>
+          </div>
           </div>
         </div>
 
@@ -172,7 +170,7 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
-    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     setupSidebar();
 
@@ -188,19 +186,17 @@
     // Formatação de data
     
     // VIP expiração por tier (reinicia sempre a partir de agora)
-    // VIP expiração por tier (reinicia sempre a partir de agora)
     function vipDurationDays(tier) {
       const t = normalizeVip(tier);
       if (t === 'plus' || t === 'pro') return 30;
       if (t === 'business') return 365;
       return null;
     }
-    function buildVipExpiresAtMs(tier) {
+    function buildVipExpiresAt(tier) {
       const days = vipDurationDays(tier);
       if (!days) return null;
-      return Date.now() + (days * 24 * 60 * 60 * 1000);
+      return Date.now() + days * 24 * 60 * 60 * 1000;
     }
-
 
 function fmtDate(ts) {
       if(!ts) return '—';
@@ -208,24 +204,28 @@ function fmtDate(ts) {
       return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
     }
 
-    function toMs(maybeTs) {
-      if (!maybeTs) return null;
-      if (typeof maybeTs === 'number') return maybeTs;
-      if (typeof maybeTs === 'string' && maybeTs.trim() && !isNaN(Number(maybeTs))) return Number(maybeTs);
-      if (maybeTs.toMillis) return maybeTs.toMillis();
-      if (maybeTs.seconds != null) return (Number(maybeTs.seconds) * 1000);
+    function vipExpiresAtMsFromAny(v) {
+      if (v == null) return null;
+      if (typeof v === 'number' && isFinite(v)) return v;
+      if (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))) return Number(v);
+      // Firestore Timestamp
+      if (v && typeof v.toMillis === 'function') return v.toMillis();
+      if (v && typeof v.seconds === 'number') return v.seconds * 1000;
       return null;
     }
 
-    function expiryInfo(expiresAt) {
-      const ms = toMs(expiresAt);
-      if (!ms) return { label: 'sem expiração', state: 'none' };
-      const diff = ms - Date.now();
-      if (diff <= 0) return { label: 'expirado', state: 'expired' };
-      const days = Math.ceil(diff / 86400000);
-      return { label: `faltam ${days}d`, state: 'active', days };
-    }
+    function remainingTag(expiresAtMs, tier) {
+      const t = normalizeVip(tier);
+      const ms = vipExpiresAtMsFromAny(expiresAtMs);
+      if (!ms) return { text: (t === 'free' ? 'FREE' : 'Sem expiração'), cls: 'bg-gray-100 text-gray-600' };
 
+      const diff = ms - Date.now();
+      if (diff <= 0) return { text: 'Expirado', cls: 'bg-red-100 text-red-700' };
+
+      const days = Math.ceil(diff / (24 * 60 * 60 * 1000));
+      if (days <= 3) return { text: `Faltam ${days}d`, cls: 'bg-orange-100 text-orange-700' };
+      return { text: `Faltam ${days}d`, cls: 'bg-sky-100 text-sky-700' };
+    }
 
     let allGuilds = [];
     let allSolicita = [];
@@ -271,13 +271,12 @@ function fmtDate(ts) {
             id: d.id,
             name: gData.name || cfg.name || `Guilda ${d.id.slice(0,4)}`,
             vip: normalizeVip(cfg.vipTier || gData.vipTier),
+            vipExpiresAt: (cfg.vipExpiresAt ?? gData.vipExpiresAt ?? null),
             leaders: cfg.leaders || [gData.ownerEmail],
             admins: cfg.admins || [],
             tag: cfg.tagMembros || '—',
             ownerEmail: gData.ownerEmail,
-            createdAt: gData.createdAt,
-            vipExpiresAt: cfg.vipExpiresAt ?? gData.vipExpiresAt ?? null,
-            updatedAtMs: cfg.updatedAtMs ?? gData.updatedAtMs ?? null
+            createdAt: gData.createdAt
           };
         });
 
@@ -292,19 +291,17 @@ function fmtDate(ts) {
       }
     }
 
-    
     function renderGuilds() {
       const q = document.getElementById('guild-search').value.toLowerCase().trim();
-      const tier = (document.getElementById('vip-filter')?.value || 'all').toLowerCase();
-
+      const vf = (document.getElementById('vip-filter')?.value || 'all');
       const filtered = allGuilds.filter(g => {
-        const matchesText =
+        const matchesQ =
           g.name.toLowerCase().includes(q) ||
           g.id.toLowerCase().includes(q) ||
-          (g.leaders || []).join(' ').toLowerCase().includes(q);
+          g.leaders.join(' ').toLowerCase().includes(q);
 
-        const matchesTier = (tier === 'all') ? true : (normalizeVip(g.vip) === tier);
-        return matchesText && matchesTier;
+        const matchesVip = (vf === 'all') ? true : (normalizeVip(g.vip) === vf);
+        return matchesQ && matchesVip;
       });
 
       const grid = document.getElementById('guilds-grid');
@@ -313,47 +310,29 @@ function fmtDate(ts) {
         return;
       }
 
-      grid.innerHTML = filtered.map(g => {
-        const vip = normalizeVip(g.vip);
-        const exp = expiryInfo(g.vipExpiresAt);
-
-        const vipClass =
-          vip === 'business'
-            ? 'bg-purple-100 text-purple-700'
-            : vip === 'pro'
-              ? 'bg-blue-100 text-blue-700'
-              : vip === 'plus'
-                ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-gray-100 text-gray-700';
-
-        const expClass =
-          exp.state === 'expired'
-            ? 'bg-red-100 text-red-700'
-            : exp.state === 'active'
-              ? 'bg-amber-100 text-amber-700'
-              : 'bg-gray-100 text-gray-600';
-
-        return `
+      grid.innerHTML = filtered.map(g => `
         <div class="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 group">
-          <div class="flex items-start justify-between mb-4 gap-3">
+          <div class="flex items-start justify-between mb-4">
             <div class="min-w-0">
               <h4 class="font-black text-gray-900 truncate text-lg">${g.name}</h4>
               <p class="text-[10px] text-gray-400 font-mono tracking-tighter">${g.id}</p>
             </div>
-            <div class="flex flex-col items-end gap-2 shrink-0">
-              <span class="px-3 py-1 rounded-xl ${vipClass} text-[10px] font-black uppercase tracking-wider shadow-sm border border-black/5">${vip}</span>
-              <span class="px-3 py-1 rounded-xl ${expClass} text-[10px] font-black uppercase tracking-wider shadow-sm border border-black/5">${exp.label}</span>
-            </div>
+            <div class="flex flex-col items-end gap-2">
+            <span class="px-3 py-1 rounded-xl ${g.vip === 'business' ? 'bg-purple-100 text-purple-700' : (g.vip === 'pro' ? 'bg-blue-100 text-blue-700' : (g.vip === 'plus' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'))} text-[10px] font-black uppercase tracking-wider shadow-sm border border-black/5">
+              ${g.vip}
+            </span>
+            ${(() => { const rt = remainingTag(g.vipExpiresAt, g.vip); return '<span class="px-3 py-1 rounded-xl '+rt.cls+' text-[10px] font-black tracking-wider shadow-sm border border-black/5">'+rt.text+'</span>'; })()}
+          </div>
           </div>
 
           <div class="space-y-2 mb-5">
             <div class="flex items-center gap-2 text-[11px] text-gray-500">
               <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-500"></i>
-              <span class="truncate"><b>Líder:</b> ${(g.leaders && g.leaders[0]) ? g.leaders[0] : '—'}</span>
+              <span class="truncate"><b>Líder:</b> ${g.leaders[0] || '—'}</span>
             </div>
             <div class="flex items-center gap-2 text-[11px] text-gray-500">
               <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-500"></i>
-              <span><b>Admins:</b> ${(g.admins || []).length}</span>
+              <span><b>Admins:</b> ${g.admins.length}</span>
             </div>
           </div>
 
@@ -361,71 +340,45 @@ function fmtDate(ts) {
             <button onclick="window.openDetails('${g.id}')" class="py-2.5 rounded-xl bg-gray-50 text-gray-900 text-[11px] font-bold hover:bg-gray-100 transition border border-gray-100">
               DETALHES
             </button>
-            <button onclick="window.fullDeleteGuild('${g.id}', '${String(g.name).replace(/'/g, "\'")}')" class="py-2.5 rounded-xl bg-red-50 text-red-600 text-[11px] font-bold hover:bg-red-100 transition border border-red-100">
+            <button onclick="window.fullDeleteGuild('${g.id}', '${g.name}')" class="py-2.5 rounded-xl bg-red-50 text-red-600 text-[11px] font-bold hover:bg-red-100 transition border border-red-100">
               ELIMINAR TUDO
             </button>
           </div>
         </div>
-        `;
-      }).join('');
-
+      `).join('');
       initIcons();
     }
 
-
     // Detalhes da Guilda
-    
-    window.openDetails = async (gid) => {
+    window.openDetails = (gid) => {
       const g = allGuilds.find(x => x.id === gid);
       if(!g) return;
 
       const body = document.getElementById('drawer-body');
       document.getElementById('drawer-title').textContent = g.name;
-
-      const exp = expiryInfo(g.vipExpiresAt);
-      const expMs = toMs(g.vipExpiresAt);
-      const expDate = expMs ? fmtDate(expMs) : '—';
-
       document.getElementById('drawer-content').innerHTML = `
         <div class="space-y-6 animate-in slide-in-from-right duration-300">
           <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
              <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Plano Atual</p>
-             <div class="flex items-center justify-between gap-2">
-               <span class="text-xs font-black uppercase">${normalizeVip(g.vip)}</span>
-               <span class="text-[10px] font-black uppercase px-2 py-1 rounded-lg ${exp.state==='expired'?'bg-red-100 text-red-700':(exp.state==='active'?'bg-amber-100 text-amber-700':'bg-gray-100 text-gray-600')}">${exp.label}</span>
-             </div>
-             <p class="text-[11px] text-gray-500 mt-2"><b>Expira em:</b> ${expDate}</p>
-
-             <select id="edit-vip-sel" class="w-full p-3 rounded-xl border border-gray-200 bg-white text-sm font-bold mt-3">
-                <option value="free" ${normalizeVip(g.vip)==='free'?'selected':''}>FREE</option>
-                <option value="plus" ${normalizeVip(g.vip)==='plus'?'selected':''}>PLUS</option>
-                <option value="pro" ${normalizeVip(g.vip)==='pro'?'selected':''}>PRO</option>
-                <option value="business" ${normalizeVip(g.vip)==='business'?'selected':''}>BUSINESS</option>
+             <select id="edit-vip-sel" class="w-full p-3 rounded-xl border border-gray-200 bg-white text-sm font-bold">
+                <option value="free" ${g.vip==='free'?'selected':''}>FREE</option>
+                <option value="plus" ${g.vip==='plus'?'selected':''}>PLUS</option>
+                <option value="pro" ${g.vip==='pro'?'selected':''}>PRO</option>
+                <option value="business" ${g.vip==='business'?'selected':''}>BUSINESS</option>
              </select>
              <button id="btn-save-vip" class="w-full mt-3 py-3 rounded-xl bg-emerald-600 text-white font-black text-xs hover:bg-emerald-700 transition">ATUALIZAR PLANO</button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div class="p-4 bg-white border border-gray-100 rounded-2xl">
-              <p class="text-[10px] font-bold text-gray-400 uppercase">Membros</p>
-              <h3 id="members-count" class="text-2xl font-black text-gray-900 mt-1">—</h3>
-            </div>
-            <div class="p-4 bg-white border border-gray-100 rounded-2xl">
-              <p class="text-[10px] font-bold text-gray-400 uppercase">Admins</p>
-              <h3 class="text-2xl font-black text-gray-900 mt-1">${(g.admins||[]).length}</h3>
-            </div>
           </div>
 
           <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">Administração</p>
             <div class="space-y-2">
                <div class="p-3 bg-white border border-gray-100 rounded-xl">
-                  <p class="text-[10px] text-amber-600 font-bold uppercase">Líderes (${(g.leaders||[]).length})</p>
-                  <p class="text-xs text-gray-700 break-all mt-1">${(g.leaders||[]).length ? (g.leaders||[]).join('<br>') : '—'}</p>
+                  <p class="text-[10px] text-amber-600 font-bold uppercase">Líderes (${g.leaders.length})</p>
+                  <p class="text-xs text-gray-700 break-all mt-1">${g.leaders.join('<br>')}</p>
                </div>
                <div class="p-3 bg-white border border-gray-100 rounded-xl">
-                  <p class="text-[10px] text-blue-600 font-bold uppercase">Admins (${(g.admins||[]).length})</p>
-                  <p class="text-xs text-gray-700 break-all mt-1">${(g.admins||[]).length ? (g.admins||[]).join('<br>') : 'Nenhum administrador.'}</p>
+                  <p class="text-[10px] text-blue-600 font-bold uppercase">Admins (${g.admins.length})</p>
+                  <p class="text-xs text-gray-700 break-all mt-1">${g.admins.length > 0 ? g.admins.join('<br>') : 'Nenhum administrador.'}</p>
                </div>
             </div>
           </div>
@@ -440,49 +393,34 @@ function fmtDate(ts) {
       document.getElementById('drawer').classList.remove('hidden');
       setTimeout(() => body.classList.remove('translate-x-full'), 10);
 
-      // Conta membros (subcoleção)
-      try {
-        const memSnap = await getDocs(collection(db, 'guildas', gid, 'membros'));
-        const el = document.getElementById('members-count');
-        if (el) el.textContent = memSnap.size;
-      } catch (_) {
-        const el = document.getElementById('members-count');
-        if (el) el.textContent = '—';
-      }
+      // Contar membros (subcoleção /guildas/{gid}/membros)
+      (async () => {
+        try {
+          const memSnap = await getDocs(collection(db, 'guildas', gid, 'membros'));
+          const el = document.getElementById('members-count');
+          if (el) el.textContent = String(memSnap.size);
+        } catch (e) {
+          const el = document.getElementById('members-count');
+          if (el) el.textContent = '—';
+        }
+      })();
 
       document.getElementById('btn-save-vip').onclick = async () => {
         const nv = document.getElementById('edit-vip-sel').value;
-        const normalized = normalizeVip(nv);
-        const expiresAtMs = buildVipExpiresAtMs(normalized);
-        const nowMs = Date.now();
-
         try {
-          // salva em configGuilda
-          await setDoc(doc(db, 'configGuilda', gid), {
-            vipTier: normalized,
-            vipExpiresAt: expiresAtMs,
-            updatedAtMs: nowMs,
-          }, { merge: true });
-
+          const expiresAtMs = buildVipExpiresAt(nv);
+          const patch = { vipTier: nv, vipExpiresAt: expiresAtMs, updatedAtMs: Date.now() };
+          await updateDoc(doc(db, 'configGuilda', gid), patch);
           // fallback: alguns lugares usam /guildas
-          await setDoc(doc(db, 'guildas', gid), {
-            vipTier: normalized,
-            vipExpiresAt: expiresAtMs,
-            updatedAtMs: nowMs,
-          }, { merge: true });
-
-          showToast('success', `Plano da guilda ${g.name} alterado para ${normalized.toUpperCase()}`);
+          try { await updateDoc(doc(db, 'guildas', gid), patch); } catch(_) {}
+          showToast('success', `Plano da guilda ${g.name} alterado para ${nv.toUpperCase()}`);
           closeDrawer();
           loadData();
-        } catch(e) {
-          console.error('VIP save error:', e);
-          showToast('error', 'Erro ao salvar VIP.');
-        }
+        } catch(e) { console.error('VIP save error:', e); showToast('error', 'Erro ao salvar VIP.'); }
       };
     };
 
-    // ELIMINAR
- TUDO (REQUISITO DA VERONICA)
+    // ELIMINAR TUDO (REQUISITO DA VERONICA)
     window.fullDeleteGuild = async (gid, name) => {
       if(!confirm(`⚠️ REALMENTE QUER EXCLUIR TUDO DA GUILDA: ${name}?\n\nIsso apagará Membros, Lines, Configurações e todos os UTILIZADORES vinculados ao ID da guilda. Esta ação é irreversível!`)) return;
       
@@ -570,21 +508,18 @@ function fmtDate(ts) {
         // salva em configGuilda (cria se não existir)
         await setDoc(doc(db, 'configGuilda', gid), {
           vipTier: normalizedPlano,
-          vipExpiresAt: buildVipExpiresAtMs(normalizedPlano),
-          updatedAtMs: Date.now(),
+          vipExpiresAt: buildVipExpiresAt(normalizedPlano)
         }, { merge: true });
 
         // mantém vipTier sincronizado em guildas
         await setDoc(doc(db, 'guildas', gid), {
-          vipTier: normalizedPlano,
-          vipExpiresAt: buildVipExpiresAtMs(normalizedPlano),
-          updatedAtMs: Date.now(),
+          vipTier: normalizedPlano
         }, { merge: true });
 
         // marca solicitação como aprovada
         await updateDoc(doc(db, 'solicita', sid), {
           status: 'aprovado',
-          updatedAtMs: Date.now()
+          updatedAt: serverTimestamp()
         });
 
         showToast('success', 'Upgrade aprovado e ativo para a guilda!');
@@ -599,7 +534,7 @@ function fmtDate(ts) {
 
 
     window.rejectSolicita = async (sid) => {
-       await updateDoc(doc(db, 'solicita', sid), { status: 'recusado', updatedAtMs: Date.now() });
+       await updateDoc(doc(db, 'solicita', sid), { status: 'recusado', updatedAt: serverTimestamp() });
        showToast('info', 'Solicitação recusada.');
        loadSolicita();
     };
