@@ -270,37 +270,32 @@
     if (s === 'expirado') return 'bg-gray-100 text-gray-700 ring-gray-200';
     return 'bg-gray-100 text-gray-700 ring-gray-200';
   }
+
   async function createPixPayment(planId){
     const user = auth.currentUser;
     if (!user) throw new Error('Você precisa estar logado.');
 
-    const ctx = (typeof getGuildContext === 'function' ? getGuildContext() : null) || {};
-    const guildId = String(ctx.guildId || '');
-    const uid = String(user.uid || '');
+    // Pega o contexto atual (guilda) do cache/Firestore via logic.js
+    const ctx = await getGuildContext();
+    const guildId = String(ctx?.guildId || '');
     const email = String(user.email || '');
+    const uid = String(user.uid || '');
 
-    if (!planId) throw new Error('Plano inválido.');
-    if (!guildId) throw new Error('Guilda não encontrada (guildId).');
-
-    // Token (opcional para o backend validar no futuro)
-    const idToken = await user.getIdToken(true);
+    if (!guildId || !email || !uid) {
+      throw new Error('Dados ausentes (uid/email/guildId).');
+    }
 
     const res = await fetch('/api/mp_create_pix', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`
-      },
-      body: JSON.stringify({ plano: String(planId).toLowerCase(), uid, email, guildId })
+      headers: { 'Content-Type': 'application/json' },
+      // API espera: plano, uid, email, guildId
+      body: JSON.stringify({ plano: planId, uid, email, guildId })
     });
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       throw new Error(data?.error || 'Falha ao criar pagamento.');
     }
-    return data;
-  }
-
     return data;
   }
 
@@ -417,17 +412,15 @@
 
         // PIX code
         const ta = root.querySelector('#pix-code');
-        if (ta) ta.value = data.copiaECola || data.qrCode || '';
+        if (ta) ta.value = data.qrCode || data.copiaECola || '';
 
         // QR
         const qrLoading = root.querySelector('#qr-loading');
         const qrWrap = root.querySelector('#qr-wrap');
         const qrImg = root.querySelector('#qr-img');
 
-        const qrB64 = data.qrCodeBase64 || data.qrBase64 || '';
-
-        if (qrB64 && qrImg) {
-          qrImg.src = `data:image/png;base64,${qrB64}`;
+        if ((data.qrBase64 || data.qrCodeBase64) && qrImg) {
+          qrImg.src = `data:image/png;base64,${data.qrBase64 || data.qrCodeBase64}`;
           if (qrLoading) qrLoading.classList.add('hidden');
           if (qrWrap) qrWrap.classList.remove('hidden');
         } else {
