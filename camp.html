@@ -84,21 +84,36 @@
       </div>
       <form id="camp-form" class="p-5 space-y-4">
         <input type="hidden" id="camp-id">
+        <input type="hidden" id="camp-photoData">
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">Nome *</label>
           <input id="camp-name" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" required>
         </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Guilda (automático)</label>
+          <input id="camp-guildName" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600" disabled>
+        </div>
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">Descrição</label>
           <textarea id="camp-desc" rows="3" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
         </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Data</label><input id="camp-date" type="date" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
           <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Horário</label><input id="camp-time" type="time" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
         </div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Local</label><input id="camp-local" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Máx. Participantes</label><input id="camp-max" type="number" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Tipo do campeonato *</label>
+            <select id="camp-kind" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" required>
+              <option value="battle_royale">Battle Royale</option>
+              <option value="xvx">XvX (1v1 até 4v4)</option>
+            </select>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
             <select id="camp-status" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
@@ -108,6 +123,88 @@
             </select>
           </div>
         </div>
+
+        <!-- Battle Royale options -->
+        <div id="br-options" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Modo *</label>
+            <select id="camp-teamMode" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="solo">SOLO</option>
+              <option value="duo">DUO</option>
+              <option value="squad">SQUAD</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Quedas *</label>
+            <input id="camp-drops" type="number" min="1" value="1" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <!-- XvX options -->
+        <div id="xvx-options" class="hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Formato *</label>
+          <select id="camp-xvx" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+            <option value="1v1">1v1</option>
+            <option value="2v2">2v2</option>
+            <option value="3v3">3v3</option>
+            <option value="4v4">4v4</option>
+          </select>
+          <p class="text-[11px] text-gray-400 mt-1">Quando for XvX, as opções de Modo/Quedas não são usadas.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Local</label>
+          <input id="camp-local" type="text" placeholder="Ex: Sala personalizada / Arena / Servidor..." class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+          <p id="local-hint" class="text-[11px] text-gray-400 mt-1 hidden">Quando for SOLO/DUO/SQUAD, o local fica bloqueado.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Máx. Participantes</label><input id="camp-max" type="number" min="1" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Taxa *</label>
+            <select id="camp-feeType" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" required>
+              <option value="free">Gratuito</option>
+              <option value="paid">Pago</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="fee-amount-wrap" class="hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Valor (R$)</label>
+          <input id="camp-feeAmount" type="number" min="0" step="0.01" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Ex: 5.00">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Link para mais informações *</label>
+          <input id="camp-link" type="url" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="WhatsApp / Instagram / Grupo..." required>
+          <p class="text-[11px] text-gray-400 mt-1">Obrigatório (ex.: grupo do WhatsApp, Instagram, número com link wa.me).</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Símbolo</label>
+            <select id="camp-icon" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="trophy">Troféu</option>
+              <option value="crown">Coroa</option>
+              <option value="flame">Chama</option>
+              <option value="target">Alvo</option>
+              <option value="swords">Espadas</option>
+              <option value="shield">Escudo</option>
+            </select>
+            <p class="text-[11px] text-gray-400 mt-1">Se você não usar foto, o símbolo é exibido.</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Foto (opcional)</label>
+            <input id="camp-photo" type="file" accept="image/*" class="w-full text-sm">
+            <div class="mt-2 flex items-center gap-2">
+              <img id="camp-photoPreview" class="hidden w-10 h-10 rounded-xl object-cover ring-1 ring-black/10" alt="Prévia">
+              <button id="btn-remove-photo" type="button" class="hidden text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200">Remover</button>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-1">Se enviar foto, ela é salva em Base64 (limitada para não pesar).</p>
+          </div>
+        </div>
+
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeCampModal()" class="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
           <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">Salvar</button>
@@ -118,6 +215,27 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, getGuildContext, showToast } from './logic.js';
+
+    // Tenta usar Firestore (se o app já estiver inicializado em outro arquivo).
+    let firestoreOk = false;
+    let db = null;
+    let fb = {};
+
+    async function initFirestoreIfPossible() {
+      try {
+        const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const fsMod  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+        fb = { ...appMod, ...fsMod };
+
+        // Se o projeto já foi inicializado em outro lugar, getApp() funciona.
+        const app = fb.getApp();
+        db = fb.getFirestore(app);
+        firestoreOk = true;
+      } catch (e) {
+        firestoreOk = false;
+        db = null;
+      }
+    }
 
     // Inicialização IMEDIATA (Sem piscar)
     setupSidebar();
@@ -143,29 +261,148 @@
       applyVip(String(tier0));
     } catch(_) {}
 
-    
-    // Carrega do cache ANTES de autenticar
+    // Estado
     window.camps = [];
-    const cachedCamps = localStorage.getItem('campsList');
-    if(cachedCamps) {
-        try {
-            window.camps = JSON.parse(cachedCamps);
-            // Renderiza IMEDIATAMENTE
-            renderCamps();
-        } catch(e) {}
-    } else {
-        // Se não tiver cache, renderiza estado vazio (sem skeleton, pois é local)
-        renderCamps(); 
+    let GUILD_ID = null;
+    let GUILD_NAME = null;
+
+    function cacheKey() {
+      return GUILD_ID ? `campsList_${GUILD_ID}` : 'campsList';
     }
 
-    checkAuth().then(user => {
+    function loadCache() {
+      try {
+        const s = localStorage.getItem(cacheKey());
+        if(!s) return [];
+        return JSON.parse(s);
+      } catch(_) { return []; }
+    }
+
+    function saveCache(list) {
+      try { localStorage.setItem(cacheKey(), JSON.stringify(list||[])); } catch(_) {}
+    }
+
+    // Renderiza IMEDIATO pelo cache genérico, para não “piscar”
+    window.camps = (() => {
+      try {
+        const s = localStorage.getItem('campsList');
+        return s ? JSON.parse(s) : [];
+      } catch(_) { return []; }
+    })();
+    renderCamps();
+
+    // Auth + contexto
+    checkAuth().then(async (user) => {
       if(!user) return;
       document.getElementById('btn-logout').onclick = logout;
+
+      // Contexto da guilda
+      const ctx = getGuildContext() || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}') || {};
+      GUILD_ID = ctx.guildId || ctx.gid || ctx.guild || null;
+      GUILD_NAME = ctx.guildName || ctx.name || ctx.guildNome || 'Minha guilda';
+
+      // atualiza placeholder do input
+      const gn = document.getElementById('camp-guildName');
+      if(gn) gn.value = GUILD_NAME;
+
+      // agora sim, troca cache por guilda
+      window.camps = loadCache();
+      renderCamps();
+
+      // tenta ligar firestore (sem quebrar se não tiver)
+      await initFirestoreIfPossible();
+      await initFirestoreIfPossible(); // (duas tentativas curtas evitam race em alguns builds)
+
+      // se firestore disponível, assina a lista (fonte oficial)
+      if(firestoreOk && db && GUILD_ID) {
+        try {
+          const q = fb.query(
+            fb.collection(db, 'guildas', GUILD_ID, 'campeonatos'),
+            fb.orderBy('updatedAtMs', 'desc')
+          );
+          fb.onSnapshot(q, (snap) => {
+            const list = [];
+            snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            window.camps = list;
+            saveCache(list);
+            // também mantém cache antigo para primeiro paint em dispositivos antigos
+            try { localStorage.setItem('campsList', JSON.stringify(list)); } catch(_) {}
+            renderCamps();
+          }, () => {});
+        } catch(_) {}
+      }
     });
+
+    // UI rules
+    function syncKindUI() {
+      const kind = (document.getElementById('camp-kind')?.value || 'battle_royale');
+      const br = document.getElementById('br-options');
+      const xv = document.getElementById('xvx-options');
+
+      if(kind === 'xvx') {
+        br?.classList.add('hidden');
+        xv?.classList.remove('hidden');
+      } else {
+        br?.classList.remove('hidden');
+        xv?.classList.add('hidden');
+      }
+      syncLocalUI();
+    }
+
+    function syncLocalUI() {
+      const kind = (document.getElementById('camp-kind')?.value || 'battle_royale');
+      const local = document.getElementById('camp-local');
+      const hint = document.getElementById('local-hint');
+
+      // Regra pedida: SOLO/DUO/SQUAD -> local indisponível
+      if(kind === 'battle_royale') {
+        if(local){
+          local.value = '';
+          local.disabled = true;
+          local.classList.add('bg-gray-50','text-gray-500');
+        }
+        hint?.classList.remove('hidden');
+      } else {
+        if(local){
+          local.disabled = false;
+          local.classList.remove('bg-gray-50','text-gray-500');
+        }
+        hint?.classList.add('hidden');
+      }
+    }
+
+    function syncFeeUI() {
+      const feeType = document.getElementById('camp-feeType')?.value || 'free';
+      const wrap = document.getElementById('fee-amount-wrap');
+      if(feeType === 'paid') wrap?.classList.remove('hidden');
+      else {
+        wrap?.classList.add('hidden');
+        const amt = document.getElementById('camp-feeAmount');
+        if(amt) amt.value = '';
+      }
+    }
+
+    function humanFee(c) {
+      if((c.feeType||'free') === 'paid') {
+        const v = Number(c.feeAmount || 0);
+        if(!isFinite(v) || v <= 0) return 'Pago';
+        return `R$ ${v.toFixed(2)}`;
+      }
+      return 'Gratuito';
+    }
+
+    function kindLabel(c) {
+      if((c.kind||'battle_royale') === 'xvx') return c.xvx || 'XvX';
+      const tm = (c.teamMode||'solo').toUpperCase();
+      const d = Number(c.drops||1);
+      return `${tm} • ${d} queda${d>1?'s':''}`;
+    }
+
+    function safeText(s){ return (s ?? '').toString().replace(/[<>&"]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[ch])); }
 
     function renderCamps() {
       const el = document.getElementById('camps-list');
-      
+
       if(!window.camps || window.camps.length === 0) {
         el.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center">
           <i data-lucide="trophy" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
@@ -175,26 +412,54 @@
         el.innerHTML = window.camps.map(c => {
           const statusClass = c.status === 'upcoming' ? 'bg-blue-100 text-blue-700' : (c.status === 'ongoing' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500');
           const statusText = c.status === 'upcoming' ? 'Próximo' : (c.status === 'ongoing' ? 'Em andamento' : 'Finalizado');
+
+          const iconName = c.photoData ? null : (c.icon || 'trophy');
+          const badge = kindLabel(c);
+          const fee = humanFee(c);
+          const gname = c.guildName || GUILD_NAME || '';
+
           return `
           <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden animate-in">
             <div class="bg-gradient-to-r from-emerald-500 to-green-600 p-4 flex justify-between items-start">
-              <div class="flex items-center gap-2 text-white">
-                <i data-lucide="trophy" class="w-5 h-5"></i>
-                <h3 class="font-bold text-lg">${c.name}</h3>
+              <div class="flex items-center gap-3 text-white">
+                ${c.photoData
+                  ? `<img src="${c.photoData}" class="w-9 h-9 rounded-xl object-cover ring-1 ring-white/30" alt="Foto">`
+                  : `<div class="w-9 h-9 rounded-xl bg-white/15 ring-1 ring-white/20 flex items-center justify-center">
+                       <i data-lucide="${iconName}" class="w-5 h-5"></i>
+                     </div>`
+                }
+                <div>
+                  <h3 class="font-bold text-lg leading-tight">${safeText(c.name)}</h3>
+                  <p class="text-[11px] text-white/80 font-semibold">${safeText(gname)}</p>
+                </div>
               </div>
               <span class="text-xs font-medium px-2.5 py-1 rounded-full ${statusClass}">${statusText}</span>
             </div>
+
             <div class="p-4 space-y-3">
-              <p class="text-sm text-gray-600">${c.description}</p>
-              <div class="space-y-2 text-sm text-gray-500">
-                <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i> ${c.date || 'Sem data'}</div>
-                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i> ${c.time || 'Sem horário'}</div>
-                <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i> ${c.location || 'Sem local'}</div>
-                <div class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-emerald-500"></i> Máx. ${c.max} participantes</div>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-[11px] font-extrabold px-2 py-1 rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200">${safeText(badge)}</span>
+                <span class="text-[11px] font-extrabold px-2 py-1 rounded-full bg-gray-50 text-gray-700 ring-1 ring-gray-200">${safeText(fee)}</span>
               </div>
-              <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
-                <button onclick="editCamp('${c.id}')" class="text-sm text-gray-500 hover:text-emerald-600 px-3 py-2">Editar</button>
-                <button onclick="deleteCamp('${c.id}')" class="text-sm text-red-400 hover:text-red-500 px-3 py-2">Excluir</button>
+
+              <p class="text-sm text-gray-600">${safeText(c.description || '')}</p>
+
+              <div class="space-y-2 text-sm text-gray-500">
+                <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i> ${safeText(c.date || 'Sem data')}</div>
+                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i> ${safeText(c.time || 'Sem horário')}</div>
+                <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i> ${safeText(c.location || '—')}</div>
+                <div class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-emerald-500"></i> Máx. ${safeText(c.max || '—')} participantes</div>
+              </div>
+
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                <a href="${safeText(c.link || '#')}" target="_blank" rel="noopener noreferrer"
+                   class="text-sm font-semibold text-emerald-700 hover:text-emerald-800 inline-flex items-center gap-2">
+                  <i data-lucide="link" class="w-4 h-4"></i> Ver informações
+                </a>
+                <div class="flex gap-1">
+                  <button onclick="editCamp('${c.id}')" class="text-sm text-gray-500 hover:text-emerald-600 px-3 py-2">Editar</button>
+                  <button onclick="deleteCamp('${c.id}')" class="text-sm text-red-400 hover:text-red-500 px-3 py-2">Excluir</button>
+                </div>
               </div>
             </div>
           </div>
@@ -203,62 +468,239 @@
       initIcons();
     }
 
+    // Modal actions
     window.openCampModal = () => {
       document.getElementById('camp-form').reset();
       document.getElementById('camp-id').value = '';
+      document.getElementById('camp-photoData').value = '';
+      const prev = document.getElementById('camp-photoPreview');
+      const btnRm = document.getElementById('btn-remove-photo');
+      if(prev){ prev.src=''; prev.classList.add('hidden'); }
+      if(btnRm) btnRm.classList.add('hidden');
+
       document.getElementById('camp-modal-title').innerText = 'Novo Campeonato';
       document.getElementById('camp-modal').classList.remove('hidden');
+
+      // guild name
+      const gn = document.getElementById('camp-guildName');
+      if(gn) gn.value = GUILD_NAME || 'Minha guilda';
+
+      syncKindUI();
+      syncFeeUI();
     };
     window.closeCampModal = () => document.getElementById('camp-modal').classList.add('hidden');
 
+    // Wire modal change handlers (uma vez)
+    const kindSel = document.getElementById('camp-kind');
+    if(kindSel) kindSel.addEventListener('change', syncKindUI);
+    const feeSel = document.getElementById('camp-feeType');
+    if(feeSel) feeSel.addEventListener('change', syncFeeUI);
+
+    // Foto -> base64 com limite
+    const photoInp = document.getElementById('camp-photo');
+    if(photoInp) {
+      photoInp.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+
+        // limite de tamanho (evita “pesar” o Firestore)
+        const maxBytes = 220 * 1024; // ~220KB
+        if(file.size > maxBytes) {
+          showToast?.('Imagem muito grande. Use uma imagem menor (até ~220KB).');
+          photoInp.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = String(reader.result || '');
+          document.getElementById('camp-photoData').value = dataUrl;
+
+          const prev = document.getElementById('camp-photoPreview');
+          const btnRm = document.getElementById('btn-remove-photo');
+          if(prev){
+            prev.src = dataUrl;
+            prev.classList.remove('hidden');
+          }
+          if(btnRm) btnRm.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const btnRm = document.getElementById('btn-remove-photo');
+    if(btnRm) {
+      btnRm.addEventListener('click', () => {
+        document.getElementById('camp-photoData').value = '';
+        const prev = document.getElementById('camp-photoPreview');
+        if(prev){ prev.src=''; prev.classList.add('hidden'); }
+        btnRm.classList.add('hidden');
+        const ph = document.getElementById('camp-photo');
+        if(ph) ph.value = '';
+      });
+    }
+
     window.editCamp = (id) => {
-      const c = camps.find(x => x.id == id);
+      const c = (window.camps || []).find(x => String(x.id) === String(id));
+      if(!c) return;
+
       document.getElementById('camp-id').value = c.id;
-      document.getElementById('camp-name').value = c.name;
-      document.getElementById('camp-desc').value = c.description;
-      document.getElementById('camp-date').value = c.date;
-      document.getElementById('camp-time').value = c.time;
-      document.getElementById('camp-local').value = c.location;
-      document.getElementById('camp-max').value = c.max;
-      document.getElementById('camp-status').value = c.status;
+      document.getElementById('camp-name').value = c.name || '';
+      document.getElementById('camp-desc').value = c.description || '';
+      document.getElementById('camp-date').value = c.date || '';
+      document.getElementById('camp-time').value = c.time || '';
+      document.getElementById('camp-local').value = c.location || '';
+      document.getElementById('camp-max').value = c.max || '';
+      document.getElementById('camp-status').value = c.status || 'upcoming';
+
+      document.getElementById('camp-kind').value = c.kind || 'battle_royale';
+      document.getElementById('camp-teamMode').value = c.teamMode || 'solo';
+      document.getElementById('camp-drops').value = c.drops || 1;
+      document.getElementById('camp-xvx').value = c.xvx || '1v1';
+
+      document.getElementById('camp-link').value = c.link || '';
+      document.getElementById('camp-feeType').value = c.feeType || 'free';
+      document.getElementById('camp-feeAmount').value = c.feeAmount || '';
+      document.getElementById('camp-icon').value = c.icon || 'trophy';
+
+      document.getElementById('camp-guildName').value = c.guildName || GUILD_NAME || 'Minha guilda';
+
+      // foto
+      document.getElementById('camp-photoData').value = c.photoData || '';
+      const prev = document.getElementById('camp-photoPreview');
+      const btnRm = document.getElementById('btn-remove-photo');
+      if(c.photoData && prev){
+        prev.src = c.photoData;
+        prev.classList.remove('hidden');
+        btnRm?.classList.remove('hidden');
+      } else {
+        prev?.classList.add('hidden');
+        btnRm?.classList.add('hidden');
+      }
+
       document.getElementById('camp-modal-title').innerText = 'Editar Campeonato';
       document.getElementById('camp-modal').classList.remove('hidden');
+
+      syncKindUI();
+      syncFeeUI();
     };
 
-    window.deleteCamp = (id) => {
-      if(confirm('Excluir?')) {
-        window.camps = window.camps.filter(x => x.id != id);
-        localStorage.setItem('campsList', JSON.stringify(window.camps));
+    async function removeFromFirestore(id){
+      if(!(firestoreOk && db && GUILD_ID)) return false;
+      try {
+        await fb.deleteDoc(fb.doc(db, 'guildas', GUILD_ID, 'campeonatos', String(id)));
+        return true;
+      } catch(_) { return false; }
+    }
+
+    window.deleteCamp = async (id) => {
+      if(!confirm('Excluir?')) return;
+
+      // firestore (se tiver) é a fonte oficial
+      const ok = await removeFromFirestore(id);
+      if(!ok) {
+        // fallback local
+        window.camps = (window.camps || []).filter(x => String(x.id) !== String(id));
+        saveCache(window.camps);
+        try { localStorage.setItem('campsList', JSON.stringify(window.camps)); } catch(_) {}
         renderCamps();
       }
     };
 
-    document.getElementById('camp-form').addEventListener('submit', (e) => {
+    async function upsertToFirestore(id, data){
+      if(!(firestoreOk && db && GUILD_ID)) return false;
+
+      try {
+        const col = fb.collection(db, 'guildas', GUILD_ID, 'campeonatos');
+        let ref;
+        if(id) ref = fb.doc(db, 'guildas', GUILD_ID, 'campeonatos', String(id));
+        else ref = fb.doc(col);
+
+        const now = Date.now();
+        const payload = {
+          ...data,
+          guildId: GUILD_ID,
+          guildName: GUILD_NAME || data.guildName || 'Minha guilda',
+          updatedAtMs: now,
+          updatedAt: fb.serverTimestamp(),
+          createdAtMs: data.createdAtMs || now,
+          createdAt: data.createdAt || fb.serverTimestamp(),
+        };
+
+        await fb.setDoc(ref, payload, { merge: true });
+        return ref.id;
+      } catch(_) { return false; }
+    }
+
+    document.getElementById('camp-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const id = document.getElementById('camp-id').value;
+
+      const id = document.getElementById('camp-id').value || '';
+      const kind = document.getElementById('camp-kind').value;
+
+      // validações de regra
+      const link = document.getElementById('camp-link').value.trim();
+      if(!link) {
+        showToast?.('O link é obrigatório.');
+        return;
+      }
+
+      let location = document.getElementById('camp-local').value.trim();
+      if(kind === 'battle_royale') location = ''; // bloqueado
+      const feeType = document.getElementById('camp-feeType').value;
+      const feeAmount = (feeType === 'paid') ? Number(document.getElementById('camp-feeAmount').value || 0) : 0;
+
       const data = {
-        id: id || Date.now(),
-        name: document.getElementById('camp-name').value,
-        description: document.getElementById('camp-desc').value,
+        name: document.getElementById('camp-name').value.trim(),
+        description: document.getElementById('camp-desc').value.trim(),
         date: document.getElementById('camp-date').value,
         time: document.getElementById('camp-time').value,
-        location: document.getElementById('camp-local').value,
-        max: document.getElementById('camp-max').value,
+        location,
+        max: Number(document.getElementById('camp-max').value || 0) || null,
         status: document.getElementById('camp-status').value,
+
+        kind,
+        teamMode: kind === 'battle_royale' ? document.getElementById('camp-teamMode').value : null,
+        drops: kind === 'battle_royale' ? Number(document.getElementById('camp-drops').value || 1) : null,
+        xvx: kind === 'xvx' ? document.getElementById('camp-xvx').value : null,
+
+        guildName: (document.getElementById('camp-guildName').value || GUILD_NAME || 'Minha guilda'),
+
+        icon: document.getElementById('camp-icon').value || 'trophy',
+        photoData: document.getElementById('camp-photoData').value || '',
+
+        link,
+        feeType,
+        feeAmount: feeType === 'paid' ? feeAmount : 0,
       };
 
-      if(id) {
-        window.camps = window.camps.map(c => c.id == id ? data : c);
-      } else {
-        window.camps.push(data);
+      // Firestore (preferencial)
+      const newId = await upsertToFirestore(id, data);
+
+      if(newId) {
+        closeCampModal();
+        // onSnapshot atualiza a lista
+        return;
       }
-      localStorage.setItem('campsList', JSON.stringify(window.camps));
+
+      // Fallback local
+      const localId = id || String(Date.now());
+      const localData = { id: localId, ...data, updatedAtMs: Date.now(), guildName: GUILD_NAME || data.guildName };
+      if(id) window.camps = (window.camps || []).map(c => String(c.id) === String(id) ? localData : c);
+      else window.camps = [localData, ...(window.camps || [])];
+
+      saveCache(window.camps);
+      try { localStorage.setItem('campsList', JSON.stringify(window.camps)); } catch(_) {}
+
       closeCampModal();
       renderCamps();
     });
-  </script>
 
-  <!-- OTK Footer -->
+    // first sync for modal (se já existir no DOM)
+    syncKindUI();
+    syncFeeUI();
+  </script>
+<!-- OTK Footer -->
 <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
   <div class="mx-auto w-full max-w-5xl px-4 py-10">
     <div class="flex flex-col items-center gap-4">
