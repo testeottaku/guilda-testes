@@ -109,13 +109,24 @@
 
         <!-- Filtro -->
         <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-          <div class="relative">
-            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-            <input id="guild-search" type="text" placeholder="Procurar por nome, ID ou e-mail de líder..." 
-                   class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" />
+          <div class="flex flex-col md:flex-row gap-3">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+              <input id="guild-search" type="text" placeholder="Procurar por nome, ID ou e-mail de líder..." 
+                     class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" />
+            </div>
+
+            <div class="md:w-56">
+              <select id="vip-filter" class="w-full px-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm">
+                <option value="all">Todos os planos</option>
+                <option value="free">Free</option>
+                <option value="plus">Plus</option>
+                <option value="pro">Pro</option>
+                <option value="business">Business</option>
+              </select>
+            </div>
           </div>
         </div>
-
         <!-- Grid Guildas -->
         <div id="guilds-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div class="col-span-full py-20 text-center space-y-3">
@@ -160,7 +171,10 @@
 
   <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
-    import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp, setDoc,
+  getCountFromServer,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     setupSidebar();
 
@@ -185,7 +199,7 @@
     function buildVipExpiresAt(tier) {
       const days = vipDurationDays(tier);
       if (!days) return null;
-      return Timestamp.fromDate(new Date(Date.now() + days * 24 * 60 * 60 * 1000));
+      return Date.now() + (days * 24 * 60 * 60 * 1000);
     }
 
 function fmtDate(ts) {
@@ -193,6 +207,42 @@ function fmtDate(ts) {
       const d = ts.toMillis ? new Date(ts.toMillis()) : new Date(ts);
       return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
     }
+
+  function toMs(x) {
+    if (x == null) return null;
+    if (typeof x === 'number') return x;
+    if (typeof x === 'string' && x.trim() && !Number.isNaN(Number(x))) return Number(x);
+    if (typeof x === 'object' && typeof x.toMillis === 'function') return x.toMillis();
+    if (typeof x === 'object' && typeof x.seconds === 'number') return (x.seconds * 1000);
+    return null;
+  }
+
+  function normTier(x) {
+    const t = String(x || 'free').toLowerCase();
+    if (!t || t === 'null' || t === 'undefined') return 'free';
+    return t;
+  }
+
+  function tierBadge(tier) {
+    const t = normTier(tier);
+    const base = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ring-1';
+    if (t === 'business') return `<span class="${base} bg-violet-50 text-violet-700 ring-violet-200">Business</span>`;
+    if (t === 'pro') return `<span class="${base} bg-blue-50 text-blue-700 ring-blue-200">Pro</span>`;
+    if (t === 'plus') return `<span class="${base} bg-emerald-50 text-emerald-700 ring-emerald-200">Plus</span>`;
+    return `<span class="${base} bg-gray-50 text-gray-600 ring-gray-200">Free</span>`;
+  }
+
+  function expiresBadge(expiresAtMs) {
+    const ms = toMs(expiresAtMs);
+    if (!ms) return '';
+    const diff = ms - Date.now();
+    const base = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ring-1';
+    if (diff <= 0) return `<span class="${base} bg-rose-50 text-rose-700 ring-rose-200">Expirado</span>`;
+    const days = Math.floor(diff / (24*60*60*1000));
+    if (days >= 1) return `<span class="${base} bg-amber-50 text-amber-700 ring-amber-200">Faltam ${days}d</span>`;
+    const hours = Math.max(1, Math.floor(diff / (60*60*1000)));
+    return `<span class="${base} bg-amber-50 text-amber-700 ring-amber-200">Faltam ${hours}h</span>`;
+  }
 
     let allGuilds = [];
     let allSolicita = [];
@@ -257,19 +307,101 @@ function fmtDate(ts) {
       }
     }
 
-    function renderGuilds() {
-      const q = document.getElementById('guild-search').value.toLowerCase().trim();
-      const filtered = allGuilds.filter(g => 
-        g.name.toLowerCase().includes(q) || 
-        g.id.toLowerCase().includes(q) || 
-        g.leaders.join(' ').toLowerCase().includes(q)
-      );
+    function renderGuilds(){
+      const q = (document.getElementById('guild-search')?.value || '').toLowerCase().trim();
+      const vipFilter = (document.getElementById('vip-filter')?.value || 'all').toLowerCase();
 
-      const grid = document.getElementById('guilds-grid');
-      if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-10 text-center text-gray-400">Nenhuma guilda encontrada.</div>`;
+      const list = allGuilds.filter(g=>{
+        const name = String(g.name||'').toLowerCase();
+        const id = String(g.id||'').toLowerCase();
+        const leader = String(g.leaderEmail||'').toLowerCase();
+        const tier = normTier(g.vip);
+
+        const matchText = !q || name.includes(q) || id.includes(q) || leader.includes(q);
+        const matchVip = vipFilter==='all' || (vipFilter==='free' ? tier==='free' : tier===vipFilter);
+        return matchText && matchVip;
+      });
+
+      if(!list.length){
+        guildListEl.innerHTML = `<div class="col-span-full bg-white border border-gray-200 rounded-2xl p-8 text-center text-gray-600">Nenhuma guilda encontrada com esses filtros.</div>`;
+        lucide.createIcons();
         return;
       }
+
+      guildListEl.innerHTML = list.map(g=>{
+        const expTag = expiresBadge(g.vipExpiresAt);
+        return `
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openDetails('${g.id}')">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-semibold text-gray-900">${escapeHtml(g.name || '—')}</div>
+                <div class="text-xs text-gray-500 mt-1">ID: <span class="font-mono">${escapeHtml(g.id)}</span></div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 justify-end">
+                ${tierBadge(g.vip)}
+                ${expTag}
+              </div>
+            </div>
+
+            <div class="mt-3 text-sm text-gray-700">
+              <div class="flex items-center gap-2">
+                <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
+                <span class="truncate">${escapeHtml(g.leaderEmail || '—')}</span>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <i data-lucide="tag" class="w-4 h-4 text-gray-400"></i>
+                <span class="truncate">${escapeHtml(g.tag || '—')}</span>
+              </div>
+            </div>
+
+            <div class="mt-4 text-xs text-gray-500 flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+              <span>Criada: ${fmtDate(g.createdAt)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    guildListEl.innerHTML = list.map(g => {
+      const expiresTag = expiresBadge(g.vipExpiresAt);
+      return `
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer"
+             onclick="openDetails('${g.id}')">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="font-semibold text-gray-900">${escapeHtml(g.name || '—')}</div>
+              <div class="text-xs text-gray-500 mt-1">ID: <span class="font-mono">${escapeHtml(g.id)}</span></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 justify-end">
+              ${tierBadge(g.vip)}
+              ${expiresTag}
+            </div>
+          </div>
+
+          <div class="mt-3 text-sm text-gray-700">
+            <div class="flex items-center gap-2">
+              <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
+              <span class="truncate">${escapeHtml(g.leaderEmail || '—')}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <i data-lucide="tag" class="w-4 h-4 text-gray-400"></i>
+              <span class="truncate">${escapeHtml(g.tag || '—')}</span>
+            </div>
+          </div>
+
+          <div class="mt-4 text-xs text-gray-500 flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+            <span>Criada: ${fmtDate(g.createdAt)}</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    lucide.createIcons();
+  }
+
 
       grid.innerHTML = filtered.map(g => `
         <div class="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 group">
