@@ -159,13 +159,18 @@ module.exports = async (req, res) => {
     const data = await r.json().catch(() => ({}));
 
     if (!r.ok) {
-      return json(res, 400, {
-        ok: false,
-        error: "Mercado Pago recusou a criação do pagamento.",
-        mp_status: r.status,
-        mp_response: data,
-      });
-    }
+  console.error("[MP_CREATE_PIX] Mercado Pago recusou", {
+    mp_status: r.status,
+    mp_response: data,
+  });
+
+  return json(res, 400, {
+    ok: false,
+    error: "Mercado Pago recusou a criação do pagamento.",
+    mp_status: r.status,
+    mp_response: data,
+  });
+}
 
     const paymentId = String(data.id || "");
     const status = String(data.status || "pending");
