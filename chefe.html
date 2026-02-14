@@ -369,6 +369,27 @@ function fmtDate(ts) {
              <button id="btn-save-vip" class="w-full mt-3 py-3 rounded-xl bg-emerald-600 text-white font-black text-xs hover:bg-emerald-700 transition">ATUALIZAR PLANO</button>
           </div>
 
+          <div class="p-4 bg-white rounded-2xl border border-gray-100">
+            <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">Informações da Guilda</p>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <p class="text-[10px] text-gray-500 font-black uppercase">Membros</p>
+                <p class="text-xl font-black text-gray-900 mt-1"><span id="members-count">—</span></p>
+              </div>
+              <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <p class="text-[10px] text-gray-500 font-black uppercase">Plano</p>
+                <p class="text-xl font-black text-gray-900 mt-1">${normalizeVip(g.vip).toUpperCase()}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-white rounded-2xl border border-gray-100">
+            <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Renomear Guilda</p>
+            <input id="edit-guild-name" type="text" value="${g.name.replaceAll('"','&quot;')}" class="w-full p-3 rounded-xl border border-gray-200 bg-white text-sm font-bold" />
+            <button id="btn-save-name" class="w-full mt-3 py-3 rounded-xl bg-gray-900 text-white font-black text-xs hover:bg-black transition">SALVAR NOME</button>
+            <p class="mt-2 text-[10px] text-gray-400">Atualiza o nome em <b>guildas</b> e <b>configGuilda</b>.</p>
+          </div>
+
           <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">Administração</p>
             <div class="space-y-2">
@@ -417,6 +438,30 @@ function fmtDate(ts) {
           closeDrawer();
           loadData();
         } catch(e) { console.error('VIP save error:', e); showToast('error', 'Erro ao salvar VIP.'); }
+      };
+
+
+      // Salvar nome da guilda (Chefe)
+      document.getElementById('btn-save-name').onclick = async () => {
+        const newName = (document.getElementById('edit-guild-name').value || '').trim();
+        if (!newName) { showToast('error', 'Nome inválido.'); return; }
+        const patchName = { name: newName, updatedAtMs: Date.now(), updatedAt: serverTimestamp() };
+        try {
+          // configGuilda pode não existir em alguns casos -> setDoc merge
+          try { await updateDoc(doc(db, 'configGuilda', gid), patchName); }
+          catch(_) { await setDoc(doc(db, 'configGuilda', gid), patchName, { merge: true }); }
+
+          // guildas
+          try { await updateDoc(doc(db, 'guildas', gid), patchName); }
+          catch(_) { await setDoc(doc(db, 'guildas', gid), patchName, { merge: true }); }
+
+          showToast('success', 'Nome da guilda atualizado.');
+          closeDrawer();
+          loadData();
+        } catch (e) {
+          console.error('NAME save error:', e);
+          showToast('error', 'Erro ao salvar nome da guilda.');
+        }
       };
     };
 
