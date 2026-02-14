@@ -22,9 +22,11 @@ function toLabel(mpStatus){
 
 function daysForPlan(plan){
   const p = String(plan || '').toLowerCase();
-  if (p === 'business') return Number(process.env.VIP_DAYS_BUSINESS || 30);
-  if (p === 'pro') return Number(process.env.VIP_DAYS_PRO || 30);
-  if (p === 'plus') return Number(process.env.VIP_DAYS_PLUS || 30);
+
+  if (p === 'business') return 365;
+  if (p === 'pro') return 30;
+  if (p === 'plus') return 30;
+
   return 30;
 }
 
