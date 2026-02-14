@@ -51,9 +51,9 @@ function absoluteUrl(req, path) {
 
 // Ajuste de preços (troque se quiser)
 const PLAN_PRICES = {
-  plus: 5,99,
-  pro: 8,99,
-  business: 6.99,
+  plus: 5.99,
+  pro: 8.99,
+  business: 61.99,
 };
 
 module.exports = async (req, res) => {
