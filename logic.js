@@ -77,7 +77,7 @@ try {
 } catch (_) {}
 
 
-export function getGuildContext() {
+export export function getGuildContext() {
   return __guildCtx;
 }
 
