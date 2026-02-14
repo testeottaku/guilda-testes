@@ -96,6 +96,13 @@ function normalizePlan(input) {
   return map[p] || p;
 }
 
+function makeIdempotencyKey() {
+  // Node 24 tem crypto.randomUUID em globalThis.crypto
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  return `idem_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
 module.exports = async (req, res) => {
   cors(res);
 
@@ -128,6 +135,9 @@ module.exports = async (req, res) => {
     if (!uid || !email || !guildId) {
       return json(res, 400, { ok: false, error: "Dados ausentes (uid/email/guildId)." });
     }
+    if (!email.includes("@")) {
+      return json(res, 400, { ok: false, error: "Email inválido para pagamento." });
+    }
 
     const amount = Number(PLAN_PRICES[plano]);
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -147,11 +157,14 @@ module.exports = async (req, res) => {
       external_reference: `guilda:${guildId}|uid:${uid}|plano:${plano}`,
     };
 
+    const idemKey = makeIdempotencyKey();
+
     const r = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${mpToken}`,
+        "X-Idempotency-Key": idemKey,
       },
       body: JSON.stringify(payload),
     });
@@ -159,18 +172,19 @@ module.exports = async (req, res) => {
     const data = await r.json().catch(() => ({}));
 
     if (!r.ok) {
-  console.error("[MP_CREATE_PIX] Mercado Pago recusou", {
-    mp_status: r.status,
-    mp_response: data,
-  });
+      console.error("[MP_CREATE_PIX] Mercado Pago recusou", {
+        mp_status: r.status,
+        mp_response: data,
+        idemKey,
+      });
 
-  return json(res, 400, {
-    ok: false,
-    error: "Mercado Pago recusou a criação do pagamento.",
-    mp_status: r.status,
-    mp_response: data,
-  });
-}
+      return json(res, 400, {
+        ok: false,
+        error: "Mercado Pago recusou a criação do pagamento.",
+        mp_status: r.status,
+        mp_response: data,
+      });
+    }
 
     const paymentId = String(data.id || "");
     const status = String(data.status || "pending");
@@ -195,6 +209,8 @@ module.exports = async (req, res) => {
         email,
         guildId,
         amount,
+        notification_url,
+        idempotencyKey: idemKey,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
