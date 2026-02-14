@@ -39,181 +39,20 @@
 </head>
 <body>
   <!-- Landing Page -->
-  <div class="min-h-screen text-white">
-    <!-- Top bar -->
-    <header class="sticky top-0 z-30 border-b border-white/10 bg-slate-950/40 backdrop-blur">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-2xl bg-white/10 ring-1 ring-white/10 flex items-center justify-center">
-            <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
-          </div>
-          <div class="leading-tight">
-            <p class="text-sm font-extrabold tracking-tight">Guilda • HUB</p>
-            <p class="text-[11px] text-white/60">Organização de guilda (foco em Free Fire)</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <a href="#como-funciona" class="hidden sm:inline-flex px-3 py-2 rounded-xl text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition">Como funciona</a>
-          <a href="#recursos" class="hidden sm:inline-flex px-3 py-2 rounded-xl text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition">Recursos</a>
-          <button id="auth-open" class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-black text-slate-950 hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20">
-            <i data-lucide="log-in" class="h-4 w-4"></i>
-            Entrar / Criar conta
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Hero -->
-    <section class="mx-auto max-w-6xl px-4 pt-14 pb-10">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
-        <div class="space-y-6">
-          <div class="reveal" data-delay="1">
-            <p class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold text-white/80 ring-1 ring-white/10">
-              <i data-lucide="sparkles" class="h-4 w-4 text-emerald-300"></i>
-              Central de gestão para guildas
-            </p>
-          </div>
-
-          <h1 class="reveal text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]" data-delay="2">
-            Sua guilda organizada em um painel único — rápido, simples e profissional.
-          </h1>
-
-          <p class="reveal text-white/70 leading-relaxed max-w-xl" data-delay="3">
-            O Guilda • HUB centraliza membros, lines, eventos e permissões. Ideal para quem quer reduzir bagunça,
-            evitar erros e ganhar velocidade no dia a dia da guilda — com foco no Free Fire.
-          </p>
-
-          <div class="reveal flex flex-col sm:flex-row gap-3" data-delay="4">
-            <button id="auth-open-2" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-4 text-sm font-black text-slate-950 hover:bg-emerald-400 transition shadow-xl shadow-emerald-500/25">
-              <i data-lucide="key-round" class="h-5 w-5"></i>
-              Acessar agora
-            </button>
-            <a href="#recursos" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-5 py-4 text-sm font-black text-white/85 hover:bg-white/15 transition ring-1 ring-white/10">
-              <i data-lucide="layout-grid" class="h-5 w-5"></i>
-              Ver recursos
-            </a>
-          </div>
-
-          <div class="reveal grid grid-cols-3 gap-3 pt-2" data-delay="4">
-            <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
-              <p class="text-xs font-bold text-white/60">Membros</p>
-              <p class="mt-1 text-lg font-black">Controle</p>
-            </div>
-            <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
-              <p class="text-xs font-bold text-white/60">Lines</p>
-              <p class="mt-1 text-lg font-black">Agilidade</p>
-            </div>
-            <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
-              <p class="text-xs font-bold text-white/60">Eventos</p>
-              <p class="mt-1 text-lg font-black">Organização</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="reveal" data-delay="2">
-          <div class="relative rounded-3xl bg-gradient-to-br from-white/10 to-white/5 ring-1 ring-white/10 p-6 overflow-hidden">
-            <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl"></div>
-            <div class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-green-500/15 blur-3xl"></div>
-
-            <div class="relative space-y-4">
-              <p class="text-xs font-black text-white/70 tracking-widest uppercase">O que você ganha</p>
-
-              <div class="grid gap-3">
-                <div class="flex items-start gap-3 rounded-2xl bg-slate-950/30 ring-1 ring-white/10 p-4">
-                  <i data-lucide="check-circle-2" class="h-5 w-5 text-emerald-300 mt-0.5"></i>
-                  <div>
-                    <p class="font-bold">Permissões e papéis</p>
-                    <p class="text-sm text-white/60 mt-1">Admin, líder secundário e acesso de jogador com regras claras.</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3 rounded-2xl bg-slate-950/30 ring-1 ring-white/10 p-4">
-                  <i data-lucide="check-circle-2" class="h-5 w-5 text-emerald-300 mt-0.5"></i>
-                  <div>
-                    <p class="font-bold">Painel com indicadores</p>
-                    <p class="text-sm text-white/60 mt-1">Visão rápida de tudo que importa, sem perder tempo.</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3 rounded-2xl bg-slate-950/30 ring-1 ring-white/10 p-4">
-                  <i data-lucide="check-circle-2" class="h-5 w-5 text-emerald-300 mt-0.5"></i>
-                  <div>
-                    <p class="font-bold">Organização para o FF</p>
-                    <p class="text-sm text-white/60 mt-1">Fluxos pensados para rotina de guilda no Free Fire.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
-                <p class="text-sm font-bold text-white/80">Dica</p>
-                <p class="text-sm text-white/60 mt-1">
-                  Use o HUB como “central oficial” e reduza dependência de planilhas e prints.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Recursos -->
-    <section id="recursos" class="mx-auto max-w-6xl px-4 py-12">
-      <div class="reveal">
-        <p class="text-xs font-black text-white/60 tracking-widest uppercase">Recursos</p>
-        <h2 class="mt-2 text-3xl font-black tracking-tight">Tudo para manter a guilda no controle</h2>
-        <p class="mt-3 text-white/65 max-w-2xl">
-          Estrutura clara, permissões seguras e telas objetivas para organização real.
-        </p>
-      </div>
-
-      <div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div class="reveal rounded-3xl bg-white/5 ring-1 ring-white/10 p-6" data-delay="1">
-          <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-            <i data-lucide="users" class="h-5 w-5 text-emerald-300"></i>
-          </div>
-          <h3 class="mt-4 font-black text-lg">Gestão de membros</h3>
-          <p class="mt-2 text-sm text-white/60">Cadastro, organização e ações rápidas com base no seu papel.</p>
-        </div>
-
-        <div class="reveal rounded-3xl bg-white/5 ring-1 ring-white/10 p-6" data-delay="2">
-          <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-            <i data-lucide="layers" class="h-5 w-5 text-emerald-300"></i>
-          </div>
-          <h3 class="mt-4 font-black text-lg">Lines e organização</h3>
-          <p class="mt-2 text-sm text-white/60">Monte lines, ajuste rapidamente e evite confusão no dia a dia.</p>
-        </div>
-
-        <div class="reveal rounded-3xl bg-white/5 ring-1 ring-white/10 p-6" data-delay="3">
-          <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-            <i data-lucide="trophy" class="h-5 w-5 text-emerald-300"></i>
-          </div>
-          <h3 class="mt-4 font-black text-lg">Campeonatos</h3>
-          <p class="mt-2 text-sm text-white/60">Estruture eventos e mantenha tudo visível com consistência.</p>
-        </div>
-
-        <div class="reveal rounded-3xl bg-white/5 ring-1 ring-white/10 p-6" data-delay="1">
-          <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-            <i data-lucide="shield-check" class="h-5 w-5 text-emerald-300"></i>
-          </div>
-          <h3 class="mt-4 font-black text-lg">Permissões seguras</h3>
-          <p class="mt-2 text-sm text-white/60">Ações controladas por regras (líder/admin/jogador/CEO).</p>
-        </div>
-
-        <div class="reveal rounded-3xl bg-white/5 ring-1 ring-white/10 p-6" data-delay="2">
+<div class="reveal rounded-3xl bg-slate-50 ring-1 ring-slate-200 p-6" data-delay="2">
           <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
             <i data-lucide="zap" class="h-5 w-5 text-emerald-300"></i>
           </div>
           <h3 class="mt-4 font-black text-lg">Rápido e leve</h3>
-          <p class="mt-2 text-sm text-white/60">Interface simples, sem peso, ideal para uso diário.</p>
+          <p class="mt-2 text-sm text-slate-900/60">Interface simples, sem peso, ideal para uso diário.</p>
         </div>
 
-        <div class="reveal rounded-3xl bg-white/5 ring-1 ring-white/10 p-6" data-delay="3">
+        <div class="reveal rounded-3xl bg-slate-50 ring-1 ring-slate-200 p-6" data-delay="3">
           <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
             <i data-lucide="badge-check" class="h-5 w-5 text-emerald-300"></i>
           </div>
           <h3 class="mt-4 font-black text-lg">Foco no FF</h3>
-          <p class="mt-2 text-sm text-white/60">Fluxo pensado para rotina de guilda, line e campeonato.</p>
+          <p class="mt-2 text-sm text-slate-900/60">Fluxo pensado para rotina de guilda, line e campeonato.</p>
         </div>
       </div>
     </section>
@@ -221,36 +60,36 @@
     <!-- Como funciona -->
     <section id="como-funciona" class="mx-auto max-w-6xl px-4 pb-10">
       <div class="reveal">
-        <p class="text-xs font-black text-white/60 tracking-widest uppercase">Como funciona</p>
+        <p class="text-xs font-black text-slate-900/60 tracking-widest uppercase">Como funciona</p>
         <h2 class="mt-2 text-3xl font-black tracking-tight">Em 3 passos</h2>
       </div>
 
       <div class="mt-8 grid gap-4 lg:grid-cols-3">
-        <div class="reveal rounded-3xl bg-slate-950/30 ring-1 ring-white/10 p-6" data-delay="1">
+        <div class="reveal rounded-3xl bg-white/30 ring-1 ring-slate-200 p-6" data-delay="1">
           <p class="text-[11px] font-black text-emerald-300 tracking-widest uppercase">01</p>
           <h3 class="mt-2 font-black text-lg">Crie sua guilda</h3>
-          <p class="mt-2 text-sm text-white/60">Cadastre e defina a base: nome, líderes e regras.</p>
+          <p class="mt-2 text-sm text-slate-900/60">Cadastre e defina a base: nome, líderes e regras.</p>
         </div>
-        <div class="reveal rounded-3xl bg-slate-950/30 ring-1 ring-white/10 p-6" data-delay="2">
+        <div class="reveal rounded-3xl bg-white/30 ring-1 ring-slate-200 p-6" data-delay="2">
           <p class="text-[11px] font-black text-emerald-300 tracking-widest uppercase">02</p>
           <h3 class="mt-2 font-black text-lg">Organize membros e lines</h3>
-          <p class="mt-2 text-sm text-white/60">Mantenha tudo atualizado sem depender de planilhas.</p>
+          <p class="mt-2 text-sm text-slate-900/60">Mantenha tudo atualizado sem depender de planilhas.</p>
         </div>
-        <div class="reveal rounded-3xl bg-slate-950/30 ring-1 ring-white/10 p-6" data-delay="3">
+        <div class="reveal rounded-3xl bg-white/30 ring-1 ring-slate-200 p-6" data-delay="3">
           <p class="text-[11px] font-black text-emerald-300 tracking-widest uppercase">03</p>
           <h3 class="mt-2 font-black text-lg">Controle com segurança</h3>
-          <p class="mt-2 text-sm text-white/60">Papéis definidos e ações protegidas pelas regras do Firestore.</p>
+          <p class="mt-2 text-sm text-slate-900/60">Papéis definidos e ações protegidas pelas regras do Firestore.</p>
         </div>
       </div>
 
-      <div class="reveal mt-10 rounded-3xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="reveal mt-10 rounded-3xl bg-slate-50 ring-1 ring-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <p class="text-sm font-black">Pronto para começar?</p>
-          <p class="text-sm text-white/60 mt-1">Acesse agora e monte sua guilda no HUB.</p>
+          <p class="text-sm text-slate-900/60 mt-1">Acesse agora e monte sua guilda no HUB.</p>
         </div>
         <button id="auth-open-3" class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-slate-950 hover:bg-emerald-400 transition">
           <i data-lucide="arrow-right" class="h-5 w-5"></i>
-          Entrar / Criar conta
+          Entrar
         </button>
       </div>
     </section>
@@ -265,7 +104,7 @@
   <div id="login-screen" class="login-screen">
     <div class="auth-overlay" id="auth-overlay"></div>
     <div class="auth-panel">
-      <button id="auth-close" class="auth-close p-2 rounded-xl bg-white/10 text-white hover:bg-white/15 transition" aria-label="Fechar">
+      <button id="auth-close" class="auth-close p-2 rounded-xl bg-white text-slate-900 hover:bg-white/15 transition" aria-label="Fechar">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
     <div class="login-card">
@@ -289,7 +128,7 @@
           <input id="password" type="password" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all" placeholder="••••••••" required />
         </div>
 
-        <button id="btn-login" type="submit" class="mt-1 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-sm shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+        <button id="btn-login" type="submit" class="mt-1 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-slate-900 font-bold text-sm shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2">
           <span>Entrar</span>
         </button>
 
@@ -329,7 +168,7 @@
       </div>
 
       <button id="btn-signup" type="submit"
-        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60">
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-slate-900 shadow-sm hover:bg-emerald-700 disabled:opacity-60">
         <span>Criar conta</span>
       </button>
     </form>
@@ -440,33 +279,33 @@
   </div>
 
 <!-- OTK Footer -->
-  <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 bg-slate-950 text-white">
+  <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 bg-white text-slate-900">
     <div class="mx-auto w-full max-w-5xl px-4 py-10">
       <div class="flex flex-col items-center gap-4">
         <div class="flex items-center justify-center gap-3">
           <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
-             class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10 transition hover:bg-white/15"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-white ring-1 ring-slate-200 transition hover:bg-white/15"
              aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
             <i data-lucide="instagram" class="h-5 w-5"></i>
           </a>
           <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
-             class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10 transition hover:bg-white/15"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-white ring-1 ring-slate-200 transition hover:bg-white/15"
              aria-label="Instagram gaming: @gameotk" title="@gameotk">
             <i data-lucide="instagram" class="h-5 w-5"></i>
           </a>
           <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
-             class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10 transition hover:bg-white/15"
+             class="flex h-11 w-11 items-center justify-center rounded-full bg-white ring-1 ring-slate-200 transition hover:bg-white/15"
              aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
             <i data-lucide="globe" class="h-5 w-5"></i>
           </a>
         </div>
 
         <div class="text-center">
-          <p class="text-sm font-semibold tracking-wide text-white/90">Ottakubrasil • Guilda Hub</p>
-          <p class="mt-2 max-w-xl text-xs leading-relaxed text-white/65">
+          <p class="text-sm font-semibold tracking-wide text-slate-900/90">Ottakubrasil • Guilda Hub</p>
+          <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-900/65">
             Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
           </p>
-          <p class="mt-4 text-xs text-white/50">© Ottakubrasil</p>
+          <p class="mt-4 text-xs text-slate-900/50">© Ottakubrasil</p>
         </div>
       </div>
     </div>
