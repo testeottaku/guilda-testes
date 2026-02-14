@@ -56,6 +56,46 @@ const PLAN_PRICES = {
   business: 61.99,
 };
 
+// Normaliza e mapeia variações que o front pode enviar
+function normalizePlan(input) {
+  let p = String(input || "").toLowerCase().trim();
+
+  // remove prefixos comuns
+  p = p
+    .replace(/^plano[_-]?/g, "")
+    .replace(/^vip[_-]?/g, "")
+    .replace(/^plan[_-]?/g, "")
+    .replace(/\s+/g, "");
+
+  // remove sufixos comuns
+  p = p
+    .replace(/[_-]?mensal$/g, "")
+    .replace(/[_-]?monthly$/g, "")
+    .replace(/[_-]?anual$/g, "")
+    .replace(/[_-]?yearly$/g, "")
+    .replace(/[_-]?ano$/g, "");
+
+  // aliases
+  const map = {
+    "+": "plus",
+    plus: "plus",
+    basic: "plus",
+    free: "plus",
+
+    pro: "pro",
+    premium: "pro",
+
+    business: "business",
+    empresa: "business",
+    anual: "business",
+    yearly: "business",
+    year: "business",
+    ano: "business",
+  };
+
+  return map[p] || p;
+}
+
 module.exports = async (req, res) => {
   cors(res);
 
@@ -74,13 +114,16 @@ module.exports = async (req, res) => {
 
     // Body pode chegar como string
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const plano = String(body.plano || "").toLowerCase();
+
+    const planoRaw = body.plano;
+    const plano = normalizePlan(planoRaw);
+
     const uid = String(body.uid || "");
     const email = String(body.email || "");
     const guildId = String(body.guildId || "");
 
     if (!plano || !PLAN_PRICES[plano]) {
-      return json(res, 400, { ok: false, error: "Plano inválido." });
+      return json(res, 400, { ok: false, error: `Plano inválido: ${planoRaw}` });
     }
     if (!uid || !email || !guildId) {
       return json(res, 400, { ok: false, error: "Dados ausentes (uid/email/guildId)." });
@@ -116,7 +159,6 @@ module.exports = async (req, res) => {
     const data = await r.json().catch(() => ({}));
 
     if (!r.ok) {
-      // Retorna o erro do MP para facilitar debug
       return json(res, 400, {
         ok: false,
         error: "Mercado Pago recusou a criação do pagamento.",
@@ -128,7 +170,6 @@ module.exports = async (req, res) => {
     const paymentId = String(data.id || "");
     const status = String(data.status || "pending");
 
-    // QR / Copia e Cola
     const tx = data.point_of_interaction?.transaction_data || {};
     const qrCode = tx.qr_code || "";
     const qrBase64 = tx.qr_code_base64 || "";
@@ -161,6 +202,7 @@ module.exports = async (req, res) => {
       qrCode,
       qrBase64,
       amount,
+      plano,
     });
   } catch (err) {
     return json(res, 500, { ok: false, error: String(err && err.message ? err.message : err) });
