@@ -128,7 +128,7 @@
   </div>
 
 <script type="module">
-  import { checkAuth, setupSidebar, initIcons, logout, getVipTier, showToast, createUpgradeSolicitacao, getGuildContext, applyVipUiAndGates } from './logic.js';
+  import { checkAuth, setupSidebar, initIcons, logout, getVipTier, showToast, getGuildContext, applyVipUiAndGates, auth } from './logic.js';
 
   setupSidebar();
 
@@ -247,15 +247,59 @@
     `;
   }
 
+  
+  // --- Pagamento Mercado Pago (PIX automático) ------------------------------
   window.requestUpgrade = (planId) => {
-    openPixModal(planId);
+    openPaymentModal(planId);
   };
 
-  function openPixModal(planId) {
+  function statusLabelFromMp(status){
+    const s = (status || '').toString().toLowerCase();
+    if (s === 'approved') return 'aprovado';
+    if (s === 'pending' || s === 'in_process') return 'pendente';
+    if (s === 'rejected') return 'recusado';
+    if (s === 'cancelled' || s === 'expired' || s === 'refunded' || s === 'charged_back') return 'expirado';
+    return s || 'pendente';
+  }
+
+  function badgeClass(status){
+    const s = statusLabelFromMp(status);
+    if (s === 'aprovado') return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
+    if (s === 'pendente') return 'bg-amber-50 text-amber-700 ring-amber-200';
+    if (s === 'recusado') return 'bg-rose-50 text-rose-700 ring-rose-200';
+    if (s === 'expirado') return 'bg-gray-100 text-gray-700 ring-gray-200';
+    return 'bg-gray-100 text-gray-700 ring-gray-200';
+  }
+
+  async function createPixPayment(planId){
+    const user = auth.currentUser;
+    if (!user) throw new Error('Você precisa estar logado.');
+    const idToken = await user.getIdToken(true);
+
+    const res = await fetch('/api/mp_create_pix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planId, idToken })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data?.error || 'Falha ao criar pagamento.');
+    }
+    return data;
+  }
+
+  async function fetchPaymentStatus(paymentId){
+    const res = await fetch(`/api/mp_status?paymentId=${encodeURIComponent(paymentId)}`, { method: 'GET' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || 'Falha ao consultar status.');
+    return data;
+  }
+
+  function openPaymentModal(planId){
     const plan = (planId || '').toString().toLowerCase().trim();
-    const pix = PIX_BY_PLAN[plan];
-    if (!pix) {
-      showToast('error', 'Plano inválido para pagamento.');
+    if (!['plus','pro','business'].includes(plan)) {
+      showToast('error', 'Plano inválido.');
       return;
     }
 
@@ -264,63 +308,148 @@
       <div class="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
         <div>
           <div class="text-sm font-extrabold text-gray-900">Pagamento via PIX — ${plan.toUpperCase()}</div>
-          <div class="text-xs text-gray-500 mt-0.5">Copie o código abaixo e pague no seu banco.</div>
+          <div class="text-xs text-gray-500 mt-0.5">Gerando cobrança…</div>
         </div>
         <button class="p-2 rounded-lg hover:bg-gray-50 text-gray-500" data-close="1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <div class="p-4">
-        <label class="text-xs font-bold text-gray-600">PIX Copia e Cola</label>
-        <textarea id="pix-code" class="mt-2 w-full h-28 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-200" readonly></textarea>
-        <div class="mt-3 flex flex-col sm:flex-row gap-2">
-          <button id="btn-copy-pix" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-black transition"><i data-lucide="copy" class="w-4 h-4"></i> Copiar código</button>
-          <button id="btn-already-paid" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition"><i data-lucide="badge-check" class="w-4 h-4"></i> Já paguei</button>
+
+      <div class="p-4 space-y-4">
+        <div class="flex items-center justify-between gap-3">
+          <div class="text-xs text-gray-600">Status do pagamento</div>
+          <div id="pay-status" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 bg-gray-100 text-gray-700 ring-gray-200 text-xs font-extrabold">
+            <span class="w-2 h-2 rounded-full bg-current opacity-70"></span>
+            <span id="pay-status-text">pendente</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 flex items-center justify-center">
+            <div class="text-center">
+              <div id="qr-wrap" class="hidden">
+                <img id="qr-img" class="mx-auto w-48 h-48 rounded-xl bg-white p-2 border border-gray-200" alt="QR Code PIX"/>
+                <div class="mt-2 text-xs text-gray-600">Aponte a câmera do banco no QR Code</div>
+              </div>
+              <div id="qr-loading" class="text-sm text-gray-600">Carregando QR Code…</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-600">PIX Copia e Cola</label>
+            <textarea id="pix-code" class="mt-2 w-full h-36 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-200" readonly></textarea>
+            <div class="mt-3 flex flex-col sm:flex-row gap-2">
+              <button id="btn-copy-pix" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-black transition" disabled>
+                <i data-lucide="copy" class="w-4 h-4"></i> Copiar código
+              </button>
+              <button id="btn-refresh-status" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition" disabled>
+                <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Atualizar status
+              </button>
+            </div>
+            <div class="mt-2 text-[11px] text-gray-500">
+              O status muda automaticamente quando o pagamento for aprovado.
+            </div>
+          </div>
         </div>
       </div>
     `);
 
-    const ta = root.querySelector('#pix-code');
-    if (ta) ta.value = pix;
-    root.querySelectorAll('[data-close="1"]').forEach(el => el.addEventListener('click', closeModals));
-    root.querySelector('#btn-copy-pix').onclick = () => {
-      navigator.clipboard.writeText(pix);
-      showToast('success', 'Código PIX copiado.');
-    };
-    root.querySelector('#btn-already-paid').onclick = () => openPaidModal(plan);
-    try { lucide.createIcons(); } catch (_) {}
-  }
+    root.querySelectorAll('[data-close="1"]').forEach(el => el.addEventListener('click', () => { closeModals(); stopPoll(); }));
 
-  function openPaidModal(planId) {
-    const root = ensureModalRoot();
-    root.innerHTML = modalShell(`
-      <div class="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
-        <div class="text-sm font-extrabold text-gray-900">Confirmar pagamento — ${planId.toUpperCase()}</div>
-        <button class="p-2 rounded-lg hover:bg-gray-50 text-gray-500" data-close="1"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <div class="p-4">
-        <label class="text-xs font-bold text-gray-600">Nome real do pagador</label>
-        <input id="payer-name" class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-200" placeholder="Ex: João da Silva" />
-        <div class="mt-3 flex flex-col sm:flex-row gap-2">
-          <button id="btn-back" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold transition"><i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar</button>
-          <button id="btn-send" class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 transition"><i data-lucide="send" class="w-4 h-4"></i> Enviar solicitação</button>
-        </div>
-      </div>
-    `);
+    let pollTimer = null;
+    let currentPaymentId = null;
 
-    root.querySelectorAll('[data-close="1"]').forEach(el => el.addEventListener('click', closeModals));
-    root.querySelector('#btn-back').onclick = () => openPixModal(planId);
-    root.querySelector('#btn-send').onclick = async () => {
-      const name = root.querySelector('#payer-name').value.trim();
-      if (!name) return showToast('error', 'Informe o nome do pagador.');
+    function setStatus(mpStatus){
+      const label = statusLabelFromMp(mpStatus);
+      const pill = root.querySelector('#pay-status');
+      const text = root.querySelector('#pay-status-text');
+      if (text) text.textContent = label;
+
+      if (pill) {
+        pill.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 text-xs font-extrabold ${badgeClass(mpStatus)}`;
+      }
+    }
+
+    function stopPoll(){
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = null;
+    }
+
+    async function tick(){
+      if (!currentPaymentId) return;
       try {
-        await createUpgradeSolicitacao(planId, name);
-        showToast('success', 'Solicitação enviada!');
+        const data = await fetchPaymentStatus(currentPaymentId);
+        setStatus(data.status);
+
+        if (statusLabelFromMp(data.status) === 'aprovado') {
+          stopPoll();
+          showToast('success', 'Pagamento aprovado! Liberando plano…');
+          // Recarrega para atualizar VIP e liberar recursos
+          setTimeout(() => window.location.href = 'dashboard.html', 1200);
+        }
+      } catch (_) {
+        // silencioso: o botão "Atualizar status" resolve caso a rede falhe
+      }
+    }
+
+    // UI handlers
+    const btnCopy = root.querySelector('#btn-copy-pix');
+    const btnRefresh = root.querySelector('#btn-refresh-status');
+    btnRefresh.onclick = () => tick();
+
+    (async () => {
+      try {
+        const data = await createPixPayment(plan);
+        currentPaymentId = data.paymentId;
+
+        // PIX code
+        const ta = root.querySelector('#pix-code');
+        if (ta) ta.value = data.copiaECola || data.qrCode || '';
+
+        // QR
+        const qrLoading = root.querySelector('#qr-loading');
+        const qrWrap = root.querySelector('#qr-wrap');
+        const qrImg = root.querySelector('#qr-img');
+
+        if (data.qrCodeBase64 && qrImg) {
+          qrImg.src = `data:image/png;base64,${data.qrCodeBase64}`;
+          if (qrLoading) qrLoading.classList.add('hidden');
+          if (qrWrap) qrWrap.classList.remove('hidden');
+        } else {
+          if (qrLoading) qrLoading.textContent = 'QR Code indisponível. Use o código Copia e Cola.';
+        }
+
+        // status
+        setStatus(data.status || 'pending');
+
+        // enable buttons
+        if (btnCopy) btnCopy.disabled = false;
+        if (btnRefresh) btnRefresh.disabled = false;
+
+        if (btnCopy) {
+          btnCopy.onclick = () => {
+            const txt = (root.querySelector('#pix-code')?.value || '').trim();
+            if (!txt) return;
+            navigator.clipboard.writeText(txt);
+            showToast('success', 'Código PIX copiado.');
+          };
+        }
+
+        // Poll
+        pollTimer = setInterval(tick, 3500);
+        await tick();
+
+      } catch (e) {
+        showToast('error', e?.message || 'Erro ao gerar pagamento.');
         closeModals();
-      } catch (e) { showToast('error', 'Erro ao enviar.'); }
-    };
+      } finally {
+        try { lucide.createIcons(); } catch (_) {}
+      }
+    })();
+
     try { lucide.createIcons(); } catch (_) {}
   }
 
   function render(){
+
     const plans = getPlans();
     const currentTier = currentTierFromCache();
 
