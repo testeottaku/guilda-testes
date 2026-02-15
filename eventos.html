@@ -14,8 +14,6 @@
 
   <style>
     /* micro UX */
-    .clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-
     .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
     .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
 
@@ -43,6 +41,8 @@
   .dd-item:hover { background: rgba(15,23,42,.06); }
   .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#065f46; font-weight:800; }
 
+
+  .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 </style>
 </head>
 <body class="min-h-screen bg-white text-slate-900">
@@ -197,12 +197,6 @@ const ddLabel = document.getElementById('filterLabel');
 let allItems = [];
 
 const safeStr = (v) => (v == null ? '' : String(v));
-const escapeHtml = (s) => safeStr(s)
-  .replace(/&/g,'&amp;')
-  .replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;')
-  .replace(/'/g,'&#39;');
 const norm = (v) => safeStr(v).toLowerCase().trim();
 
 function setStatus(msg = "") {
@@ -246,6 +240,50 @@ function moneyBRL(v) {
   }
 }
 
+
+
+function statusPt(raw) {
+  const s = norm(raw).replace(/\s+/g,'_');
+  const map = {
+    open: "ABERTO",
+    opened: "ABERTO",
+    active: "ABERTO",
+    scheduled: "AGENDADO",
+    schedule: "AGENDADO",
+    soon: "EM BREVE",
+    in_progress: "EM ANDAMENTO",
+    running: "EM ANDAMENTO",
+    live: "EM ANDAMENTO",
+    ongoing: "EM ANDAMENTO",
+    closed: "ENCERRADO",
+    finished: "FINALIZADO",
+    completed: "FINALIZADO",
+    cancel: "CANCELADO",
+    cancelled: "CANCELADO",
+    canceled: "CANCELADO"
+  };
+  if (!s) return "";
+  return map[s] || map[s.toLowerCase()] || raw.toString().toUpperCase();
+}
+
+function fmtDateTime(v) {
+  if (v == null || v === "") return "";
+  // aceita ms number, Timestamp-like, ou string
+  try {
+    if (typeof v === "number" && isFinite(v)) return new Date(v).toLocaleString("pt-BR");
+    if (typeof v === "string") {
+      const n = Number(v);
+      if (isFinite(n) && n > 0 && v.trim().length >= 10) return new Date(n).toLocaleString("pt-BR");
+      // tenta ISO / dd/mm
+      const d = new Date(v);
+      if (!isNaN(d.getTime())) return d.toLocaleString("pt-BR");
+    }
+    if (typeof v === "object" && v.seconds) return new Date(v.seconds*1000).toLocaleString("pt-BR");
+  } catch(_) {}
+  return safeStr(v);
+}
+
+
 function getTypeFlags(d) {
   const mode = norm(d.mode || d.modo || d.brMode);
   const matchup = norm(d.matchup || d.xvx || d.partida || d.duelo);
@@ -287,35 +325,6 @@ function tag(text, cls = "bg-slate-100 text-slate-700 ring-1 ring-slate-200") {
   return `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${cls}">${text}</span>`;
 }
 
-
-function translateStatus(raw){
-  const r = safeStr(raw).trim();
-  if (!r) return "";
-  const key = norm(r).replace(/[_-]+/g, " ").trim();
-  const map = {
-    "open":"ABERTO",
-    "opened":"ABERTO",
-    "active":"ATIVO",
-    "running":"EM ANDAMENTO",
-    "in progress":"EM ANDAMENTO",
-    "inprogress":"EM ANDAMENTO",
-    "progress":"EM ANDAMENTO",
-    "pending":"PENDENTE",
-    "waiting":"AGUARDANDO",
-    "scheduled":"AGENDADO",
-    "schedule":"AGENDADO",
-    "closed":"ENCERRADO",
-    "close":"ENCERRADO",
-    "finished":"FINALIZADO",
-    "ended":"FINALIZADO",
-    "done":"FINALIZADO",
-    "canceled":"CANCELADO",
-    "cancelled":"CANCELADO",
-    "paused":"PAUSADO"
-  };
-  return (map[key] || r).toString().toUpperCase();
-}
-
 function render(items) {
   if (!elGrid) return;
 
@@ -341,7 +350,7 @@ function render(items) {
 
   const row = (ico, label, value) => {
     if (!value) return '';
-    return `<div class="flex items-center justify-start gap-2 text-xs text-slate-600 text-left">
+    return `<div class="flex items-center gap-2 text-xs text-slate-600">
       <i data-lucide="${ico}" class="h-4 w-4 text-slate-500"></i>
       <span class="font-semibold text-slate-700">${label}:</span>
       <span class="truncate">${safeStr(value)}</span>
@@ -354,8 +363,7 @@ function render(items) {
 
     const title = safeStr(it.title || "Evento");
     const guildName = safeStr(it.guildName || "Guilda");
-    const descFull = safeStr(it.description || "");
-    const desc = descFull ? (descFull.length > 75 ? (descFull.slice(0, 75) + "…") : descFull) : "";
+    const desc = safeStr(it.description || "");
 
     const link = safeStr(pick(d, ["link","destino","url","contactLink","infoLink"], "")).trim();
 
@@ -373,84 +381,67 @@ function render(items) {
 
     const prize = moneyBRL(pick(d, ["prizeTotal","premiacao","premio","prize"], ""));
 
-    
     const b64 = safeStr(pick(d, ["photoBase64","fotoBase64","imageBase64","bannerBase64","foto","imagem"], "")).trim();
-    const iconNameRaw = safeStr(pick(d, ["icon","icone","symbol"], "")).trim();
-    const iconName = iconNameRaw && /^[a-z0-9-]+$/i.test(iconNameRaw) ? iconNameRaw : "";
-
     const thumb = (() => {
       if (b64) {
         const src = b64.startsWith("data:") ? b64 : `data:image/jpeg;base64,${b64}`;
         return `<img src="${src}" alt="Evento" class="h-14 w-14 rounded-2xl object-cover ring-1 ring-slate-200 bg-slate-100" loading="lazy" />`;
       }
-      if (iconName) {
-        return `<div class="h-14 w-14 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20 grid place-items-center">
-          <i data-lucide="${iconName}" class="h-7 w-7 text-emerald-700"></i>
-        </div>`;
-      }
+      const ico = safeStr(pick(d, ["icon","icone","symbol"], "")).trim();
+      const useIco = ico ? ico : (isPaid ? "badge-dollar-sign" : "trophy");
       return `<div class="h-14 w-14 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20 grid place-items-center">
-        <i data-lucide="${isPaid ? "badge-dollar-sign" : "trophy"}" class="h-6 w-6 text-emerald-700"></i>
+        <i data-lucide="${useIco}" class="h-6 w-6 text-emerald-700"></i>
       </div>`;
     })();
 
-    const progressRaw = safeStr(pick(d, ["progress","progresso","status","statusProgress","andamento"], "")).trim();
-    const progressTxt = progressRaw ? translateStatus(progressRaw) : "";
+    const statusRaw = pick(d, ["progress","progresso","status","andamento"], "");
+const statusShow = statusRaw ? statusPt(statusRaw) : "";
 
-    const dateRaw = safeStr(pick(d, ["date","data","dia","day"], "")).trim();
-    const timeRaw = safeStr(pick(d, ["time","hora","hour"], "")).trim();
-    const dateTimeRaw = safeStr(pick(d, ["dateTime","datetime","startsAt","startAt","inicioAt","inicioEm"], "")).trim();
-    const dateTimeTxt = (dateTimeRaw || [dateRaw, timeRaw].filter(Boolean).join(" • ")).trim();
+const whenRaw = pick(d, ["dateTime","datetime","when","dataHora","data_hora","date","data","hora","time","startAt","startsAt","scheduledAtMs","scheduledAt","startMs"], "");
+const whenShow = fmtDateTime(whenRaw);
 
-    const topPills = [
-      iconPill("users", guildName),
-      t.isXVX ? iconPill("swords", modeTxt.toUpperCase()) : iconPill("zap", modeTxt.toUpperCase()),
-      isPaid ? iconPill("badge-dollar-sign", "PAGO") : iconPill("leaf", "GRÁTIS"),
-      prize ? iconPill("trophy", `${prize}`) : "",
-      dateTimeTxt ? iconPill("calendar-clock", dateTimeTxt) : "",
-      progressTxt ? iconPill("activity", progressTxt) : ""
-    ].filter(Boolean).join("");
-
-    const descHtml = desc ? `<p class="mt-2 text-sm text-slate-600 leading-relaxed clamp-2">${escapeHtml(desc)}</p>` : ``;
+const topPills = [
+  iconPill("users", guildName),
+  statusShow ? iconPill("activity", statusShow) : "",
+  whenShow ? iconPill("calendar", whenShow) : "",
+  t.isXVX ? iconPill("swords", modeTxt.toUpperCase()) : iconPill("zap", modeTxt.toUpperCase()),
+  isPaid ? iconPill("badge-dollar-sign", "PAGO") : iconPill("leaf", "GRÁTIS"),
+  prize ? iconPill("trophy", `Premiação ${prize}`) : ""
+].filter(Boolean).join("");
 
     return `<article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
       <div class="p-5">
-        <div class="flex items-start gap-4">
+        <div class="flex items-start gap-3">
           ${thumb}
-
           <div class="min-w-0 flex-1">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <div class="truncate text-base font-black text-slate-900">${title}</div>
+                <div class="text-xs text-slate-500">Por <span class="font-semibold text-slate-700">${guildName}</span></div>
               </div>
-
               ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
                 class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-slate-800">
                 Ver <i data-lucide="arrow-right" class="h-4 w-4"></i>
               </a>` : ``}
             </div>
 
-            ${descHtml}
-          </div>
+            ${desc ? `<p class="mt-2 text-sm text-slate-600 leading-relaxed clamp2">${desc}</p>` : ``}
 
-          <div class="w-[220px] shrink-0 text-left">
-            <div class="flex flex-wrap justify-start gap-2">
+            <div class="mt-3 flex flex-wrap gap-2 justify-start text-left">
               ${topPills}
             </div>
 
-            <div class="mt-3 grid grid-cols-1 gap-2 justify-items-start">
-              ${location ? row("map-pin", "Local", location) : ``}
-              ${t.isXVX ? row("layers", "Formato", modeTxt) : row("zap", "Modo", modeTxt)}
-              ${!t.isXVX && drops ? row("repeat", "Quedas", drops) : ``}
-              ${max ? row("users-2", t.isXVX ? "Equipes" : "Participantes", max) : ``}
-              ${row("wallet", "Inscrição", feeText)}
+            <div class="mt-4 grid grid-cols-1 gap-2">
+              ${row("map-pin", "Local", location)}
+              ${!t.isXVX ? row("repeat", "Quedas", drops) : ``}
+              ${row("users-2", t.isXVX ? "Equipes" : "Participantes", max)}
             </div>
 
-            ${!link ? `<div class="mt-2 text-xs text-slate-400">Sem link de informações</div>` : ``}
+            ${!link ? `<div class="mt-3 text-xs text-slate-400">Sem link de informações</div>` : ``}
           </div>
         </div>
       </div>
     </article>`;
-
   }).join('');
 
   try { initIcons(); } catch (_) {}
