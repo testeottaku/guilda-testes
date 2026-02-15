@@ -404,42 +404,40 @@ const topPills = [
   iconPill("users", guildName),
   statusShow ? iconPill("activity", statusShow) : "",
   whenShow ? iconPill("calendar", whenShow) : "",
-  t.isXVX ? iconPill("swords", modeTxt.toUpperCase()) : iconPill("zap", modeTxt.toUpperCase()),
-  isPaid ? iconPill("badge-dollar-sign", "PAGO") : iconPill("leaf", "GRÁTIS"),
   prize ? iconPill("trophy", `Premiação ${prize}`) : ""
 ].filter(Boolean).join("");
 
     return `<article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
       <div class="p-5">
-        <div class="flex items-start gap-3">
-          ${thumb}
-          <div class="min-w-0 flex-1">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="truncate text-base font-black text-slate-900">${title}</div>
-                <div class="text-xs text-slate-500">Por <span class="font-semibold text-slate-700">${guildName}</span></div>
-              </div>
-              ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-slate-800">
-                Ver <i data-lucide="arrow-right" class="h-4 w-4"></i>
-              </a>` : ``}
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0">
+            ${thumb}
+            <div class="min-w-0">
+              <div class="truncate text-base font-black text-slate-900">${title}</div>
+              <div class="text-xs text-slate-500">Por <span class="font-semibold text-slate-700">${guildName}</span></div>
             </div>
-
-            ${desc ? `<p class="mt-2 text-sm text-slate-600 leading-relaxed clamp2">${desc}</p>` : ``}
-
-            <div class="mt-3 flex flex-wrap gap-2 justify-start text-left">
-              ${topPills}
-            </div>
-
-            <div class="mt-4 grid grid-cols-1 gap-2">
-              ${row("map-pin", "Local", location)}
-              ${!t.isXVX ? row("repeat", "Quedas", drops) : ``}
-              ${row("users-2", t.isXVX ? "Equipes" : "Participantes", max)}
-            </div>
-
-            ${!link ? `<div class="mt-3 text-xs text-slate-400">Sem link de informações</div>` : ``}
           </div>
+          ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
+            class="shrink-0 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-slate-800">
+            Ver <i data-lucide="arrow-right" class="h-4 w-4"></i>
+          </a>` : ``}
         </div>
+
+        ${desc ? `<p class="mt-3 text-sm text-slate-600 leading-relaxed clamp2">${desc}</p>` : ``}
+
+        <div class="mt-3 flex flex-wrap gap-2 justify-start text-left">
+          ${topPills}
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          ${row(t.isXVX ? "swords" : "zap", "Modo", modeTxt.toUpperCase())}
+          ${row("badge-dollar-sign", "Inscrição", feeText)}
+          ${row("map-pin", "Local", location)}
+          ${!t.isXVX ? row("repeat", "Quedas", drops) : ``}
+          ${row("users-2", t.isXVX ? "Equipes" : "Participantes", max)}
+        </div>
+
+        ${!link ? `<div class="mt-3 text-xs text-slate-400">Sem link de informações</div>` : ``}
       </div>
     </article>`;
   }).join('');
