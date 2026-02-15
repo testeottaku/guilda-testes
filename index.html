@@ -68,6 +68,39 @@
     }
     .nav-primary:hover{ filter: brightness(.98); background: linear-gradient(to right, rgba(16,185,129,1), rgba(21,128,61,1)); }
 
+  
+    .filter-item{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:.85rem 1rem;
+      border-radius:1.1rem;
+      border:1px solid rgba(226,232,240,1);
+      background:#fff;
+      font-size:.85rem;
+      font-weight:900;
+      color: rgb(15,23,42);
+      transition: background .15s ease, border-color .15s ease, transform .08s ease;
+    }
+    .filter-item:hover{ background: rgba(248,250,252,1); }
+    .filter-item:active{ transform: scale(.99); }
+    .filter-item.on{ border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.10); color: rgba(6,95,70,1); }
+
+    .filter-clear{
+      padding:.7rem 1rem;
+      border-radius:1.1rem;
+      font-size:.8rem;
+      font-weight:900;
+      border:1px solid rgba(226,232,240,1);
+      background: rgba(248,250,252,1);
+      color: rgba(71,85,105,1);
+      transition: background .15s ease, transform .08s ease;
+    }
+    .filter-clear:hover{ background: rgba(241,245,249,1); }
+    .filter-clear:active{ transform: scale(.99); }
+
+
   </style>
 </head>
 
@@ -421,23 +454,64 @@
             </button>
           </div>
 
-          <div class="mt-3 flex flex-wrap gap-2">
-            <button class="ev-filter chip" data-k="mode" data-v="battle">Battle Royale</button>
-            <button class="ev-filter chip" data-k="mode" data-v="xvx">XvX</button>
-            <button class="ev-filter chip" data-k="paid" data-v="paid">Pago</button>
-            <button class="ev-filter chip" data-k="paid" data-v="free">Gratuito</button>
-            <button class="ev-filter chip" data-k="prize" data-v="yes">Com premiação</button>
-            <button class="ev-filter chip" data-k="solo" data-v="solo">Solo</button>
-            <button class="ev-filter chip" data-k="solo" data-v="duo">Duo</button>
-            <button class="ev-filter chip" data-k="solo" data-v="squad">Squad</button>
-            <button class="ev-filter chip" data-k="xvx" data-v="1v1">1v1</button>
-            <button class="ev-filter chip" data-k="xvx" data-v="2v2">2v2</button>
-            <button class="ev-filter chip" data-k="xvx" data-v="3v3">3v3</button>
-            <button class="ev-filter chip" data-k="xvx" data-v="4v4">4v4</button>
-            <button id="events-clear" class="chip chip-ghost" type="button">
-              Limpar filtros
-            </button>
+          
+      <div class="mt-3">
+        <div class="relative">
+          <button id="events-filter-btn" type="button"
+            class="inline-flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-extrabold text-slate-800 hover:bg-slate-50 active:scale-[.99] transition">
+            <span class="inline-flex items-center gap-2">
+              <i data-lucide="sliders-horizontal" class="h-4 w-4 text-emerald-700"></i>
+              <span>Filtros</span>
+              <span id="events-filter-pill" class="hidden rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-800"></span>
+            </span>
+            <i data-lucide="chevron-down" class="h-4 w-4 text-slate-500"></i>
+          </button>
+
+          <div id="events-filter-panel"
+            class="hidden absolute z-20 mt-2 w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+            <div class="p-4">
+              <div class="text-xs font-black text-slate-500">TIPO</div>
+              <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <button class="ev-filter filter-item" data-k="mode" data-v="battle" type="button">Battle Royale</button>
+                <button class="ev-filter filter-item" data-k="mode" data-v="xvx" type="button">XvX</button>
+              </div>
+
+              <div class="mt-4 text-xs font-black text-slate-500">INSCRIÇÃO</div>
+              <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <button class="ev-filter filter-item" data-k="paid" data-v="paid" type="button">Pago</button>
+                <button class="ev-filter filter-item" data-k="paid" data-v="free" type="button">Gratuito</button>
+              </div>
+
+              <div class="mt-4 text-xs font-black text-slate-500">EXTRAS</div>
+              <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <button class="ev-filter filter-item" data-k="prize" data-v="yes" type="button">Com premiação</button>
+              </div>
+
+              <div class="mt-4 text-xs font-black text-slate-500">BATTLE ROYALE</div>
+              <div class="mt-2 grid gap-2 sm:grid-cols-3">
+                <button class="ev-filter filter-item" data-k="solo" data-v="solo" type="button">Solo</button>
+                <button class="ev-filter filter-item" data-k="solo" data-v="duo" type="button">Duo</button>
+                <button class="ev-filter filter-item" data-k="solo" data-v="squad" type="button">Squad</button>
+              </div>
+
+              <div class="mt-4 text-xs font-black text-slate-500">XvX</div>
+              <div class="mt-2 grid gap-2 sm:grid-cols-4">
+                <button class="ev-filter filter-item" data-k="xvx" data-v="1v1" type="button">1v1</button>
+                <button class="ev-filter filter-item" data-k="xvx" data-v="2v2" type="button">2v2</button>
+                <button class="ev-filter filter-item" data-k="xvx" data-v="3v3" type="button">3v3</button>
+                <button class="ev-filter filter-item" data-k="xvx" data-v="4v4" type="button">4v4</button>
+              </div>
+
+              <div class="mt-4 flex items-center justify-end gap-2">
+                <button id="events-clear" class="filter-clear" type="button">
+                  Limpar filtros
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+
 
           <div id="events-status" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
             Carregando…
@@ -501,7 +575,12 @@
       </div>
       <h1 class="mt-3 text-2xl font-black tracking-tight sm:text-3xl">Fala com a gente</h1>
       <p class="mt-2 text-sm text-slate-600">
-        Se tiver bug, dúvida ou sugestão, chama. A ideia é deixar o Guilda HUB cada vez mais forte.
+        Se você encontrou algum bug, ficou com dúvida ou quer sugerir uma melhoria, chama a gente sem medo.
+A gente lê tudo e vai ajustando o HUB aos poucos, sempre pensando no que facilita a vida da guilda.
+Se puder, manda print do erro e explica rapidinho o que você estava tentando fazer.
+Isso ajuda demais a corrigir mais rápido.
+
+Canais oficiais abaixo. Se for algo urgente, o grupo do WhatsApp costuma ser o caminho mais rápido.
       </p>
 
       <div class="mt-6 grid gap-4 sm:grid-cols-2">
@@ -894,6 +973,9 @@
     const evRefresh = document.getElementById('events-refresh');
     const evClear = document.getElementById('events-clear');
     const evChips = Array.from(document.querySelectorAll('.ev-filter'));
+    const evFilterBtn = document.getElementById('events-filter-btn');
+    const evFilterPanel = document.getElementById('events-filter-panel');
+    const evFilterPill = document.getElementById('events-filter-pill');
 
     const filters = { mode:null, paid:null, prize:null, solo:null, xvx:null };
 
@@ -903,6 +985,17 @@
         const on = (filters[k] === v);
         ch.classList.toggle('on', on);
       });
+
+      const active = Object.entries(filters).filter(([_,v])=>!!v).map(([k,v])=>v);
+      if (evFilterPill){
+        if (active.length){
+          evFilterPill.textContent = `${active.length} ativo(s)`;
+          evFilterPill.classList.remove('hidden');
+        } else {
+          evFilterPill.textContent = '';
+          evFilterPill.classList.add('hidden');
+        }
+      }
     }
 
     evChips.forEach(ch=>{
@@ -926,6 +1019,39 @@
       setChipState();
       renderEvents(currentEvents);
     });
+
+    
+    function toggleFilterPanel(force){
+      if (!evFilterPanel) return;
+      const open = (force != null) ? !!force : evFilterPanel.classList.contains('hidden');
+      if (open){
+        evFilterPanel.classList.remove('hidden');
+        try { window.lucide && window.lucide.createIcons && window.lucide.createIcons(); } catch(_) {}
+      } else {
+        evFilterPanel.classList.add('hidden');
+      }
+    }
+
+    evFilterBtn?.addEventListener('click', (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      if (!evFilterPanel) return;
+      const isOpen = !evFilterPanel.classList.contains('hidden');
+      toggleFilterPanel(!isOpen);
+    });
+
+    document.addEventListener('click', (e)=>{
+      if (!evFilterPanel) return;
+      const t = e.target;
+      if (evFilterPanel.classList.contains('hidden')) return;
+      if (evFilterPanel.contains(t) || evFilterBtn?.contains(t)) return;
+      toggleFilterPanel(false);
+    });
+
+    window.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape') toggleFilterPanel(false);
+    });
+
 
     let unsubEvents = null;
     let currentEvents = [];
@@ -1092,11 +1218,12 @@
 
       // coleção global (vai depender das regras depois)
       try{
-        const qy = query(collectionGroup(db, 'campeonatos'), orderBy('createdAtMs', 'desc'), limit(80));
+        const qy = query(collectionGroup(db, 'campeonatos'), limit(200));
         unsubEvents && unsubEvents();
         evStatus.textContent = 'Carregando…';
         unsubEvents = onSnapshot(qy, (snap)=>{
-          currentEvents = snap.docs.map(normalizeEvent);
+          currentEvents = snap.docs.map(normalizeEvent)
+            .sort((a,b)=> (Number(b.createdAtMs)||0) - (Number(a.createdAtMs)||0));
           renderEvents(currentEvents);
         }, (err)=>{
           console.error(err);
@@ -1155,6 +1282,61 @@
       `;
     }
 
+    
+    let membersCache = null;
+    let membersCacheAt = 0;
+
+    function pathGuildId(path){
+      try{
+        const parts = String(path||'').split('/');
+        const i = parts.indexOf('guildas');
+        return (i >= 0 && parts[i+1]) ? parts[i+1] : '';
+      }catch(_){ return ''; }
+    }
+
+    async function loadMembersCache(){
+      if (!db) return [];
+      const now = Date.now();
+      if (membersCache && (now - membersCacheAt) < 60_000) return membersCache; // 1 min
+      const cg = collectionGroup(db, 'membros');
+      const snap = await getDocs(query(cg, limit(2000)));
+      membersCache = snap.docs.map(d=>{
+        const data = d.data() || {};
+        return { __doc: d, __gid: pathGuildId(d.ref.path), ...data };
+      });
+      membersCacheAt = now;
+      return membersCache;
+    }
+
+    async function fallbackScanMember(qRaw){
+      const qv = safeText(qRaw);
+      if (!qv) return null;
+      const qLower = qv.toLowerCase();
+      const list = await loadMembersCache();
+      if (!list.length) return null;
+
+      // prioridade: match exato em campos comuns
+      const exact = list.find(m =>
+        safeText(m.playerId) === qv ||
+        safeText(m.id) === qv ||
+        safeText(m.uid) === qv ||
+        safeText(m.nick) === qv ||
+        safeText(m.name) === qv ||
+        safeText(m.nome) === qv ||
+        safeText(m.nickLower).toLowerCase() === qLower
+      );
+      if (exact) return exact.__doc;
+
+      // fallback: match por contains no nick/nome (evita ficar "sempre nada")
+      const partial = list.find(m =>
+        safeText(m.nick).toLowerCase().includes(qLower) ||
+        safeText(m.name).toLowerCase().includes(qLower) ||
+        safeText(m.nome).toLowerCase().includes(qLower)
+      );
+      return partial ? partial.__doc : null;
+    }
+
+
     async function findMember(qRaw){
       if (!db) throw new Error('no-db');
       const qv = safeText(qRaw);
@@ -1183,7 +1365,8 @@
           continue;
         }
       }
-      return null;
+      // fallback (sem depender de índice/campos)
+      try{ return await fallbackScanMember(qv); }catch(_){ return null; }
     }
 
     async function resolveGuildName(guildId){
