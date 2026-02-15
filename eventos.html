@@ -100,7 +100,38 @@
       </div>
       <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
     </div>
-  </header><main class="mx-auto w-full max-w-6xl px-4 py-6">
+  </header>
+
+
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-slate-900 font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-700 flex items-center justify-center" aria-label="Fechar menu">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    <nav class="p-4 flex flex-col gap-2">
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="home" class="h-4 w-4"></i><span>Início</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-slate-900"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
+      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
+    </nav>
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-slate-200">
+      Dica: se algo não carregar, atualize a página e tente novamente.
+    </div>
+  </aside>
+
+
+<main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div class="flex-1">
@@ -170,8 +201,17 @@
 <script>lucide.createIcons();</script>
 <script type="module">
 
-import { db } from './logic.js';
+import { db, setupSidebar, initIcons } from './logic.js';
 import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+setupSidebar();
+initIcons();
+const __sbClose = document.getElementById('sidebar-close');
+__sbClose?.addEventListener('click', () => {
+  document.getElementById('sidebar')?.classList.add('-translate-x-full');
+  document.getElementById('sidebar-overlay')?.classList.add('hidden');
+});
+
 
 const elGrid = document.getElementById('grid');
 const elStatus = document.getElementById('status');
@@ -215,7 +255,7 @@ ddMenu?.addEventListener('click', (e) => {
   ddLabel.textContent = btn.textContent.trim();
   toggleMenu(false);
   applyFilters();
-  try { lucide.createIcons(); } catch (_) {}
+  try { initIcons(); } catch (_) {}
 });
 
 function moneyBRL(v) {
@@ -279,19 +319,11 @@ function render(items) {
     return;
   }
 
-  const iconLine = (icon, text) => {
-    if (!text) return "";
-    return `<div class="flex items-center gap-3 text-slate-700">
-      <i data-lucide="${icon}" class="h-5 w-5 text-emerald-600"></i>
-      <div class="text-[15px] font-semibold">${escapeHtml(String(text))}</div>
-    </div>`;
-  };
-
   elGrid.innerHTML = items.map((it) => {
     const d = it.raw || {};
     const t = getTypeFlags(d);
 
-    const title = safeStr(it.title || d.title || d.name || d.titulo || d.nome || "Evento");
+    const title = safeStr(it.title || d.title || d.nome || "Evento");
     const guildName = safeStr(it.guildName || d.guildName || "Guilda");
 
     const desc = safeStr(it.description || d.description || d.desc || d.descricao || "").trim();
@@ -307,44 +339,44 @@ function render(items) {
       : (t.mode || d.mode || d.modo || "").toString().toUpperCase();
 
     const quedas = safeStr(d.quedas || d.drops || "");
-    const local = safeStr(d.location || d.local || d.lugar || d.mapa || "");
-
-    const fee = moneyBRL(d.feeValue ?? d.fee ?? d.taxa ?? d.inscricaoValor ?? d.valorInscricao);
+    const local = safeStr(d.local || d.lugar || d.mapa || "");
+    const maxP = d.maxPlayers ?? d.max ?? d.limite ?? d.participantes ?? "";
+    const fee = moneyBRL(d.fee ?? d.taxa ?? d.inscricaoValor ?? d.valorInscricao);
     const prize = moneyBRL(d.prizeTotal ?? d.premiacao ?? d.premio);
 
     const dateText = it.dateText ? safeStr(it.dateText) : (safeStr(d.dateText || d.data || ""));
     const timeText = safeStr(d.timeText || d.hora || d.horario || "");
 
-    const maxP = (d.maxPlayers ?? d.max ?? d.limite ?? d.participantes ?? d.maxParticipants ?? "").toString().trim();
+    const line = (icon, text) => {
+      if (!text) return "";
+      return `<div class="flex items-center gap-3 text-slate-700">
+        <div class="h-10 w-10 rounded-2xl bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
+          <i data-lucide="${icon}" class="h-5 w-5 text-emerald-700"></i>
+        </div>
+        <div class="text-[15px] font-semibold">${escapeHtml(String(text))}</div>
+      </div>`;
+    };
 
     const modeRow = (() => {
-      if (t.isXVX && modeLabel) return iconLine("swords", modeLabel);
-      if (t.isBR && modeLabel && quedas) return iconLine("swords", `${modeLabel} • ${quedas} quedas`);
-      if (modeLabel) return iconLine("swords", modeLabel);
+      if (t.isXVX && modeLabel) return line("swords", modeLabel);
+      if (t.isBR && modeLabel && quedas) return line("swords", `${modeLabel} • ${escapeHtml(String(quedas))} quedas`);
+      if (modeLabel) return line("swords", modeLabel);
       return "";
     })();
 
-    const feeRow = (t.isPaid || (fee && fee !== "R$ 0,00")) ? iconLine("wallet", fee ? fee : "Pago") : iconLine("wallet", "Gratuito");
-    const prizeRow = (prize && prize !== "R$ 0,00") ? iconLine("gift", prize) : "";
-    const dateRow = dateText ? iconLine("calendar", dateText) : iconLine("calendar", "Sem data");
-    const timeRow = timeText ? iconLine("clock", timeText) : iconLine("clock", "Sem horário");
-    const localRow = local ? iconLine("map-pin", local) : "";
-    const maxRow = maxP ? iconLine("users", `${maxP} participantes`) : "";
+    const feeRow = (t.isPaid || fee) ? line("wallet", fee ? fee : "Pago") : line("wallet", "Gratuito");
+    const prizeRow = prize ? line("gift", prize) : "";
+    const dateRow = dateText ? line("calendar", dateText) : line("calendar", "Sem data");
+    const timeRow = timeText ? line("clock", timeText) : line("clock", "Sem horário");
+    const localRow = local ? line("map-pin", local) : "";
+    const maxRow = maxP ? line("users", `${escapeHtml(String(maxP))} participantes`) : "";
 
-    const pill = it.expText
-      ? `<span class="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-black text-white">${escapeHtml(it.expText)}</span>`
-      : `<span class="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-800 ring-1 ring-emerald-100">Próximo</span>`;
-
-    // Layout inspirado no card do camp.html (foto pequena + infos em lista + ações embaixo)
-    return `<article class="rounded-[28px] border border-slate-200 bg-white shadow-sm overflow-hidden transition hover:shadow-md hover:-translate-y-0.5">
+    return `<article class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
       <div class="p-6">
         <div class="flex items-start justify-between gap-4">
           <div class="flex items-start gap-4 min-w-0">
-            <div class="h-16 w-16 overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200 shrink-0">
-              ${imgSrc
-                ? `<img src="${imgSrc}" alt="Imagem do evento" class="h-full w-full object-cover" loading="lazy">`
-                : `<div class="h-full w-full grid place-items-center"><i data-lucide="trophy" class="h-6 w-6 text-slate-400"></i></div>`
-              }
+            <div class="h-14 w-14 overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200 shrink-0">
+              ${imgSrc ? `<img src="${imgSrc}" alt="Imagem do evento" class="h-full w-full object-cover" loading="lazy">` : `<div class="h-full w-full grid place-items-center"><i data-lucide="trophy" class="h-6 w-6 text-slate-400"></i></div>`}
             </div>
             <div class="min-w-0">
               <div class="text-2xl font-black tracking-tight text-slate-900 truncate">${escapeHtml(title)}</div>
@@ -352,7 +384,8 @@ function render(items) {
               ${desc75 ? `<div class="mt-2 text-xl font-medium text-slate-800">${desc75}</div>` : ``}
             </div>
           </div>
-          <div class="shrink-0">${pill}</div>
+
+          ${it.expText ? `<div class="shrink-0"><span class="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-black text-white">${escapeHtml(it.expText)}</span></div>` : ``}
         </div>
 
         <div class="mt-6 grid gap-4">
@@ -365,20 +398,16 @@ function render(items) {
           ${maxRow}
         </div>
 
-        <div class="mt-6 border-t border-slate-200 pt-5 flex items-center justify-center gap-10 text-sm font-bold">
-          ${link
-            ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-800">Ver infos</a>`
-            : `<span class="text-slate-400">Sem link</span>`
-          }
-          <span class="text-slate-300 select-none">Editar</span>
-          <span class="text-red-300 select-none">Excluir</span>
+        <div class="mt-6 border-t border-slate-100 pt-5 flex items-center justify-center">
+          ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-extrabold hover:text-emerald-800">Ver infos</a>` : `<span class="text-slate-400 font-semibold">Sem link</span>`}
         </div>
       </div>
     </article>`;
   }).join('');
 
-  try { lucide.createIcons(); } catch (_) {}
+  try { initIcons(); } catch (_) {}
 }
+
 
 function applyFilters() {
   const q = norm(elQ?.value || "");
