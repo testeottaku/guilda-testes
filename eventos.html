@@ -56,8 +56,8 @@
           <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-slate-900 font-black">Guilda HUB</div>
-          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+          <div class="text-slate-900 font-black">Guilda • HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps</div>
         </div>
       </div>
       <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
@@ -67,8 +67,8 @@
 
     <nav class="p-3 space-y-1">
       <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="log-in" class="h-4 w-4"></i>
-        <span class="font-semibold">Entrar</span>
+        <i data-lucide="home" class="h-4 w-4"></i>
+        <span class="font-semibold">Início</span>
       </a>
       <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="calendar" class="h-4 w-4"></i>
@@ -96,8 +96,8 @@
           <i data-lucide="menu" class="h-5 w-5 text-slate-900"></i>
         </button>
         <div class="leading-tight">
-          <div class="font-black text-slate-900">Guilda HUB</div>
-          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+          <div class="font-black text-slate-900">Guilda • HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps</div>
         </div>
       </div>
       <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
@@ -245,6 +245,7 @@ function moneyBRL(v) {
 function statusPt(raw) {
   const s = norm(raw).replace(/\s+/g,'_');
   const map = {
+    upcoming: "PROXIMO",
     open: "ABERTO",
     opened: "ABERTO",
     active: "ABERTO",
