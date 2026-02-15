@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+    tailwind.config = { theme: { extend: { colors: { red: { 50:'#ecfdf5', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c'} } } } }
   </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -21,7 +21,7 @@
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+          <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-200 text-white">
             <i data-lucide="shield" class="w-5 h-5"></i>
           </div>
           <div>
@@ -53,7 +53,7 @@
         <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="settings" class="w-5 h-5"></i> Admin
         </a>
-        <a id="nav-chefe" href="chefe.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+        <a id="nav-chefe" href="chefe.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-red-50 text-red-700 shadow-sm">
           <i data-lucide="crown" class="w-5 h-5"></i> Chefe
         </a>
       </nav>
@@ -61,7 +61,7 @@
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
         <div class="flex items-center justify-between px-3 py-2">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm">A</div>
             <div>
               <p id="user-role" class="text-sm font-medium text-gray-700">Chefe</p>
               <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
@@ -99,9 +99,9 @@
           </div>
           <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Solicitações Pendentes</p>
-            <h3 id="stat-solicita" class="text-3xl font-black text-emerald-600 mt-1">0</h3>
+            <h3 id="stat-solicita" class="text-3xl font-black text-red-600 mt-1">0</h3>
           </div>
-          <button id="btn-open-solicita" class="flex items-center justify-center gap-3 bg-emerald-600 text-white rounded-2xl p-5 hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+          <button id="btn-open-solicita" class="flex items-center justify-center gap-3 bg-red-600 text-white rounded-2xl p-5 hover:bg-red-700 transition shadow-lg shadow-red-100">
             <i data-lucide="bell" class="w-6 h-6"></i>
             <span class="font-bold">Gerir Solicitações</span>
           </button>
@@ -112,7 +112,7 @@
           <div class="relative">
             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
             <input id="guild-search" type="text" placeholder="Procurar por nome, ID ou e-mail de líder..." 
-                   class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" />
+                   class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 text-sm" />
           <div class="mt-3 flex flex-wrap items-center gap-2">
             <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Filtro:</span>
             <select id="vip-filter" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-[11px] font-black">
@@ -129,7 +129,7 @@
         <!-- Grid Guildas -->
         <div id="guilds-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div class="col-span-full py-20 text-center space-y-3">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-red-500 border-t-transparent"></div>
             <p class="text-gray-500 font-medium">A sincronizar dados do Firestore...</p>
           </div>
         </div>
@@ -138,7 +138,7 @@
         <div id="solicita-panel" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
           <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="solicita-overlay"></div>
           <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-emerald-50/50">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-red-50/50">
               <div>
                 <h3 class="text-xl font-black text-gray-900">Solicitações (Upgrade)</h3>
                 <p class="text-xs text-gray-500 mt-1">Aprova ou rejeita pedidos de planos VIP.</p>
@@ -318,7 +318,7 @@ function fmtDate(ts) {
               <p class="text-[10px] text-gray-400 font-mono tracking-tighter">${g.id}</p>
             </div>
             <div class="flex flex-col items-end gap-2">
-            <span class="px-3 py-1 rounded-xl ${g.vip === 'business' ? 'bg-purple-100 text-purple-700' : (g.vip === 'pro' ? 'bg-blue-100 text-blue-700' : (g.vip === 'plus' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'))} text-[10px] font-black uppercase tracking-wider shadow-sm border border-black/5">
+            <span class="px-3 py-1 rounded-xl ${g.vip === 'business' ? 'bg-purple-100 text-purple-700' : (g.vip === 'pro' ? 'bg-blue-100 text-blue-700' : (g.vip === 'plus' ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-600'))} text-[10px] font-black uppercase tracking-wider shadow-sm border border-black/5">
               ${g.vip}
             </span>
             ${(() => { const rt = remainingTag(g.vipExpiresAt, g.vip); return '<span class="px-3 py-1 rounded-xl '+rt.cls+' text-[10px] font-black tracking-wider shadow-sm border border-black/5">'+rt.text+'</span>'; })()}
@@ -366,7 +366,7 @@ function fmtDate(ts) {
                 <option value="pro" ${g.vip==='pro'?'selected':''}>PRO</option>
                 <option value="business" ${g.vip==='business'?'selected':''}>BUSINESS</option>
              </select>
-             <button id="btn-save-vip" class="w-full mt-3 py-3 rounded-xl bg-emerald-600 text-white font-black text-xs hover:bg-emerald-700 transition">ATUALIZAR PLANO</button>
+             <button id="btn-save-vip" class="w-full mt-3 py-3 rounded-xl bg-red-600 text-white font-black text-xs hover:bg-red-700 transition">ATUALIZAR PLANO</button>
           </div>
 
           <div class="p-4 bg-white rounded-2xl border border-gray-100">
@@ -515,7 +515,7 @@ function fmtDate(ts) {
         <div class="bg-gray-50 border border-gray-100 p-4 rounded-2xl shadow-sm hover:bg-white transition">
           <div class="flex justify-between items-start mb-3">
              <div class="min-w-0">
-                <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">${s.plano || 'FREE'}</p>
+                <p class="text-[10px] font-black text-red-600 uppercase tracking-widest">${s.plano || 'FREE'}</p>
                 <h5 class="font-bold text-gray-900 text-sm truncate">${s.email || '—'}</h5>
              </div>
              <span class="px-2 py-0.5 rounded-lg text-[9px] font-bold ${s.status === 'pendente' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'} uppercase">
@@ -528,7 +528,7 @@ function fmtDate(ts) {
           </div>
           <div class="flex gap-2">
              <button onclick="window.approveSolicita('${s.id}', '${s.uid}', '${s.plano}')" 
-                     class="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-bold hover:bg-emerald-700 transition">APROVAR</button>
+                     class="flex-1 py-2 bg-red-600 text-white rounded-xl text-[10px] font-bold hover:bg-red-700 transition">APROVAR</button>
              <button onclick="window.rejectSolicita('${s.id}')" 
                      class="px-3 py-2 bg-gray-200 text-gray-600 rounded-xl text-[10px] font-bold hover:bg-gray-300 transition">REJEITAR</button>
              <button onclick="window.deleteSolicita('${s.id}')" 

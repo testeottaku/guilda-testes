@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+    tailwind.config = { theme: { extend: { colors: { red: { 50:'#ecfdf5', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c'} } } } }
   </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -16,7 +16,7 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="p-5 flex items-center gap-3">
-        <div class="h-10 w-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black">GH</div>
+        <div class="h-10 w-10 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black">GH</div>
         <div>
           <div class="font-extrabold leading-tight">Guilda HUB</div>
           <div class="text-xs text-gray-500">Acesso: <span class="font-bold">Jogador</span></div>
@@ -24,7 +24,7 @@
       </div>
 
       <nav class="px-3 pb-3">
-        <a href="jogador.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 font-bold">
+        <a href="jogador.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-red-50 text-red-700 font-bold">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
           Dashboard
         </a>
@@ -69,7 +69,7 @@
             <div class="flex-1">
               <label class="block text-xs text-gray-500 mb-1">Pesquisar membro por ID</label>
               <input id="search-id" type="text" inputmode="numeric" placeholder="Digite o ID do jogador..."
-                class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+                class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-200" />
               <div class="mt-2 text-xs text-gray-400">Ao digitar um ID válido, você verá os detalhes do membro e os demais membros da guilda.</div>
             </div>
             <button id="btn-clear" class="sm:w-40 px-4 py-3 rounded-2xl bg-gray-100 font-bold hover:bg-gray-200">
@@ -102,7 +102,7 @@
                 <div class="text-xs text-gray-500">Membro encontrado</div>
                 <div id="result-title" class="text-xl font-black">—</div>
               </div>
-              <span class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Somente leitura</span>
+              <span class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold">Somente leitura</span>
             </div>
 
             <div id="result-details" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
@@ -280,7 +280,7 @@
             <div class="font-bold text-gray-900">\${nick}</div>
             <div class="text-xs text-gray-500">ID: \${vid || "—"}</div>
           </div>
-          \${highlightVisibleId && vid && vid === highlightVisibleId ? '<span class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Você</span>' : ''}
+          \${highlightVisibleId && vid && vid === highlightVisibleId ? '<span class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold">Você</span>' : ''}
         \`;
         ul.appendChild(li);
       });

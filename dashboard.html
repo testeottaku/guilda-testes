@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+    tailwind.config = { theme: { extend: { colors: { red: { 50:'#ecfdf5', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c'} } } } }
   </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -21,7 +21,7 @@
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+          <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-200 text-white">
             <i data-lucide="shield" class="w-5 h-5"></i>
           </div>
           <div>
@@ -32,7 +32,7 @@
       </div>
 
       <nav class="p-4 space-y-1">
-        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-red-50 text-red-700 shadow-sm">
           <i data-lucide="house" class="w-5 h-5"></i> Dashboard
         </a>
         <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
@@ -61,7 +61,7 @@
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
         <div class="flex items-center justify-between px-3 py-2">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm">A</div>
             <div>
               <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
               <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
@@ -84,7 +84,7 @@
           <h1 class="text-lg font-semibold text-gray-900 leading-none">Dashboard</h1> 
           
           <span id="current-plan-pill" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 text-gray-600 text-sm border border-gray-200 whitespace-nowrap ml-auto">
-            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
+            <i data-lucide="sparkles" class="w-4 h-4 text-red-500"></i>
             <span>Plano atual: <b id="current-plan-name">—</b></span>
           </span>
         </div>
@@ -102,7 +102,7 @@
           <!-- Card Total -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-start justify-between mb-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-200">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-200">
                 <i data-lucide="users" class="w-5 h-5 text-white"></i>
               </div>
             </div>
@@ -172,7 +172,7 @@
           <!-- Resumo -->
           <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-2 mb-4">
-              <i data-lucide="trending-up" class="w-5 h-5 text-emerald-500"></i>
+              <i data-lucide="trending-up" class="w-5 h-5 text-red-500"></i>
               <h3 class="font-semibold text-gray-900">Resumo</h3>
             </div>
             <div class="space-y-3" id="summary-container">
@@ -318,7 +318,7 @@
       `;
 
       document.getElementById('summary-container').innerHTML = 
-        renderBar("Participação na Guerra", guildWar, "from-emerald-400 to-green-500") +
+        renderBar("Participação na Guerra", guildWar, "from-red-400 to-red-500") +
         renderBar("Meta Semanal Cumprida", weeklyMeta, "from-violet-400 to-purple-500") +
         renderBar("Membros com Tag", hasTag, "from-amber-400 to-orange-500");
 
@@ -327,7 +327,7 @@
   </script>
 
   <!-- OTK Footer -->
-<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
+<footer id="otk-footer" class="mt-12 border-t border-red-500/10 text-slate-700">
   <div class="mx-auto w-full max-w-5xl px-4 py-10">
     <div class="flex flex-col items-center gap-4">
       <div class="flex items-center justify-center gap-3">

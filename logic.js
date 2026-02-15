@@ -471,7 +471,7 @@ export function showToast(type = "info", message = "") {
   toast.className =
     "px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-start gap-2 max-w-[340px] " +
     (type === "success"
-      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+      ? "bg-red-50 text-red-800 border-red-200"
       : type === "error"
       ? "bg-red-50 text-red-800 border-red-200"
       : "bg-gray-900 text-white border-white/10");

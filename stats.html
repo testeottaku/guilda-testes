@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
+      theme: { extend: { colors: { red: { 50:'#ecfdf5', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c' } } } }
     }
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -39,7 +39,7 @@
     box-shadow: 0 18px 40px rgba(0,0,0,.22); }
   .dd-item { width:100%; text-align:left; padding:.7rem 1rem; font-size:.875rem; display:flex; align-items:center; gap:.6rem; }
   .dd-item:hover { background: rgba(255,255,255,.06); }
-  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#d1fae5; }
+  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#fee2e2; }
 
 </style>
 </head>
@@ -50,8 +50,8 @@
   <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
     <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
+        <div class="h-9 w-9 rounded-xl bg-red-500/15 ring-1 ring-red-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-red-700"></i>
         </div>
         <div class="leading-tight">
           <div class="text-slate-900 font-black">Guilda • HUB</div>
@@ -98,7 +98,7 @@
           <div class="text-xs text-slate-500"> Estatísticas￼</div>
         </div>
       </div>
-      <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
+      <a href="index.html" class="text-sm font-semibold text-red-700 hover:text-red-800">Voltar</a>
     </div>
   </header><main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
@@ -107,8 +107,8 @@
     <p class="mt-1 text-xs text-slate-500">Digite seu nick ou ID para ver suas estatísticas basica.</p>
     <div class="mt-4 flex flex-col gap-3 sm:flex-row">
       <input id="query" type="text" placeholder="Seu nick ou ID"
-        class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
-      <button id="btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition text-white">Buscar</button>
+        class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-red-400/40" />
+      <button id="btn" class="rounded-2xl bg-red-600 px-5 py-3 text-sm font-black hover:bg-red-700 transition text-white">Buscar</button>
     </div>
     <div id="hint" class="mt-3 text-xs text-slate-500"></div>
   </div>
@@ -225,7 +225,7 @@ function renderMember(res) {
 
   const yesNoPill = (ok) =>
     ok
-      ? `<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">Sim</span>`
+      ? `<span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-black text-red-700 ring-1 ring-red-100">Sim</span>`
       : `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Não</span>`;
 
   card(`
@@ -235,7 +235,7 @@ function renderMember(res) {
         <div class="mt-1 text-xs text-slate-500">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
         <div class="mt-1 text-sm text-slate-700">ID do jogador: <span class="font-extrabold">${escapeHtml(playerId)}</span></div>
       </div>
-      <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm shrink-0">
+      <div class="h-11 w-11 rounded-2xl bg-red-600 text-white grid place-items-center shadow-sm shrink-0">
         <i data-lucide="user" class="h-5 w-5"></i>
       </div>
     </div>
