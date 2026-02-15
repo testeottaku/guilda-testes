@@ -37,7 +37,6 @@
   <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
     <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <button id="open-auth-top" type="button" class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700">Entrar</button>
         <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
           <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
@@ -52,11 +51,7 @@
     </div>
 
     <nav class="p-3 space-y-1">
-      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="log-in" class="h-4 w-4"></i>
-        <span class="font-semibold">Entrar</span>
-      </a>
-      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
+<a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="calendar" class="h-4 w-4"></i>
         <span class="font-semibold">Eventos e Camp</span>
       </a>
@@ -72,40 +67,6 @@
 
     <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
       <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
-    </div>
-  </aside>
-
-
-  <button id="mobile-menu-btn" class="fixed left-4 top-4 z-30 h-11 w-11 grid place-items-center rounded-2xl bg-slate-900 text-slate-900 shadow-lg">
-    <i data-lucide="menu" class="h-5 w-5"></i>
-  </button>
-
-
-
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
-    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
-        </div>
-        <div class="leading-tight">
-          <div class="text-slate-900 font-black">Guilda HUB</div>
-          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
-        </div>
-      </div>
-      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-700 flex items-center justify-center" aria-label="Fechar menu">
-        <i data-lucide="x" class="h-5 w-5"></i>
-      </button>
-    </div>
-    <nav class="p-4 flex flex-col gap-2">
-      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-slate-900"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
-      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
-      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
-      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
-    </nav>
-    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
-      Dica: se algo não carregar, atualize a página e tente novamente.
     </div>
   </aside>
 
@@ -127,6 +88,11 @@
         <a href="#como-funciona" class="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 transition">
           Como funciona
         </a>
+        <button id="open-auth-top" type="button" class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[.98]">
+          <i data-lucide="log-in" class="h-4 w-4"></i>
+          Entrar
+        </button>
+
 </div>
     </div>
   </header>
@@ -150,7 +116,7 @@
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button id="open-auth-2" type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-extrabold text-slate-900 shadow-sm hover:bg-emerald-700 active:scale-[.98] transition">
+              class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white px-5 py-3 text-sm font-extrabold text-emerald-800 shadow-sm hover:bg-emerald-50 active:scale-[.98] transition">
               <i data-lucide="sparkles" class="h-4 w-4"></i>
               Começar agora
             </button>
