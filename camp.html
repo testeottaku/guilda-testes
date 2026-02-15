@@ -153,9 +153,9 @@
 
                 <div>
           <label class="block text-sm font-medium text-gray-700 mb-1.5">Premiação total (R$) (opcional)</label>
-          <input id="camp-prizeTotal" type="text" inputmode="decimal"
+          <input id="camp-prizeTotal" type="text" inputmode="decimal" autocomplete="off"
                  class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-                 placeholder="Ex: 200,00">
+                 placeholder="Ex: 1500,00">
         </div>
 
         <div>
@@ -297,23 +297,6 @@
 
     document.getElementById('camp-format').addEventListener('change', updateModeUI);
     document.getElementById('camp-feeType').addEventListener('change', updateFeeUI);
-    // Premiação: autoformatação pt-BR enquanto digita (sem quebrar valor real)
-    const prizeEl = document.getElementById('camp-prizeTotal');
-    if(prizeEl){
-      prizeEl.addEventListener('input', () => {
-        const n = parseBRL(prizeEl.value);
-        if(n === null){
-          // deixa o usuário digitar livre se ainda não virou número
-          return;
-        }
-        prizeEl.value = formatNumberBR(n);
-      });
-      prizeEl.addEventListener('blur', () => {
-        const n = parseBRL(prizeEl.value);
-        prizeEl.value = n ? formatNumberBR(n) : '';
-      });
-    }
-
 
     // Modal controls (mantém API existente)
     window.openCampModal = () => {
@@ -358,41 +341,49 @@
       try { return JSON.parse(localStorage.getItem('campsList') || '[]'); } catch(_) { return []; }
     }
 
-    function parseBRL(v){
+    function moneyBRL(v){
+      const n = Number(v);
+      if(!isFinite(n) || n<=0) return null;
+      return n.toFixed(2);
+    
+    // ==== Dinheiro (pt-BR) para premiação ====
+    function parseMoneyBRLInput(v){
       if(v === null || v === undefined) return null;
-      let s = (v ?? '').toString().trim();
+      let s = (v+'').trim();
+      if(!s) return null;
+      // remove R$, espaços e qualquer coisa que não seja número, vírgula, ponto ou sinal
+      s = s.replace(/[^0-9,\.\-]/g, '');
       if(!s) return null;
 
-      // remove currency and spaces
-      s = s.replace(/R\$\s?/g,'').replace(/\s/g,'');
-
-      // keep digits, comma, dot
-      s = s.replace(/[^0-9,\.]/g,'');
-
-      if(!s) return null;
-
-      // pt-BR: "1.234,56"
       if(s.includes(',')){
-        s = s.replace(/\./g,'').replace(/,/g,'.');
+        // vírgula = decimal, ponto = milhar
+        s = s.replace(/\./g,'').replace(',', '.');
       } else {
-        // en/number input: "1234.56" or "1,234.56"
-        s = s.replace(/,/g,'');
+        // sem vírgula: mantém ponto como decimal
+        // se tiver vários pontos, considera o último como decimal
+        const parts = s.split('.');
+        if(parts.length > 2){
+          const dec = parts.pop();
+          s = parts.join('') + '.' + dec;
+        }
       }
 
       const n = Number(s);
       if(!isFinite(n) || n <= 0) return null;
-      // keep 2 decimals
       return Math.round(n * 100) / 100;
     }
 
-    function formatNumberBR(n){
-      if(n === null || n === undefined || !isFinite(Number(n))) return '';
+    function formatMoneyPlainBR(n){
+      const num = Number(n);
+      if(!isFinite(num) || num <= 0) return '';
       try{
-        return new Intl.NumberFormat('pt-BR',{ minimumFractionDigits:2, maximumFractionDigits:2 }).format(Number(n));
-      }catch(e){
-        return Number(n).toFixed(2).replace('.',',');
+        return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+      }catch(_){
+        // fallback simples
+        return num.toFixed(2).replace('.', ',');
       }
     }
+}
 
     function safeText(s){ return (s ?? '').toString().trim(); }
     function escapeHtml(str){
@@ -469,14 +460,20 @@
     }
 
     function formatBRL(v){
-      const n = (typeof v === 'number') ? v : parseBRL(v);
-      if(n === null) return null;
-      try{
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
-      }catch(e){
-        return 'R$ ' + Number(n).toFixed(2).replace('.', ',');
+      if(v === null || v === undefined || v === '') return null;
+      let n = v;
+      if(typeof n === 'string'){
+        // aceita "1500,50" ou "1500.50"
+        // aceita "1500,50" (pt-BR) ou "1500.50" (ponto decimal)
+        const s = n.trim();
+        if (s.includes(',')) {
+          // quando tem vírgula, ponto vira separador de milhar
+          n = s.replace(/\./g, '').replace(',', '.');
+        } else {
+          // sem vírgula, mantém ponto como decimal
+          n = s.replace(',', '.');
+        }
       }
-    }
       n = Number(n);
       if(!isFinite(n) || n <= 0) return null;
       try{
@@ -584,7 +581,7 @@
       document.getElementById('camp-feeType').value = c.feeType || 'free';
       updateFeeUI();
       document.getElementById('camp-feeValue').value = c.feeValue || '';
-      document.getElementById('camp-prizeTotal').value = c.prizeTotal ? formatNumberBR(c.prizeTotal) : '';
+      document.getElementById('camp-prizeTotal').value = c.prizeTotal ? formatMoneyPlainBR(c.prizeTotal) : '';
       document.getElementById('camp-link').value = c.link || '';
       document.getElementById('camp-icon').value = c.icon || 'trophy';
       document.getElementById('camp-photo').value = ''; // por segurança, não reatribui file
@@ -640,8 +637,8 @@
 
       // Fee
       const feeType = safeText(document.getElementById('camp-feeType').value) || 'free';
-      const feeValue = feeType === 'paid' ? parseBRL(document.getElementById('camp-feeValue').value) : null;
-      const prizeTotal = parseBRL(document.getElementById('camp-prizeTotal').value);
+      const feeValue = feeType === 'paid' ? moneyBRL(document.getElementById('camp-feeValue').value) : null;
+      const prizeTotal = parseMoneyBRLInput(document.getElementById('camp-prizeTotal').value);
 
 
       // BR / XvX fields
@@ -738,48 +735,29 @@
 
       const user = await checkAuth();
       if(!user) return;
-      const logoutBtn = document.getElementById('btn-logout');
-      if(logoutBtn) logoutBtn.onclick = logout;
+      document.getElementById('btn-logout').onclick = logout;
+      // Máscara leve da premiação: não quebra digitação, formata ao sair do campo
+      const prizeEl = document.getElementById('camp-prizeTotal');
+      if(prizeEl){
+        prizeEl.addEventListener('input', () => {
+          // só limpa caracteres proibidos enquanto digita
+          prizeEl.value = prizeEl.value.replace(/[^0-9,\.\-]/g,'');
+        });
+        prizeEl.addEventListener('blur', () => {
+          const n = parseMoneyBRLInput(prizeEl.value);
+          prizeEl.value = n ? formatMoneyPlainBR(n) : '';
+        });
+      }
 
-      // 1) tenta pegar guildId/guildName do contexto cacheado
+
+      // Contexto de guilda
       try{
         const ctx = getGuildContext() || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}');
         guildId = ctx?.guildId || ctx?.id || null;
         guildName = ctx?.guildName || ctx?.name || null;
       }catch(_){}
 
-      // 2) fallback: se não tiver guildId, tenta buscar em /users/{uid}
-      try{
-        if(db && !guildId && user?.uid){
-          const uref = doc(db, 'users', user.uid);
-          const usnap = await getDoc(uref);
-          const udata = usnap.exists() ? usnap.data() : null;
-          guildId = (udata && (udata.guildId || udata.gid)) ? (udata.guildId || udata.gid) : guildId;
-        }
-      }catch(err){
-        console.error(err);
-      }
-
-      // 3) fallback do nome: busca configGuilda/{guildId}
-      try{
-        if(db && guildId && !guildName){
-          const gref = doc(db, 'configGuilda', guildId);
-          const gsnap = await getDoc(gref);
-          const gdata = gsnap.exists() ? gsnap.data() : null;
-          guildName = gdata?.name || gdata?.guildName || guildName;
-        }
-      }catch(err){
-        console.error(err);
-      }
-
-      // regrava cache do contexto para as telas (não quebra se faltar algo)
-      try{
-        if(guildId){
-          localStorage.setItem('guildCtx_cache_v1', JSON.stringify({ guildId, guildName }));
-        }
-      }catch(_){}
-
-      // Hidrata campo guilda no modal
+      // Hidrata campo guilda no modal se já abrir
       if(guildName){
         const g = document.getElementById('camp-guildname');
         if(g) g.value = guildName;
@@ -803,16 +781,10 @@
             renderCamps();
             showToast('error', 'Falha ao sincronizar campeonatos: ' + err.message);
           });
-        } else {
-          // Sem guildId ainda? mantém cache e mostra aviso leve (sem travar)
-          if(!guildId){
-            console.warn('guildId ausente — usando cache local');
-          }
         }
       }catch(err){
         console.error(err);
       }
-
     }
 
     // Defaults UI
