@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minhas estatísticas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* micro UX */
+    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+    .btn-spinner{
+      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
+      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* drawer */
+    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
+    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
+    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
+    .drawer-panel.show{ transform: translateX(0); }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-white/10 transition-transform">
+    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-white font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-200 flex items-center justify-center" aria-label="Fechar menu">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    <nav class="p-4 flex flex-col gap-2">
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-white"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
+      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
+    </nav>
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+      Dica: se algo não carregar, atualize a página e tente novamente.
+    </div>
+  </aside>
+
+<header class="sticky top-0 z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur">
+  <div class="mx-auto w-full max-w-6xl px-4 py-4 flex items-center gap-3">
+    <button id="sidebar-open" type="button"
+      class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/10 transition hover:bg-white/15"
+      aria-label="Abrir menu">
+      <i data-lucide="menu" class="h-5 w-5"></i>
+    </button>
+    <div class="flex-1">
+      <div class="text-base font-black">Minhas estatísticas</div>
+      <div class="text-xs text-slate-400">Guilda HUB</div>
+    </div>
+  </div>
+</header>
+<main class="mx-auto w-full max-w-6xl px-4 py-6">
+<section class="space-y-4">
+  <div class="rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
+    <div class="text-sm font-bold">Buscar meu perfil</div>
+    <p class="mt-1 text-xs text-slate-400">Digite seu nick ou ID. Não mostramos WhatsApp aqui por segurança.</p>
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+      <input id="query" type="text" placeholder="Seu nick ou ID"
+        class="flex-1 rounded-2xl bg-white/5 ring-1 ring-white/10 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
+      <button id="btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition">Buscar</button>
+    </div>
+    <div id="hint" class="mt-3 text-xs text-slate-400"></div>
+  </div>
+  <div id="result"></div>
+</section>
+</main>
+
+<script>
+(function(){
+  const openBtn = document.getElementById('sidebar-open');
+  const closeBtn = document.getElementById('sidebar-close');
+  const overlay = document.getElementById('sidebar-overlay');
+  const sidebar = document.getElementById('sidebar');
+  function open(){
+    overlay.classList.remove('hidden');
+    sidebar.classList.remove('-translate-x-full');
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    overlay.classList.add('hidden');
+    sidebar.classList.add('-translate-x-full');
+    document.body.style.overflow='';
+  }
+  if(openBtn) openBtn.addEventListener('click', open);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  if(overlay) overlay.addEventListener('click', close);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+})();
+</script>
+
+<script>lucide.createIcons();</script>
+<script type="module">
+
+import { db } from './logic.js';
+import { collectionGroup, getDocs, query, limit, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const elQ = document.getElementById('query');
+const elBtn = document.getElementById('btn');
+const elRes = document.getElementById('result');
+const elHint = document.getElementById('hint');
+
+const safeStr = (v)=> (typeof v==='string') ? v : '';
+const norm = (s)=> safeStr(s).trim().toLowerCase();
+
+function guildIdFromPath(path){
+  const parts = path.split('/');
+  const i = parts.indexOf('guildas');
+  return (i>=0 && parts[i+1]) ? parts[i+1] : null;
+}
+
+async function loadGuildName(gid){
+  if(!gid) return '';
+  try{
+    const gdoc = await getDoc(doc(db,'guildas',gid));
+    const gd = gdoc.exists() ? (gdoc.data()||{}) : {};
+    return safeStr(gd.name || gd.nome || gd.guildName || '');
+  }catch(_){ return ''; }
+}
+
+function renderCard(member, guildName){
+  const nick = safeStr(member.nick || member.nome || member.name || member.playerNick || member.apelido);
+  const pid  = safeStr(member.id || member.playerId || member.uid || member.playerUID);
+  const tag  = safeStr(member.tag || member.clanTag || member.memberTag);
+  const role = safeStr(member.role || member.cargo || member.tipo);
+  const points = member.points ?? member.pontos ?? member.score ?? null;
+
+  elRes.innerHTML = `
+    <article class="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="text-lg font-black">${nick || 'Jogador'}</div>
+          ${guildName ? `<div class="mt-1 text-sm text-slate-300">Guilda: <span class="font-bold text-white">${guildName}</span></div>` : ''}
+        </div>
+        <i data-lucide="badge-check" class="h-6 w-6 text-emerald-300"></i>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        ${pid ? `<div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3"><div class="text-xs text-slate-400">ID</div><div class="text-sm font-bold">${pid}</div></div>` : ''}
+        ${tag ? `<div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3"><div class="text-xs text-slate-400">Tag</div><div class="text-sm font-bold">${tag}</div></div>` : ''}
+        ${role ? `<div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3"><div class="text-xs text-slate-400">Função</div><div class="text-sm font-bold">${role}</div></div>` : ''}
+        ${(points!==null && points!==undefined) ? `<div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3"><div class="text-xs text-slate-400">Pontos</div><div class="text-sm font-bold">${points}</div></div>` : ''}
+      </div>
+
+      <p class="mt-4 text-xs text-slate-500">WhatsApp e dados sensíveis não aparecem aqui.</p>
+    </article>
+  `;
+  lucide.createIcons();
+}
+
+async function run(){
+  elRes.innerHTML = '';
+  const q = norm(elQ.value);
+  if(!q){ elHint.textContent='Digite seu nick ou ID.'; return; }
+
+  elHint.textContent='Procurando...';
+  try{
+    const snap = await getDocs(query(collectionGroup(db,'membros'), limit(2000)));
+    let found = null;
+
+    for(const docu of snap.docs){
+      const d = docu.data() || {};
+      const fields = [
+        d.nick, d.nome, d.name, d.playerNick, d.apelido,
+        d.id, d.playerId, d.uid, d.playerUID
+      ].map(norm);
+
+      if(fields.includes(q)){
+        found = { docu, d };
+        break;
+      }
+
+      const nick = norm(d.nick || d.nome || d.name || d.playerNick || d.apelido);
+      if(nick && nick.includes(q)){
+        found = { docu, d };
+        break;
+      }
+    }
+
+    if(!found){
+      elHint.textContent='Não achei ninguém com esse nick/ID. Confere se digitou certo.';
+      return;
+    }
+
+    const gid = guildIdFromPath(found.docu.ref.path);
+    const guildName = await loadGuildName(gid);
+    elHint.textContent='';
+    renderCard(found.d, guildName);
+
+  }catch(err){
+    console.error(err);
+    elHint.textContent='Erro ao buscar. Confere o console.';
+  }
+}
+
+elBtn.addEventListener('click', run);
+elQ.addEventListener('keydown', (e)=>{ if(e.key==='Enter') run(); });
+
+</script>
+</body>
+</html>

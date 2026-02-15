@@ -48,6 +48,18 @@
     {
       "source": "/chefe",
       "destination": "/chefe.html"
+    },
+    {
+      "source": "/eventos",
+      "destination": "/eventos.html"
+    },
+    {
+      "source": "/stats",
+      "destination": "/stats.html"
+    },
+    {
+      "source": "/suporte",
+      "destination": "/suporte.html"
     }
   ]
 }

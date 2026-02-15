@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventos e Camp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* micro UX */
+    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+    .btn-spinner{
+      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
+      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* drawer */
+    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
+    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
+    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
+    .drawer-panel.show{ transform: translateX(0); }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-white/10 transition-transform">
+    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-white font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-200 flex items-center justify-center" aria-label="Fechar menu">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    <nav class="p-4 flex flex-col gap-2">
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-white"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
+      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
+    </nav>
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+      Dica: se algo não carregar, atualize a página e tente novamente.
+    </div>
+  </aside>
+
+<header class="sticky top-0 z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur">
+  <div class="mx-auto w-full max-w-6xl px-4 py-4 flex items-center gap-3">
+    <button id="sidebar-open" type="button"
+      class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/10 transition hover:bg-white/15"
+      aria-label="Abrir menu">
+      <i data-lucide="menu" class="h-5 w-5"></i>
+    </button>
+    <div class="flex-1">
+      <div class="text-base font-black">Eventos e Camp</div>
+      <div class="text-xs text-slate-400">Guilda HUB</div>
+    </div>
+  </div>
+</header>
+<main class="mx-auto w-full max-w-6xl px-4 py-6">
+<section class="space-y-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex-1">
+      <label class="text-xs text-slate-400">Pesquisar</label>
+      <input id="q" type="text" placeholder="Ex: nome da guilda, título, descrição..."
+        class="mt-1 w-full rounded-2xl bg-white/5 ring-1 ring-white/10 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
+    </div>
+    <div class="w-full sm:w-[280px]">
+      <label class="text-xs text-slate-400">Filtro</label>
+      <div class="relative mt-1">
+        <select id="filter"
+          class="w-full appearance-none rounded-2xl bg-white/5 ring-1 ring-white/10 px-4 py-3 pr-10 text-sm outline-none focus:ring-emerald-400/40">
+          <option value="all">Todos</option>
+          <option value="br">Battle Royale</option>
+          <option value="xvx">XvX (1v1, 2v2...)</option>
+          <option value="paid">Pago</option>
+          <option value="free">Gratuito</option>
+          <option value="prize">Com premiação</option>
+          <option value="solo">Solo</option>
+          <option value="duo">Duo</option>
+          <option value="squad">Squad</option>
+          <option value="1v1">1v1</option>
+          <option value="2v2">2v2</option>
+          <option value="3v3">3v3</option>
+          <option value="4v4">4v4</option>
+        </select>
+        <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i>
+      </div>
+    </div>
+  </div>
+  <div id="status" class="text-sm text-slate-400"></div>
+  <div id="grid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+</section>
+</main>
+
+<script>
+(function(){
+  const openBtn = document.getElementById('sidebar-open');
+  const closeBtn = document.getElementById('sidebar-close');
+  const overlay = document.getElementById('sidebar-overlay');
+  const sidebar = document.getElementById('sidebar');
+  function open(){
+    overlay.classList.remove('hidden');
+    sidebar.classList.remove('-translate-x-full');
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    overlay.classList.add('hidden');
+    sidebar.classList.add('-translate-x-full');
+    document.body.style.overflow='';
+  }
+  if(openBtn) openBtn.addEventListener('click', open);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  if(overlay) overlay.addEventListener('click', close);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+})();
+</script>
+
+<script>lucide.createIcons();</script>
+<script type="module">
+
+import { db } from './logic.js';
+import { collectionGroup, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const elGrid = document.getElementById('grid');
+const elStatus = document.getElementById('status');
+const elQ = document.getElementById('q');
+const elFilter = document.getElementById('filter');
+
+let allItems = [];
+
+const safeStr = (v)=> (typeof v==='string') ? v : '';
+const safeNum = (v)=> (typeof v==='number' && isFinite(v)) ? v : null;
+
+function brl(v){
+  const n = safeNum(v);
+  if(n===null) return null;
+  try{ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n); }
+  catch(_){ return 'R$ ' + String(n); }
+}
+function trunc75(s){
+  s = safeStr(s).trim();
+  if(!s) return '';
+  return s.length>75 ? s.slice(0,75).trimEnd()+'…' : s;
+}
+function getGuildIdFromPath(path){
+  const parts = path.split('/');
+  const i = parts.indexOf('guildas');
+  return (i>=0 && parts[i+1]) ? parts[i+1] : null;
+}
+
+function detectBadge(d){
+  const mode = safeStr(d.type || d.modeType || d.gameMode || d.mode).toLowerCase();
+  if(mode.includes('xvx')) return 'XvX';
+  if(mode.includes('br') || mode.includes('battle')) return 'Battle Royale';
+  if(safeStr(d.xvx || d.xvxType || d.teamMode).includes('v')) return 'XvX';
+  return 'Evento';
+}
+function detectPay(d){
+  const feeType = safeStr(d.feeType).toLowerCase();
+  if(d.isPaid === true || feeType==='pago') return 'Pago';
+  if(d.isPaid === false || feeType==='gratuito') return 'Gratuito';
+  return '';
+}
+function matchesQuery(d, q){
+  q = safeStr(q).trim().toLowerCase();
+  if(!q) return true;
+  const hay = [
+    safeStr(d.title), safeStr(d.name), safeStr(d.description),
+    safeStr(d.guildName), safeStr(d.guild), safeStr(d.link)
+  ].join(' ').toLowerCase();
+  return hay.includes(q);
+}
+function matchesFilter(d, f){
+  if(f==='all') return true;
+
+  const badge = detectBadge(d);
+  const pay = detectPay(d);
+  const brRole = safeStr(d.brRole || d.party || d.squadType).toLowerCase();
+  const xvx = safeStr(d.xvx || d.xvxType || d.teamMode).toLowerCase();
+  const hasPrize = (safeNum(d.prizeTotal) ? d.prizeTotal>0 : false) || (safeNum(d.premiacao) ? d.premiacao>0 : false);
+
+  if(f==='br') return badge==='Battle Royale';
+  if(f==='xvx') return badge==='XvX';
+  if(f==='paid') return pay==='Pago';
+  if(f==='free') return pay==='Gratuito';
+  if(f==='prize') return hasPrize;
+  if(['solo','duo','squad'].includes(f)) return brRole===f;
+  if(['1v1','2v2','3v3','4v4'].includes(f)) return xvx===f;
+
+  return true;
+}
+
+function render(){
+  const q = elQ.value || '';
+  const f = elFilter.value || 'all';
+
+  const items = allItems
+    .filter(d => matchesQuery(d, q) && matchesFilter(d, f))
+    .sort((a,b)=> (safeNum(b.createdAtMs)||0) - (safeNum(a.createdAtMs)||0));
+
+  elGrid.innerHTML = '';
+
+  if(items.length===0){
+    elStatus.textContent = allItems.length ? 'Nada encontrado com esse filtro.' : 'Nenhum evento encontrado ainda.';
+    return;
+  }
+  elStatus.textContent = `${items.length} evento(s)`;
+
+  for(const d of items){
+    const title = safeStr(d.title || d.name || 'Campeonato');
+    const desc = trunc75(d.description);
+    const guild = safeStr(d.guildName || d.guild || '');
+    const link = safeStr(d.link || d.destLink || '');
+    const prize = safeNum(d.prizeTotal) ? brl(d.prizeTotal) : (safeNum(d.premiacao) ? brl(d.premiacao) : null);
+
+    const badge = detectBadge(d);
+    const pay = detectPay(d);
+    const extra = [];
+    if(pay) extra.push(`<span class="rounded-full bg-white/10 px-2 py-1 text-[11px] text-slate-200 ring-1 ring-white/10">${pay}</span>`);
+    if(prize) extra.push(`<span class="rounded-full bg-emerald-500/15 px-2 py-1 text-[11px] text-emerald-200 ring-1 ring-emerald-400/20">🏆 ${prize}</span>`);
+
+    elGrid.insertAdjacentHTML('beforeend', `
+      <article class="rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-full bg-emerald-600/20 px-2 py-1 text-[11px] font-bold text-emerald-200 ring-1 ring-emerald-400/20">${badge}</span>
+              ${extra.join('')}
+            </div>
+            <h3 class="mt-2 text-base font-black">${title}</h3>
+            ${guild ? `<p class="mt-1 text-xs text-slate-400">Guilda: <span class="text-slate-200 font-semibold">${guild}</span></p>` : ''}
+          </div>
+          <i data-lucide="sparkles" class="h-5 w-5 text-emerald-300"></i>
+        </div>
+
+        ${desc ? `<p class="mt-3 text-sm text-slate-200/90">${desc}</p>` : ''}
+
+        ${link ? `<div class="mt-4"><a href="${link}" target="_blank" rel="noopener noreferrer"
+          class="block rounded-2xl bg-emerald-600 px-3 py-2 text-center text-sm font-bold text-white hover:bg-emerald-700 transition">Ver infos</a></div>` : ''}
+      </article>
+    `);
+  }
+
+  lucide.createIcons();
+}
+
+async function load(){
+  elStatus.textContent = 'Carregando eventos...';
+  try{
+    const snap = await getDocs(query(collectionGroup(db,'campeonatos'), limit(500)));
+    allItems = snap.docs.map(docu=>{
+      const d = docu.data() || {};
+      const gid = getGuildIdFromPath(docu.ref.path);
+      if(!d.guildId && gid) d.guildId = gid;
+      if(!d.guildName && d.guild) d.guildName = d.guild;
+      return d;
+    });
+    render();
+  }catch(err){
+    console.error(err);
+    elStatus.textContent = 'Não consegui carregar agora. Confere o console.';
+  }
+}
+
+elQ.addEventListener('input', render);
+elFilter.addEventListener('change', render);
+
+load();
+
+</script>
+</body>
+</html>

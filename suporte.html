@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suporte</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* micro UX */
+    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+    .btn-spinner{
+      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
+      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* drawer */
+    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
+    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
+    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
+    .drawer-panel.show{ transform: translateX(0); }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-white/10 transition-transform">
+    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-white font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-200 flex items-center justify-center" aria-label="Fechar menu">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    <nav class="p-4 flex flex-col gap-2">
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
+      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-white"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
+    </nav>
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+      Dica: se algo não carregar, atualize a página e tente novamente.
+    </div>
+  </aside>
+
+<header class="sticky top-0 z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur">
+  <div class="mx-auto w-full max-w-6xl px-4 py-4 flex items-center gap-3">
+    <button id="sidebar-open" type="button"
+      class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/10 transition hover:bg-white/15"
+      aria-label="Abrir menu">
+      <i data-lucide="menu" class="h-5 w-5"></i>
+    </button>
+    <div class="flex-1">
+      <div class="text-base font-black">Suporte</div>
+      <div class="text-xs text-slate-400">Guilda HUB</div>
+    </div>
+  </div>
+</header>
+<main class="mx-auto w-full max-w-6xl px-4 py-6">
+<section class="space-y-4">
+  <article class="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-black">Suporte</h2>
+        <p class="mt-2 text-sm text-slate-200/90">
+          Se você travou em alguma tela, não achou sua guilda, não aparece evento, ou quer sugerir melhoria,
+          chama a gente. O objetivo do Guilda HUB é deixar tudo mais simples e organizado.
+        </p>
+        <p class="mt-2 text-sm text-slate-200/90">
+          Para resolver rápido: manda print + o que você clicou antes do erro. Isso ajuda demais.
+        </p>
+      </div>
+      <i data-lucide="life-buoy" class="h-7 w-7 text-emerald-300"></i>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <a href="https://instagram.com/guildahub" target="_blank" rel="noopener noreferrer"
+        class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4 hover:bg-white/10 transition">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-pink-500/15 ring-1 ring-pink-400/20 flex items-center justify-center">
+            <i data-lucide="instagram" class="h-5 w-5 text-pink-200"></i>
+          </div>
+          <div>
+            <div class="text-sm font-black">Instagram</div>
+            <div class="text-xs text-slate-400">@guildahub</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="https://chat.whatsapp.com/FsBRk3VNaGm29UmXldwaOE?mode=gi_t" target="_blank" rel="noopener noreferrer"
+        class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4 hover:bg-white/10 transition">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+            <i data-lucide="message-circle" class="h-5 w-5 text-emerald-200"></i>
+          </div>
+          <div>
+            <div class="text-sm font-black">Grupo WhatsApp</div>
+            <div class="text-xs text-slate-400">Suporte oficial</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <p class="mt-5 text-xs text-slate-500">
+      Atendimento depende da fila do dia. Quanto mais claro você for, mais rápido a gente resolve.
+    </p>
+  </article>
+</section>
+</main>
+
+<script>
+(function(){
+  const openBtn = document.getElementById('sidebar-open');
+  const closeBtn = document.getElementById('sidebar-close');
+  const overlay = document.getElementById('sidebar-overlay');
+  const sidebar = document.getElementById('sidebar');
+  function open(){
+    overlay.classList.remove('hidden');
+    sidebar.classList.remove('-translate-x-full');
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    overlay.classList.add('hidden');
+    sidebar.classList.add('-translate-x-full');
+    document.body.style.overflow='';
+  }
+  if(openBtn) openBtn.addEventListener('click', open);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  if(overlay) overlay.addEventListener('click', close);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+})();
+</script>
+
+<script>lucide.createIcons();</script>
+<script type="module">
+/* estático */
+</script>
+</body>
+</html>

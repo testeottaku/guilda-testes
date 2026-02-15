@@ -28,83 +28,38 @@
     .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
     .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
     .drawer-panel.show{ transform: translateX(0); }
-
-    /* views */
-    .view{display:none;}
-    .view.show{display:block;}
-
-    .chip{
-      border:1px solid rgba(226,232,240,1);
-      background:#fff;
-      padding:.55rem .9rem;
-      border-radius:999px;
-      font-size:.75rem;
-      font-weight:800;
-      color:#0f172a;
-      transition: transform .08s ease, background .15s ease, border-color .15s ease;
-    }
-    .chip:hover{ background: rgba(248,250,252,1); }
-    .chip:active{ transform: scale(.98); }
-    .chip.on{ border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.08); color: rgba(6,95,70,1); }
-    .chip-ghost{ background: transparent; color: rgba(100,116,139,1); }
-
-    .nav-btn{
-      width:100%;
-      display:flex;
-      align-items:center;
-      gap:.75rem;
-      padding:.9rem 1rem;
-      border-radius:1rem;
-      font-weight:900;
-      font-size:.95rem;
-      color: rgb(15,23,42);
-      transition: background .15s ease, transform .08s ease;
-    }
-    .nav-btn:hover{ background: rgba(241,245,249,1); }
-    .nav-btn:active{ transform: scale(.99); }
-    .nav-primary{
-      background: linear-gradient(to right, rgba(16,185,129,1), rgba(21,128,61,1));
-      color:#fff;
-    }
-    .nav-primary:hover{ filter: brightness(.98); background: linear-gradient(to right, rgba(16,185,129,1), rgba(21,128,61,1)); }
-
-  
-    .filter-item{
-      width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:.85rem 1rem;
-      border-radius:1.1rem;
-      border:1px solid rgba(226,232,240,1);
-      background:#fff;
-      font-size:.85rem;
-      font-weight:900;
-      color: rgb(15,23,42);
-      transition: background .15s ease, border-color .15s ease, transform .08s ease;
-    }
-    .filter-item:hover{ background: rgba(248,250,252,1); }
-    .filter-item:active{ transform: scale(.99); }
-    .filter-item.on{ border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.10); color: rgba(6,95,70,1); }
-
-    .filter-clear{
-      padding:.7rem 1rem;
-      border-radius:1.1rem;
-      font-size:.8rem;
-      font-weight:900;
-      border:1px solid rgba(226,232,240,1);
-      background: rgba(248,250,252,1);
-      color: rgba(71,85,105,1);
-      transition: background .15s ease, transform .08s ease;
-    }
-    .filter-clear:hover{ background: rgba(241,245,249,1); }
-    .filter-clear:active{ transform: scale(.99); }
-
-
   </style>
 </head>
 
 <body class="min-h-screen bg-white text-slate-900">
+
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-white/10 transition-transform">
+    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-white font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-200 flex items-center justify-center" aria-label="Fechar menu">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    <nav class="p-4 flex flex-col gap-2">
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-white"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
+      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
+    </nav>
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+      Dica: se algo não carregar, atualize a página e tente novamente.
+    </div>
+  </aside>
+
   <!-- Top bar -->
   <header class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 backdrop-blur">
     <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
@@ -128,24 +83,12 @@
         <a href="#como-funciona" class="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 transition">
           Como funciona
         </a>
-
-        <button id="open-menu" type="button"
-          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[.98] transition"
-          aria-label="Abrir menu">
-          <i data-lucide="menu" class="h-5 w-5 text-slate-800"></i>
-        </button>
-
-        <button id="open-auth" type="button"
-          class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 active:scale-[.98] transition">
-          <i data-lucide="log-in" class="h-4 w-4"></i>
-          <span>Entrar</span>
-        </button>
-      </div>
+</div>
     </div>
   </header>
 
   <!-- Hero -->
-  <main id="view-home" class="view show relative">
+  <main class="relative">
     <section class="mx-auto w-full max-w-6xl px-4 pt-10 pb-8 sm:pt-14">
       <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
         <div class="reveal" data-reveal>
@@ -423,263 +366,19 @@
 </footer>
   </main>
 
-
-  <!-- Views (não mexe no login/cadastro) -->
-  <main id="view-events" class="view">
-    <section class="mx-auto w-full max-w-6xl px-4 pt-10 pb-10 sm:pt-14">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
-            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            Eventos e Campeonatos
-          </div>
-          <h1 class="mt-3 text-2xl font-black tracking-tight sm:text-3xl">Encontre um camp agora</h1>
-          <p class="mt-2 text-sm text-slate-600">Pesquise por guilda, título ou descrição. Use filtros pra achar o que combina com você.</p>
-        </div>
-      </div>
-
-      <div class="mt-6 grid gap-3 lg:grid-cols-12">
-        <div class="lg:col-span-8">
-          <div class="flex gap-2">
-            <div class="relative flex-1">
-              <i data-lucide="search" class="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400"></i>
-              <input id="events-q" type="text"
-                class="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                placeholder="Ex: batalha, 1v1, Ottakubrasil, premiação..." />
-            </div>
-            <button id="events-refresh" type="button"
-              class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-extrabold text-slate-800 hover:bg-slate-50 active:scale-[.98] transition">
-              <i data-lucide="refresh-ccw" class="h-4 w-4 text-emerald-700"></i>
-              Atualizar
-            </button>
-          </div>
-
-          
-      <div class="mt-3">
-        <div class="relative">
-          <button id="events-filter-btn" type="button"
-            class="inline-flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-extrabold text-slate-800 hover:bg-slate-50 active:scale-[.99] transition">
-            <span class="inline-flex items-center gap-2">
-              <i data-lucide="sliders-horizontal" class="h-4 w-4 text-emerald-700"></i>
-              <span>Filtros</span>
-              <span id="events-filter-pill" class="hidden rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-800"></span>
-            </span>
-            <i data-lucide="chevron-down" class="h-4 w-4 text-slate-500"></i>
-          </button>
-
-          <div id="events-filter-panel"
-            class="hidden absolute z-20 mt-2 w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
-            <div class="p-4">
-              <div class="text-xs font-black text-slate-500">TIPO</div>
-              <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <button class="ev-filter filter-item" data-k="mode" data-v="battle" type="button">Battle Royale</button>
-                <button class="ev-filter filter-item" data-k="mode" data-v="xvx" type="button">XvX</button>
-              </div>
-
-              <div class="mt-4 text-xs font-black text-slate-500">INSCRIÇÃO</div>
-              <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <button class="ev-filter filter-item" data-k="paid" data-v="paid" type="button">Pago</button>
-                <button class="ev-filter filter-item" data-k="paid" data-v="free" type="button">Gratuito</button>
-              </div>
-
-              <div class="mt-4 text-xs font-black text-slate-500">EXTRAS</div>
-              <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <button class="ev-filter filter-item" data-k="prize" data-v="yes" type="button">Com premiação</button>
-              </div>
-
-              <div class="mt-4 text-xs font-black text-slate-500">BATTLE ROYALE</div>
-              <div class="mt-2 grid gap-2 sm:grid-cols-3">
-                <button class="ev-filter filter-item" data-k="solo" data-v="solo" type="button">Solo</button>
-                <button class="ev-filter filter-item" data-k="solo" data-v="duo" type="button">Duo</button>
-                <button class="ev-filter filter-item" data-k="solo" data-v="squad" type="button">Squad</button>
-              </div>
-
-              <div class="mt-4 text-xs font-black text-slate-500">XvX</div>
-              <div class="mt-2 grid gap-2 sm:grid-cols-4">
-                <button class="ev-filter filter-item" data-k="xvx" data-v="1v1" type="button">1v1</button>
-                <button class="ev-filter filter-item" data-k="xvx" data-v="2v2" type="button">2v2</button>
-                <button class="ev-filter filter-item" data-k="xvx" data-v="3v3" type="button">3v3</button>
-                <button class="ev-filter filter-item" data-k="xvx" data-v="4v4" type="button">4v4</button>
-              </div>
-
-              <div class="mt-4 flex items-center justify-end gap-2">
-                <button id="events-clear" class="filter-clear" type="button">
-                  Limpar filtros
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-          <div id="events-status" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-            Carregando…
-          </div>
-
-          <div id="events-grid" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
-        </div>
-
-        <aside class="lg:col-span-4">
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex items-center gap-2 text-sm font-black">
-              <i data-lucide="sparkles" class="h-4 w-4 text-emerald-700"></i>
-              Dica rápida
-            </div>
-            <p class="mt-2 text-sm text-slate-600">
-              Se você não vê nada aqui, provavelmente as regras ainda não liberaram leitura pública.
-              Mesmo assim, a tela não quebra e você já pode testar o layout.
-            </p>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
-
-  <main id="view-stats" class="view">
-    <section class="mx-auto w-full max-w-6xl px-4 pt-10 pb-10 sm:pt-14">
-      <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
-        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-        Minhas estatísticas
-      </div>
-      <h1 class="mt-3 text-2xl font-black tracking-tight sm:text-3xl">Descubra onde você está cadastrado</h1>
-      <p class="mt-2 text-sm text-slate-600">Coloque seu ID ou nick. Mostra sua guilda e seus dados (sem WhatsApp).</p>
-
-      <div class="mt-6 flex gap-2">
-        <div class="relative flex-1">
-          <i data-lucide="search" class="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400"></i>
-          <input id="stats-q" type="text"
-            class="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-            placeholder="Ex: nick do jogo ou ID" />
-        </div>
-        <button id="stats-go" type="button"
-          class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-emerald-700 active:scale-[.98] transition">
-          <i data-lucide="arrow-right" class="h-4 w-4"></i>
-          Buscar
-        </button>
-      </div>
-
-      <div id="stats-status" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-        Faça uma busca para ver o resultado.
-      </div>
-
-      <div id="stats-result" class="mt-4 grid gap-4"></div>
-    </section>
-  </main>
-
-  <main id="view-support" class="view">
-    <section class="mx-auto w-full max-w-6xl px-4 pt-10 pb-10 sm:pt-14">
-      <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
-        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-        Suporte
-      </div>
-      <h1 class="mt-3 text-2xl font-black tracking-tight sm:text-3xl">Fala com a gente</h1>
-      <p class="mt-2 text-sm text-slate-600">
-        Se você encontrou algum bug, ficou com dúvida ou quer sugerir uma melhoria, chama a gente sem medo.
-A gente lê tudo e vai ajustando o HUB aos poucos, sempre pensando no que facilita a vida da guilda.
-Se puder, manda print do erro e explica rapidinho o que você estava tentando fazer.
-Isso ajuda demais a corrigir mais rápido.
-
-Canais oficiais abaixo. Se for algo urgente, o grupo do WhatsApp costuma ser o caminho mais rápido.
-      </p>
-
-      <div class="mt-6 grid gap-4 sm:grid-cols-2">
-        <a href="https://instagram.com/guildahub" target="_blank" rel="noopener noreferrer"
-          class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:bg-slate-50 transition">
-          <div class="flex items-center gap-3">
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-              <i data-lucide="instagram" class="h-5 w-5"></i>
-            </div>
-            <div>
-              <div class="text-sm font-black">Instagram</div>
-              <div class="text-xs font-semibold text-slate-500">@guildahub</div>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://chat.whatsapp.com/FsBRk3VNaGm29UmXldwaOE?mode=gi_t" target="_blank" rel="noopener noreferrer"
-          class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:bg-slate-50 transition">
-          <div class="flex items-center gap-3">
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-              <i data-lucide="message-circle" class="h-5 w-5"></i>
-            </div>
-            <div>
-              <div class="text-sm font-black">Grupo WhatsApp</div>
-              <div class="text-xs font-semibold text-slate-500">Suporte oficial</div>
-            </div>
-          </div>
-        </a>
-      </div>
-    </section>
-  </main>
-
-
-  <!-- Menu drawer -->
-  <div id="menu-backdrop" class="drawer-backdrop fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm"></div>
-
-  <aside id="menu-drawer" class="drawer-panel fixed left-0 top-0 z-50 h-full w-full max-w-sm border-r border-slate-200 bg-white shadow-2xl">
-    <div class="flex h-full flex-col">
-      <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-        <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white flex items-center justify-center text-emerald-700 shadow-sm">
-            <i data-lucide="shield" class="h-5 w-5"></i>
-          </div>
-          <div>
-            <div class="text-sm font-black leading-tight">Menu</div>
-            <div class="text-xs font-medium text-slate-500">Guilda HUB</div>
-          </div>
-        </div>
-
-        <button id="close-menu" type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[.98] transition"
-          aria-label="Fechar menu">
-          <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
-        </button>
-      </div>
-
-      <nav class="flex-1 overflow-y-auto px-4 py-4">
-        <button class="nav-btn" data-view="home" type="button">
-          <i data-lucide="home" class="h-5 w-5"></i>
-          <span>Início</span>
-        </button>
-
-        <button class="nav-btn" data-view="events" type="button">
-          <i data-lucide="calendar" class="h-5 w-5"></i>
-          <span>Eventos e Camp</span>
-        </button>
-
-        <button class="nav-btn" data-view="stats" type="button">
-          <i data-lucide="bar-chart-3" class="h-5 w-5"></i>
-          <span>Minhas estatísticas</span>
-        </button>
-
-        <button class="nav-btn" data-view="support" type="button">
-          <i data-lucide="life-buoy" class="h-5 w-5"></i>
-          <span>Suporte</span>
-        </button>
-
-        <div class="mt-4 border-t border-slate-200 pt-4">
-          <button id="nav-enter" class="nav-btn nav-primary" type="button">
-            <i data-lucide="log-in" class="h-5 w-5"></i>
-            <span>Entrar</span>
-          </button>
-        </div>
-      </nav>
-
-      <div class="border-t border-slate-200 px-5 py-4 text-xs text-slate-500">
-        Dica: “Entrar” abre o login sem mexer no resto.
-      </div>
-    </div>
-  </aside>
-
-
   <!-- Auth drawer -->
   <div id="auth-backdrop" class="drawer-backdrop fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm"></div>
 
   <aside id="auth-drawer" class="drawer-panel fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-slate-200 bg-white shadow-2xl">
     <div class="flex h-full flex-col">
       <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-        <div class="flex items-center gap-3">
+        
+      <button id="sidebar-open" type="button"
+        class="mr-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/10 transition hover:bg-white/15"
+        aria-label="Abrir menu">
+        <i data-lucide="menu" class="h-5 w-5"></i>
+      </button>
+<div class="flex items-center gap-3">
           <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/30 text-emerald-700 flex items-center justify-center">
             <i data-lucide="shield" class="h-5 w-5"></i>
           </div>
@@ -789,53 +488,6 @@ Canais oficiais abaixo. Se for algo urgente, o grupo do WhatsApp costuma ser o c
     document.getElementById('open-auth-3')?.addEventListener('click', openAuth);
     document.getElementById('close-auth')?.addEventListener('click', closeAuth);
     backdrop?.addEventListener('click', closeAuth);
-    // Menu drawer + navegação (não mexe no login/cadastro)
-    const menuBackdrop = document.getElementById('menu-backdrop');
-    const menuDrawer = document.getElementById('menu-drawer');
-
-    function openMenu(){
-      menuBackdrop.classList.add('show');
-      menuDrawer.classList.add('show');
-      document.documentElement.style.overflow = 'hidden';
-    }
-    function closeMenu(){
-      menuBackdrop.classList.remove('show');
-      menuDrawer.classList.remove('show');
-      document.documentElement.style.overflow = '';
-    }
-
-    document.getElementById('open-menu')?.addEventListener('click', openMenu);
-    document.getElementById('close-menu')?.addEventListener('click', closeMenu);
-    menuBackdrop?.addEventListener('click', closeMenu);
-
-    function showView(key){
-      const map = {
-        home: document.getElementById('view-home'),
-        events: document.getElementById('view-events'),
-        stats: document.getElementById('view-stats'),
-        support: document.getElementById('view-support'),
-      };
-      Object.values(map).forEach(el => el?.classList.remove('show'));
-      map[key]?.classList.add('show');
-      // scroll to top for a clean switch
-      try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch(_){ window.scrollTo(0,0); }
-      // refresh icons for newly shown view
-      try { window.lucide && window.lucide.createIcons && window.lucide.createIcons(); } catch(_) {}
-    }
-
-    document.querySelectorAll('#menu-drawer .nav-btn[data-view]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const v = btn.getAttribute('data-view');
-        closeMenu();
-        showView(v);
-      });
-    });
-
-    document.getElementById('nav-enter')?.addEventListener('click', ()=>{
-      closeMenu();
-      openAuth();
-    });
-
     window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeAuth(); });
 
     // Scroll reveal
@@ -944,492 +596,28 @@ Canais oficiais abaixo. Se for algo urgente, o grupo do WhatsApp costuma ser o c
     });
   </script>
 
-  <script type="module">
-    // Eventos + Estatísticas (não mexe no login/cadastro)
-    import * as logic from './logic.js';
-    import { getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore, collectionGroup, query, orderBy, limit, onSnapshot, getDocs, where
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const showToast = logic.showToast || ((type,msg)=>console.log(type,msg));
-
-    function getDbSafe(){
-      try{
-        if (logic.db) return logic.db;
-      }catch(_){}
-      try{
-        const app = getApps().length ? getApp() : null;
-        return app ? getFirestore(app) : null;
-      }catch(_){ return null; }
-    }
-
-    const db = getDbSafe();
-
-    // ---------- Eventos ----------
-    const evGrid = document.getElementById('events-grid');
-    const evStatus = document.getElementById('events-status');
-    const evQ = document.getElementById('events-q');
-    const evRefresh = document.getElementById('events-refresh');
-    const evClear = document.getElementById('events-clear');
-    const evChips = Array.from(document.querySelectorAll('.ev-filter'));
-    const evFilterBtn = document.getElementById('events-filter-btn');
-    const evFilterPanel = document.getElementById('events-filter-panel');
-    const evFilterPill = document.getElementById('events-filter-pill');
-
-    const filters = { mode:null, paid:null, prize:null, solo:null, xvx:null };
-
-    function setChipState(){
-      evChips.forEach(ch=>{
-        const k = ch.dataset.k, v = ch.dataset.v;
-        const on = (filters[k] === v);
-        ch.classList.toggle('on', on);
-      });
-
-      const active = Object.entries(filters).filter(([_,v])=>!!v).map(([k,v])=>v);
-      if (evFilterPill){
-        if (active.length){
-          evFilterPill.textContent = `${active.length} ativo(s)`;
-          evFilterPill.classList.remove('hidden');
-        } else {
-          evFilterPill.textContent = '';
-          evFilterPill.classList.add('hidden');
-        }
-      }
-    }
-
-    evChips.forEach(ch=>{
-      ch.addEventListener('click', ()=>{
-        const k = ch.dataset.k, v = ch.dataset.v;
-        filters[k] = (filters[k] === v) ? null : v;
-        // exclusões básicas
-        if (k === 'mode'){
-          if (v === 'battle') filters.xvx = null;
-          if (v === 'xvx') { filters.solo = null; }
-        }
-        if (k === 'xvx') filters.mode = 'xvx';
-        if (k === 'solo') filters.mode = 'battle';
-        setChipState();
-        renderEvents(currentEvents);
-      });
-    });
-
-    evClear?.addEventListener('click', ()=>{
-      filters.mode = filters.paid = filters.prize = filters.solo = filters.xvx = null;
-      setChipState();
-      renderEvents(currentEvents);
-    });
-
-    
-    function toggleFilterPanel(force){
-      if (!evFilterPanel) return;
-      const open = (force != null) ? !!force : evFilterPanel.classList.contains('hidden');
-      if (open){
-        evFilterPanel.classList.remove('hidden');
-        try { window.lucide && window.lucide.createIcons && window.lucide.createIcons(); } catch(_) {}
-      } else {
-        evFilterPanel.classList.add('hidden');
-      }
-    }
-
-    evFilterBtn?.addEventListener('click', (e)=>{
-      e.preventDefault();
-      e.stopPropagation();
-      if (!evFilterPanel) return;
-      const isOpen = !evFilterPanel.classList.contains('hidden');
-      toggleFilterPanel(!isOpen);
-    });
-
-    document.addEventListener('click', (e)=>{
-      if (!evFilterPanel) return;
-      const t = e.target;
-      if (evFilterPanel.classList.contains('hidden')) return;
-      if (evFilterPanel.contains(t) || evFilterBtn?.contains(t)) return;
-      toggleFilterPanel(false);
-    });
-
-    window.addEventListener('keydown', (e)=>{
-      if (e.key === 'Escape') toggleFilterPanel(false);
-    });
-
-
-    let unsubEvents = null;
-    let currentEvents = [];
-
-    function norm(v){ return String(v ?? '').toLowerCase(); }
-
-    function formatBRL(v){
-      const n = Number(v);
-      if (!isFinite(n) || n <= 0) return null;
-      try{
-        return new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' }).format(n);
-      }catch(_){
-        return 'R$ ' + n.toFixed(2).replace('.', ',');
-      }
-    }
-
-    function timeLeftTag(ms){
-      const t = Number(ms);
-      if (!isFinite(t) || t <= 0) return null;
-      const now = Date.now();
-      const diff = t - now;
-      const abs = Math.abs(diff);
-      const m = Math.floor(abs/60000);
-      const h = Math.floor(m/60);
-      const d = Math.floor(h/24);
-      if (diff <= 0){
-        if (d >= 1) return `EXPIRADO há ${d}d`;
-        if (h >= 1) return `EXPIRADO há ${h}h`;
-        return `EXPIRADO`;
-      }
-      if (d >= 1) return `Faltam ${d}d`;
-      if (h >= 1) return `Faltam ${h}h`;
-      return `Faltam ${m}m`;
-    }
-
-    function passesFilters(ev){
-      const q = norm(evQ?.value || '');
-      if (q){
-        const hay = [ev.title, ev.description, ev.guildName].map(norm).join(' ');
-        if (!hay.includes(q)) return false;
-      }
-
-      // mode
-      if (filters.mode === 'battle'){
-        if (norm(ev.kind) !== 'battle') return false;
-      }
-      if (filters.mode === 'xvx'){
-        if (norm(ev.kind) !== 'xvx') return false;
-      }
-
-      // paid/free
-      if (filters.paid === 'paid' && !ev.isPaid) return false;
-      if (filters.paid === 'free' && ev.isPaid) return false;
-
-      // prize
-      if (filters.prize === 'yes' && !(Number(ev.prizeTotal) > 0)) return false;
-
-      // solo/duo/squad
-      if (filters.solo && norm(ev.battleMode) !== filters.solo) return false;
-
-      // xvx
-      if (filters.xvx && norm(ev.xvxMode) !== filters.xvx) return false;
-
-      return true;
-    }
-
-    function evCard(ev){
-      const prize = formatBRL(ev.prizeTotal);
-      const fee = ev.isPaid ? formatBRL(ev.feeValue) : null;
-      const link = ev.link || '';
-      const expTag = timeLeftTag(ev.vipExpiresAtMs || ev.expiresAtMs || ev.expiresAt);
-
-      const kindLabel = (norm(ev.kind) === 'xvx') ? 'XvX' : 'Battle Royale';
-      const modeLabel = (norm(ev.kind) === 'xvx') ? (ev.xvxMode || '') : (ev.battleMode || '');
-      const desc = String(ev.description || '');
-      const desc75 = desc.length > 75 ? (desc.slice(0,75).trim() + '…') : desc;
-
-      const tags = [];
-      if (modeLabel) tags.push(`<span class="rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-black text-slate-700">${modeLabel}</span>`);
-      tags.push(`<span class="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-800">${kindLabel}</span>`);
-      if (ev.isPaid) tags.push(`<span class="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-black text-amber-800">Pago</span>`);
-      else tags.push(`<span class="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-700">Gratuito</span>`);
-      if (prize) tags.push(`<span class="rounded-full border border-emerald-200 bg-white px-2 py-1 text-[10px] font-black text-emerald-900">Premiação: ${prize}</span>`);
-      if (expTag) tags.push(`<span class="rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-black text-slate-700">${expTag}</span>`);
-
-      return `
-        <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <div class="text-sm font-black truncate">${ev.title || 'Campeonato'}</div>
-              <div class="mt-1 text-xs font-semibold text-slate-500 truncate">${ev.guildName || 'Guilda'}</div>
-            </div>
-            <div class="h-10 w-10 rounded-2xl bg-emerald-600/10 border border-emerald-200 flex items-center justify-center text-emerald-700">
-              <i data-lucide="trophy" class="h-5 w-5"></i>
-            </div>
-          </div>
-
-          ${desc75 ? `<p class="mt-3 text-xs text-slate-600 leading-relaxed">${desc75}</p>` : ''}
-
-          <div class="mt-3 flex flex-wrap gap-2">${tags.join('')}</div>
-
-          <div class="mt-4 flex items-center justify-between gap-3">
-            <div class="text-xs font-semibold text-slate-500">
-              ${fee ? `Inscrição: <span class="font-black text-slate-800">${fee}</span>` : ''}
-            </div>
-            ${link ? `
-              <a class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-3 py-2 text-xs font-extrabold text-white hover:bg-emerald-700 active:scale-[.98] transition" target="_blank" rel="noopener noreferrer" href="${link}">
-                <i data-lucide="external-link" class="h-4 w-4"></i>
-                Ver infos
-              </a>` : ''}
-          </div>
-        </article>
-      `;
-    }
-
-    function renderEvents(list){
-      const filtered = (list || []).filter(passesFilters);
-      if (!evGrid) return;
-
-      if (!db){
-        evStatus.textContent = 'Firebase não inicializado nesta tela.';
-        evGrid.innerHTML = '';
-        return;
-      }
-
-      if (filtered.length === 0){
-        evStatus.textContent = 'Nenhum evento encontrado (ou ainda não liberou leitura pública).';
-        evGrid.innerHTML = '';
-        return;
-      }
-
-      evStatus.textContent = `${filtered.length} evento(s)`;
-      evGrid.innerHTML = filtered.map(evCard).join('');
-      try { window.lucide && window.lucide.createIcons && window.lucide.createIcons(); } catch(_) {}
-    }
-
-    function normalizeEvent(doc){
-      const d = doc.data() || {};
-      // Tenta cobrir nomes diferentes sem quebrar
-      return {
-        id: doc.id,
-        title: d.title || d.nome || d.titulo || '',
-        description: d.description || d.desc || d.descricao || '',
-        guildName: d.guildName || d.guild || d.guildaName || d.guilda || '',
-        link: d.link || d.destino || d.url || '',
-        kind: (d.kind || d.type || d.formato || '').toLowerCase() || (d.xvxMode ? 'xvx' : 'battle'),
-        battleMode: (d.battleMode || d.mode || '').toLowerCase(),
-        xvxMode: (d.xvxMode || d.xvx || '').toLowerCase(),
-        isPaid: !!(d.isPaid || d.paid || d.inscricaoPaga),
-        feeValue: d.feeValue ?? d.fee ?? d.inscricaoValor ?? null,
-        prizeTotal: d.prizeTotal ?? d.premiacao ?? d.premio ?? null,
-        vipExpiresAtMs: d.vipExpiresAt ?? d.vipExpiresAtMs ?? null,
-        expiresAtMs: d.expiresAtMs ?? null,
-        expiresAt: d.expiresAt ?? null,
-        createdAtMs: d.createdAtMs ?? 0,
-      };
-    }
-
-    function startEvents(){
-      if (!db){
-        evStatus.textContent = 'Firebase não inicializado nesta tela.';
-        return;
-      }
-
-      // coleção global (vai depender das regras depois)
-      try{
-        const qy = query(collectionGroup(db, 'campeonatos'), limit(200));
-        unsubEvents && unsubEvents();
-        evStatus.textContent = 'Carregando…';
-        unsubEvents = onSnapshot(qy, (snap)=>{
-          currentEvents = snap.docs.map(normalizeEvent)
-            .sort((a,b)=> (Number(b.createdAtMs)||0) - (Number(a.createdAtMs)||0));
-          renderEvents(currentEvents);
-        }, (err)=>{
-          console.error(err);
-          evStatus.textContent = 'Sem permissão para listar eventos (ainda).';
-          currentEvents = [];
-          renderEvents(currentEvents);
-        });
-      }catch(err){
-        console.error(err);
-        evStatus.textContent = 'Não foi possível iniciar a lista (config/regras).';
-      }
-    }
-
-    evQ?.addEventListener('input', ()=>renderEvents(currentEvents));
-    evRefresh?.addEventListener('click', startEvents);
-
-    // iniciar apenas quando entrar na tela (pra não gastar listener)
-    const menuButtons = document.querySelectorAll('#menu-drawer .nav-btn[data-view]');
-    menuButtons.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        if (btn.getAttribute('data-view') === 'events'){
-          setTimeout(startEvents, 50);
-        }
-      });
-    });
-
-    // ---------- Estatísticas ----------
-    const stQ = document.getElementById('stats-q');
-    const stGo = document.getElementById('stats-go');
-    const stStatus = document.getElementById('stats-status');
-    const stRes = document.getElementById('stats-result');
-
-    function safeText(x){ return String(x ?? '').trim(); }
-
-    function memberCard(m){
-      const guild = safeText(m.guildName) || 'Guilda';
-      const nick = safeText(m.nick) || safeText(m.nome) || safeText(m.name) || 'Jogador';
-      const pid = safeText(m.playerId) || safeText(m.id) || safeText(m.uid) || '';
-      const tag = safeText(m.tag) || '';
-      const role = safeText(m.role) || safeText(m.cargo) || '';
-
-      const rows = [];
-      if (pid) rows.push(`<div class="text-xs text-slate-600"><span class="font-black text-slate-800">ID:</span> ${pid}</div>`);
-      if (tag) rows.push(`<div class="text-xs text-slate-600"><span class="font-black text-slate-800">Tag:</span> ${tag}</div>`);
-      if (role) rows.push(`<div class="text-xs text-slate-600"><span class="font-black text-slate-800">Cargo:</span> ${role}</div>`);
-
-      return `
-        <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div class="text-sm font-black">${nick}</div>
-          <div class="mt-1 text-xs font-semibold text-slate-500">${guild}</div>
-          <div class="mt-3 grid gap-1">${rows.join('')}</div>
-          <div class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-900/70">
-            WhatsApp não aparece por segurança.
-          </div>
-        </article>
-      `;
-    }
-
-    
-    let membersCache = null;
-    let membersCacheAt = 0;
-
-    function pathGuildId(path){
-      try{
-        const parts = String(path||'').split('/');
-        const i = parts.indexOf('guildas');
-        return (i >= 0 && parts[i+1]) ? parts[i+1] : '';
-      }catch(_){ return ''; }
-    }
-
-    async function loadMembersCache(){
-      if (!db) return [];
-      const now = Date.now();
-      if (membersCache && (now - membersCacheAt) < 60_000) return membersCache; // 1 min
-      const cg = collectionGroup(db, 'membros');
-      const snap = await getDocs(query(cg, limit(2000)));
-      membersCache = snap.docs.map(d=>{
-        const data = d.data() || {};
-        return { __doc: d, __gid: pathGuildId(d.ref.path), ...data };
-      });
-      membersCacheAt = now;
-      return membersCache;
-    }
-
-    async function fallbackScanMember(qRaw){
-      const qv = safeText(qRaw);
-      if (!qv) return null;
-      const qLower = qv.toLowerCase();
-      const list = await loadMembersCache();
-      if (!list.length) return null;
-
-      // prioridade: match exato em campos comuns
-      const exact = list.find(m =>
-        safeText(m.playerId) === qv ||
-        safeText(m.id) === qv ||
-        safeText(m.uid) === qv ||
-        safeText(m.nick) === qv ||
-        safeText(m.name) === qv ||
-        safeText(m.nome) === qv ||
-        safeText(m.nickLower).toLowerCase() === qLower
-      );
-      if (exact) return exact.__doc;
-
-      // fallback: match por contains no nick/nome (evita ficar "sempre nada")
-      const partial = list.find(m =>
-        safeText(m.nick).toLowerCase().includes(qLower) ||
-        safeText(m.name).toLowerCase().includes(qLower) ||
-        safeText(m.nome).toLowerCase().includes(qLower)
-      );
-      return partial ? partial.__doc : null;
-    }
-
-
-    async function findMember(qRaw){
-      if (!db) throw new Error('no-db');
-      const qv = safeText(qRaw);
-      if (!qv) return null;
-
-      const cg = collectionGroup(db, 'membros');
-
-      // tenta por campos comuns (sem OR, então em série)
-      const tries = [
-        ['playerId', qv],
-        ['id', qv],
-        ['uid', qv],
-        ['nick', qv],
-        ['nickLower', qv.toLowerCase()],
-        ['name', qv],
-        ['nome', qv],
-      ];
-
-      for (const [field, val] of tries){
-        try{
-          const qy = query(cg, where(field, '==', val), limit(1));
-          const snap = await getDocs(qy);
-          if (!snap.empty) return snap.docs[0];
-        }catch(err){
-          // se falhar por índice/campo inexistente, tenta a próxima
-          continue;
-        }
-      }
-      // fallback (sem depender de índice/campos)
-      try{ return await fallbackScanMember(qv); }catch(_){ return null; }
-    }
-
-    async function resolveGuildName(guildId){
-      // tenta pegar via configGuilda
-      try{
-        if (!guildId) return '';
-        const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-        const ref = doc(db, 'configGuilda', guildId);
-        const snap = await getDoc(ref);
-        const d = snap.data() || {};
-        return d.name || d.guildName || d.nome || '';
-      }catch(_){ return ''; }
-    }
-
-    stGo?.addEventListener('click', async ()=>{
-      const qv = stQ?.value || '';
-      stStatus.textContent = 'Buscando…';
-      stRes.innerHTML = '';
-
-      if (!db){
-        stStatus.textContent = 'Firebase não inicializado nesta tela.';
-        return;
-      }
-
-      try{
-        const docm = await findMember(qv);
-        if (!docm){
-          stStatus.textContent = 'Nada encontrado. Tenta com outro nick/ID.';
-          return;
-        }
-        const d = docm.data() || {};
-        // não mostra WhatsApp
-        delete d.whatsapp;
-        delete d.phone;
-        delete d.numero;
-        delete d.number;
-
-        // tenta derivar guildId pelo caminho
-        const path = docm.ref.path; // guildas/{gid}/membros/{id}
-        let gid = '';
-        try{
-          const parts = path.split('/');
-          const idx = parts.indexOf('guildas');
-          if (idx >= 0 && parts[idx+1]) gid = parts[idx+1];
-        }catch(_){}
-
-        const gName = d.guildName || (await resolveGuildName(gid)) || '';
-        const merged = { ...d, guildName: gName };
-
-        stStatus.textContent = 'Resultado:';
-        stRes.innerHTML = memberCard(merged);
-        try { window.lucide && window.lucide.createIcons && window.lucide.createIcons(); } catch(_) {}
-      }catch(err){
-        console.error(err);
-        if (String(err?.message || '').includes('permission')){
-          stStatus.textContent = 'Sem permissão para buscar (ainda).';
-        } else {
-          stStatus.textContent = 'Erro ao buscar. Tenta de novo.';
-        }
-      }
-    });
-
-  </script>
+<script>
+(function(){
+  const openBtn = document.getElementById('sidebar-open');
+  const closeBtn = document.getElementById('sidebar-close');
+  const overlay = document.getElementById('sidebar-overlay');
+  const sidebar = document.getElementById('sidebar');
+  function open(){
+    overlay.classList.remove('hidden');
+    sidebar.classList.remove('-translate-x-full');
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    overlay.classList.add('hidden');
+    sidebar.classList.add('-translate-x-full');
+    document.body.style.overflow='';
+  }
+  if(openBtn) openBtn.addEventListener('click', open);
+  if(closeBtn) closeBtn.addEventListener('click', close);
+  if(overlay) overlay.addEventListener('click', close);
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+})();
+</script>
 
 </body>
 </html>
