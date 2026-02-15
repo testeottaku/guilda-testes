@@ -287,6 +287,35 @@ function tag(text, cls = "bg-slate-100 text-slate-700 ring-1 ring-slate-200") {
   return `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${cls}">${text}</span>`;
 }
 
+
+function translateStatus(raw){
+  const r = safeStr(raw).trim();
+  if (!r) return "";
+  const key = norm(r).replace(/[_-]+/g, " ").trim();
+  const map = {
+    "open":"ABERTO",
+    "opened":"ABERTO",
+    "active":"ATIVO",
+    "running":"EM ANDAMENTO",
+    "in progress":"EM ANDAMENTO",
+    "inprogress":"EM ANDAMENTO",
+    "progress":"EM ANDAMENTO",
+    "pending":"PENDENTE",
+    "waiting":"AGUARDANDO",
+    "scheduled":"AGENDADO",
+    "schedule":"AGENDADO",
+    "closed":"ENCERRADO",
+    "close":"ENCERRADO",
+    "finished":"FINALIZADO",
+    "ended":"FINALIZADO",
+    "done":"FINALIZADO",
+    "canceled":"CANCELADO",
+    "cancelled":"CANCELADO",
+    "paused":"PAUSADO"
+  };
+  return (map[key] || r).toString().toUpperCase();
+}
+
 function render(items) {
   if (!elGrid) return;
 
@@ -312,7 +341,7 @@ function render(items) {
 
   const row = (ico, label, value) => {
     if (!value) return '';
-    return `<div class="flex items-center justify-end gap-2 text-xs text-slate-600 text-right">
+    return `<div class="flex items-center justify-start gap-2 text-xs text-slate-600 text-left">
       <i data-lucide="${ico}" class="h-4 w-4 text-slate-500"></i>
       <span class="font-semibold text-slate-700">${label}:</span>
       <span class="truncate">${safeStr(value)}</span>
@@ -365,7 +394,7 @@ function render(items) {
     })();
 
     const progressRaw = safeStr(pick(d, ["progress","progresso","status","statusProgress","andamento"], "")).trim();
-    const progressTxt = progressRaw ? progressRaw.toUpperCase() : "";
+    const progressTxt = progressRaw ? translateStatus(progressRaw) : "";
 
     const dateRaw = safeStr(pick(d, ["date","data","dia","day"], "")).trim();
     const timeRaw = safeStr(pick(d, ["time","hora","hour"], "")).trim();
@@ -403,12 +432,12 @@ function render(items) {
             ${descHtml}
           </div>
 
-          <div class="w-[220px] shrink-0 text-right">
-            <div class="flex flex-wrap justify-end gap-2">
+          <div class="w-[220px] shrink-0 text-left">
+            <div class="flex flex-wrap justify-start gap-2">
               ${topPills}
             </div>
 
-            <div class="mt-3 grid grid-cols-1 gap-2 justify-items-end">
+            <div class="mt-3 grid grid-cols-1 gap-2 justify-items-start">
               ${location ? row("map-pin", "Local", location) : ``}
               ${t.isXVX ? row("layers", "Formato", modeTxt) : row("zap", "Modo", modeTxt)}
               ${!t.isXVX && drops ? row("repeat", "Quedas", drops) : ``}
