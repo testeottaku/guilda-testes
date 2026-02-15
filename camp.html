@@ -345,7 +345,8 @@
       const n = Number(v);
       if(!isFinite(n) || n<=0) return null;
       return n.toFixed(2);
-    
+    }
+
     // ==== Dinheiro (pt-BR) para premiação ====
     function parseMoneyBRLInput(v){
       if(v === null || v === undefined) return null;
@@ -584,7 +585,7 @@
       document.getElementById('camp-prizeTotal').value = c.prizeTotal ? formatMoneyPlainBR(c.prizeTotal) : '';
       document.getElementById('camp-link').value = c.link || '';
       document.getElementById('camp-icon').value = c.icon || 'trophy';
-      document.getElementById('camp-photo').value = ''; // por segurança, não reatribui file
+      document.getElementById('camp-photo').value = ''; // por segurança, não reatribui filee
 
       // Guilda
       document.getElementById('camp-guildname').value = c.guildName || guildName || '—';
