@@ -46,43 +46,43 @@
 <body class="min-h-screen bg-white text-slate-900">
 
   
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-white/10 transition-transform">
-    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-white font-black">Guilda HUB</div>
-          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+          <div class="text-slate-900 font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
         </div>
       </div>
-      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-white/5">
-        <i data-lucide="x" class="h-5 w-5 text-slate-200"></i>
+      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
+        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
       </button>
     </div>
 
     <nav class="p-3 space-y-1">
-      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="log-in" class="h-4 w-4"></i>
         <span class="font-semibold">Entrar</span>
       </a>
-      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="calendar" class="h-4 w-4"></i>
         <span class="font-semibold">Eventos e Camp</span>
       </a>
-      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
         <span class="font-semibold">Minhas estatísticas</span>
       </a>
-      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="help-circle" class="h-4 w-4"></i>
         <span class="font-semibold">Suporte</span>
       </a>
     </nav>
 
-    <div class="mt-auto p-4 text-xs text-slate-400 border-t border-white/10">
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
       <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
     </div>
   </aside>
@@ -90,7 +90,7 @@
 <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <button id="mobile-menu-btn" class="h-10 w-10 grid place-items-center rounded-xl bg-slate-900 text-white shadow-sm">
+        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-slate-900 text-slate-900 shadow-sm">
           <i data-lucide="menu" class="h-5 w-5"></i>
         </button>
         <div class="leading-tight">
@@ -103,57 +103,45 @@
   </header>
 
 
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-slate-200 transition-transform">
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
     <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-white font-black">Guilda HUB</div>
-          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+          <div class="text-slate-900 font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
         </div>
       </div>
-      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-200 flex items-center justify-center" aria-label="Fechar menu">
+      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-700 flex items-center justify-center" aria-label="Fechar menu">
         <i data-lucide="x" class="h-5 w-5"></i>
       </button>
     </div>
     <nav class="p-4 flex flex-col gap-2">
-      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
-      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
-      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-white"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
-      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-200 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-slate-900"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
+      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
     </nav>
     <div class="mt-auto p-4 text-xs text-slate-500 border-t border-slate-200">
       Dica: se algo não carregar, atualize a página e tente novamente.
     </div>
   </aside>
 
-<header class="sticky top-0 z-30 border-b border-slate-200 bg-slate-950/80 backdrop-blur">
-  <div class="mx-auto w-full max-w-6xl px-4 py-4 flex items-center gap-3">
-    <button id="sidebar-open" type="button"
-      class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/10 transition hover:bg-white/15"
-      aria-label="Abrir menu">
-      <i data-lucide="menu" class="h-5 w-5"></i>
-    </button>
-    <div class="flex-1">
-      <div class="text-base font-black">Minhas estatísticas</div>
-      <div class="text-xs text-slate-400">Guilda HUB</div>
-    </div>
-  </div>
-</header>
+
 <main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
   <div class="rounded-3xl bg-white ring-1 ring-slate-200 p-4">
     <div class="text-sm font-bold">Buscar meu perfil</div>
-    <p class="mt-1 text-xs text-slate-400">Digite seu nick ou ID. Não mostramos WhatsApp aqui por segurança.</p>
+    <p class="mt-1 text-xs text-slate-500">Digite seu nick ou ID. Não mostramos WhatsApp aqui por segurança.</p>
     <div class="mt-4 flex flex-col gap-3 sm:flex-row">
       <input id="query" type="text" placeholder="Seu nick ou ID"
         class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
       <button id="btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition">Buscar</button>
     </div>
-    <div id="hint" class="mt-3 text-xs text-slate-400"></div>
+    <div id="hint" class="mt-3 text-xs text-slate-500"></div>
   </div>
   <div id="result"></div>
 </section>
@@ -233,11 +221,12 @@ async function findMemberPublic(term) {
       const mSnap = await getDocs(query(collection(db, "guildas", gid, "membros"), limit(2000)));
       for (const m of mSnap.docs) {
         const d = m.data() || {};
-        const nick = norm(d.nick || d.nickname || d.nome || d.name);
-        const pid = norm(d.playerId || d.id || d.uid || d.gameId);
-        const email = norm(d.email);
+        const nick = norm(d.nick || d.nickname || d.nickName || d.nome || d.name || d.playerNick || d.playerName || d.tag || d.tagName);
+        const pid  = norm(d.playerId || d.id || d.uid || d.gameId || d.idff || d.idFF || d.freeFireId || d.ffId || d.idFreeFire || d.idJogo || d.idDoJogo);
+        const alt  = norm(d.idPlayer || d.idJogador || d.player || d.usuario || d.userId);
+        const email = norm(d.email || d.mail);
 
-        if (q === nick || q === pid || q === norm(m.id) || (q && (nick.includes(q) || pid.includes(q) || email.includes(q)))) {
+        if (q === nick || q === pid || q === alt || q === norm(m.id) || (q && (nick.includes(q) || pid.includes(q) || alt.includes(q) || email.includes(q)))) {
           return { guildId: gid, guildName: gname, id: m.id, data: d };
         }
       }
@@ -265,7 +254,7 @@ function renderMember(res) {
         <div class="text-sm text-slate-600">ID/Nick buscado: <span class="font-semibold">${escapeHtml(pid)}</span></div>
         <div class="mt-1 text-xs text-slate-500">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
       </div>
-      <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm">
+      <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-slate-900 grid place-items-center shadow-sm">
         <i data-lucide="user" class="h-5 w-5"></i>
       </div>
     </div>

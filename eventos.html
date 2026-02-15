@@ -34,11 +34,11 @@
     background: rgba(255,255,255,.9); border:1px solid rgba(15,23,42,.14); padding: .75rem 1rem; font-size: .875rem;
     outline:none; }
   .dd-btn:focus { box-shadow: 0 0 0 4px rgba(16,185,129,.18); border-color: rgba(16,185,129,.55); }
-  .dd-menu { position:absolute; left:0; right:0; top: calc(100% + .5rem); background:#0b1220; color:#e2e8f0;
-    border:1px solid rgba(255,255,255,.10); border-radius: 1rem; overflow:hidden; z-index:40;
-    box-shadow: 0 18px 40px rgba(0,0,0,.22); }
+  .dd-menu { position:absolute; left:0; right:0; top: calc(100% + .5rem); background:#ffffff; color:#0f172a;
+    border:1px solid rgba(15,23,42,.12); border-radius: 1rem; overflow:hidden; z-index:40;
+    box-shadow: 0 20px 60px rgba(2,6,23,.18); }
   .dd-item { width:100%; text-align:left; padding:.7rem 1rem; font-size:.875rem; display:flex; align-items:center; gap:.6rem; }
-  .dd-item:hover { background: rgba(255,255,255,.06); }
+  .dd-item:hover { background: rgba(15,23,42,.06); }
   .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#d1fae5; }
 
 </style>
@@ -46,43 +46,43 @@
 <body class="min-h-screen bg-white text-slate-900">
 
   
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-white/10 transition-transform">
-    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-white font-black">Guilda HUB</div>
-          <div class="text-xs text-slate-400">Eventos • Camps • Stats</div>
+          <div class="text-slate-900 font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
         </div>
       </div>
-      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-white/5">
-        <i data-lucide="x" class="h-5 w-5 text-slate-200"></i>
+      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
+        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
       </button>
     </div>
 
     <nav class="p-3 space-y-1">
-      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="log-in" class="h-4 w-4"></i>
         <span class="font-semibold">Entrar</span>
       </a>
-      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="calendar" class="h-4 w-4"></i>
         <span class="font-semibold">Eventos e Camp</span>
       </a>
-      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
         <span class="font-semibold">Minhas estatísticas</span>
       </a>
-      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5">
+      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="help-circle" class="h-4 w-4"></i>
         <span class="font-semibold">Suporte</span>
       </a>
     </nav>
 
-    <div class="mt-auto p-4 text-xs text-slate-400 border-t border-white/10">
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
       <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
     </div>
   </aside>
@@ -90,7 +90,7 @@
 <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <button id="mobile-menu-btn" class="h-10 w-10 grid place-items-center rounded-xl bg-slate-900 text-white shadow-sm">
+        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-slate-900 text-slate-900 shadow-sm">
           <i data-lucide="menu" class="h-5 w-5"></i>
         </button>
         <div class="leading-tight">
@@ -103,15 +103,15 @@
   </header>
 
 
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/50"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-slate-950/95 backdrop-blur border-r border-slate-200 transition-transform">
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
     <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-white font-black">Guilda HUB</div>
+          <div class="text-slate-900 font-black">Guilda HUB</div>
           <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
         </div>
       </div>
@@ -121,7 +121,7 @@
     </div>
     <nav class="p-4 flex flex-col gap-2">
       <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
-      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-white"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
+      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-slate-900"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
       <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
       <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
     </nav>
@@ -130,19 +130,7 @@
     </div>
   </aside>
 
-<header class="sticky top-0 z-30 border-b border-slate-200 bg-slate-950/80 backdrop-blur">
-  <div class="mx-auto w-full max-w-6xl px-4 py-4 flex items-center gap-3">
-    <button id="sidebar-open" type="button"
-      class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/10 transition hover:bg-white/15"
-      aria-label="Abrir menu">
-      <i data-lucide="menu" class="h-5 w-5"></i>
-    </button>
-    <div class="flex-1">
-      <div class="text-base font-black">Eventos e Camp</div>
-      <div class="text-xs text-slate-500">Guilda HUB</div>
-    </div>
-  </div>
-</header>
+
 <main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -347,26 +335,42 @@ function render(items) {
     const desc = norm(it.description) ? safeStr(it.description).slice(0, 140) : "";
     const link = (d.link || d.destino || d.url || "").toString().trim();
 
-    return `<article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <div class="text-lg font-black text-slate-900">${safeStr(it.title || "Evento")}</div>
-          ${when}
+    return `<article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+      ${(()=>{
+        const b64 = (d.photoBase64 || d.fotoBase64 || d.imageBase64 || d.bannerBase64 || d.foto || d.imagem || "").toString().trim();
+        if (!b64) return '';
+        const src = b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`;
+        return `<div class="relative h-40 w-full overflow-hidden bg-slate-100">
+          <img src="${src}" alt="Banner do evento" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+        </div>`;
+      })()}
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-lg font-black text-slate-900 truncate">${safeStr(it.title || "Evento")}</div>
+            ${when}
+          </div>
+          <div class="h-11 w-11 shrink-0 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm ring-1 ring-emerald-700/20">
+            <i data-lucide="${t.isPaid ? 'badge-dollar-sign' : 'trophy'}" class="h-5 w-5"></i>
+          </div>
         </div>
-        <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm">
-          <i data-lucide="trophy" class="h-5 w-5"></i>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+          ${tags.join('')}
         </div>
-      </div>
 
-      <div class="mt-3 flex flex-wrap gap-2">${tags.join('')}</div>
+        ${desc ? `<p class="mt-3 text-sm text-slate-600 leading-relaxed">${safeStr(desc).slice(0, 160)}</p>` : ``}
 
-      ${desc ? `<div class="mt-3 text-sm text-slate-700">${desc}</div>` : ''}
-
-      <div class="mt-4 flex items-center justify-between gap-3">
-        <div class="text-xs text-slate-500">${safeStr(it.guildId || '')}</div>
-        ${link ? `<a class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-extrabold text-white hover:bg-slate-800" href="${link}" target="_blank" rel="noopener noreferrer">
-          <i data-lucide="external-link" class="h-4 w-4"></i> Ver detalhes
-        </a>` : ''}
+        <div class="mt-4 flex items-center justify-between gap-3">
+          <div class="text-xs text-slate-500">
+            ${it.guildName ? `<span class="font-semibold text-slate-700">${safeStr(it.guildName)}</span>` : ``}
+          </div>
+          ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">
+              Ver informações <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </a>` : `<span class="text-xs text-slate-400">Sem link</span>`}
+        </div>
       </div>
     </article>`;
   }).join('');
