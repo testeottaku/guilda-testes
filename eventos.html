@@ -39,7 +39,7 @@
     box-shadow: 0 20px 60px rgba(2,6,23,.18); }
   .dd-item { width:100%; text-align:left; padding:.7rem 1rem; font-size:.875rem; display:flex; align-items:center; gap:.6rem; }
   .dd-item:hover { background: rgba(15,23,42,.06); }
-  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#065f46; }
+  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#d1fae5; }
 
 </style>
 </head>
@@ -65,8 +65,8 @@
 
     <nav class="p-3 space-y-1">
       <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="home" class="h-4 w-4"></i>
-        <span class="font-semibold">Início</span>
+        <i data-lucide="log-in" class="h-4 w-4"></i>
+        <span class="font-semibold">Entrar</span>
       </a>
       <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="calendar" class="h-4 w-4"></i>
@@ -90,7 +90,7 @@
 <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50">
+        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-slate-900 text-slate-900 shadow-sm">
           <i data-lucide="menu" class="h-5 w-5"></i>
         </button>
         <div class="leading-tight">
@@ -120,7 +120,7 @@
       </button>
     </div>
     <nav class="p-4 flex flex-col gap-2">
-      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="home" class="h-4 w-4"></i><span>Início</span></a>
+      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
       <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-slate-900"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
       <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
       <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
@@ -311,9 +311,8 @@ function tag(text, cls = "bg-slate-100 text-slate-700 ring-1 ring-slate-200") {
 
 function render(items) {
   if (!elGrid) return;
-
   if (!items.length) {
-    elGrid.innerHTML = `<div class="col-span-full rounded-3xl border border-slate-200 bg-white p-5 text-slate-600">
+    elGrid.innerHTML = `<div class="col-span-full rounded-2xl border border-slate-200 bg-white p-5 text-slate-600">
       Nenhum evento encontrado com esse filtro/pesquisa.
     </div>`;
     return;
@@ -322,84 +321,55 @@ function render(items) {
   elGrid.innerHTML = items.map((it) => {
     const d = it.raw || {};
     const t = getTypeFlags(d);
-
-    const title = safeStr(it.title || d.title || d.nome || "Evento");
-    const guildName = safeStr(it.guildName || d.guildName || "Guilda");
-
-    const desc = safeStr(it.description || d.description || d.desc || d.descricao || "").trim();
-    const desc75 = desc ? escapeHtml(desc).slice(0, 75) + (desc.length > 75 ? "…" : "") : "";
-
-    const link = (d.link || d.destino || d.url || "").toString().trim();
-
-    const b64 = (d.photoBase64 || d.fotoBase64 || d.imageBase64 || d.bannerBase64 || d.foto || d.imagem || "").toString().trim();
-    const imgSrc = b64 ? (b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`) : "";
-
-    const modeLabel = t.isXVX
-      ? (t.matchup || "XvX").toUpperCase()
-      : (t.mode || d.mode || d.modo || "").toString().toUpperCase();
-
-    const quedas = safeStr(d.quedas || d.drops || "");
-    const local = safeStr(d.local || d.lugar || d.mapa || "");
-    const maxP = d.maxPlayers ?? d.max ?? d.limite ?? d.participantes ?? "";
-    const fee = moneyBRL(d.fee ?? d.taxa ?? d.inscricaoValor ?? d.valorInscricao);
+    const when = it.dateText ? `<div class="text-xs text-slate-500">${it.dateText}</div>` : '';
     const prize = moneyBRL(d.prizeTotal ?? d.premiacao ?? d.premio);
 
-    const dateText = it.dateText ? safeStr(it.dateText) : (safeStr(d.dateText || d.data || ""));
-    const timeText = safeStr(d.timeText || d.hora || d.horario || "");
+    const tags = [];
+    tags.push(tag(it.guildName || "Guilda"));
+    if (t.isXVX) tags.push(tag((t.matchup || "XvX").toUpperCase(), "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200"));
+    if (t.isBR) tags.push(tag((t.mode || "BR").toUpperCase(), "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"));
+    if (t.isPaid) tags.push(tag("PAGO", "bg-amber-50 text-amber-800 ring-1 ring-amber-200"));
+    else tags.push(tag("GRÁTIS", "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"));
+    if (prize) tags.push(tag(`Premiação ${prize}`, "bg-yellow-50 text-yellow-900 ring-1 ring-yellow-200"));
 
-    const line = (icon, text) => {
-      if (!text) return "";
-      return `<div class="flex items-center gap-3 text-slate-700">
-        <div class="h-10 w-10 rounded-2xl bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
-          <i data-lucide="${icon}" class="h-5 w-5 text-emerald-700"></i>
-        </div>
-        <div class="text-[15px] font-semibold">${escapeHtml(String(text))}</div>
-      </div>`;
-    };
+    const desc = norm(it.description) ? safeStr(it.description).slice(0, 140) : "";
+    const link = (d.link || d.destino || d.url || "").toString().trim();
 
-    const modeRow = (() => {
-      if (t.isXVX && modeLabel) return line("swords", modeLabel);
-      if (t.isBR && modeLabel && quedas) return line("swords", `${modeLabel} • ${escapeHtml(String(quedas))} quedas`);
-      if (modeLabel) return line("swords", modeLabel);
-      return "";
-    })();
-
-    const feeRow = (t.isPaid || fee) ? line("wallet", fee ? fee : "Pago") : line("wallet", "Gratuito");
-    const prizeRow = prize ? line("gift", prize) : "";
-    const dateRow = dateText ? line("calendar", dateText) : line("calendar", "Sem data");
-    const timeRow = timeText ? line("clock", timeText) : line("clock", "Sem horário");
-    const localRow = local ? line("map-pin", local) : "";
-    const maxRow = maxP ? line("users", `${escapeHtml(String(maxP))} participantes`) : "";
-
-    return `<article class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-      <div class="p-6">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-4 min-w-0">
-            <div class="h-14 w-14 overflow-hidden rounded-2xl bg-slate-100 ring-1 ring-slate-200 shrink-0">
-              ${imgSrc ? `<img src="${imgSrc}" alt="Imagem do evento" class="h-full w-full object-cover" loading="lazy">` : `<div class="h-full w-full grid place-items-center"><i data-lucide="trophy" class="h-6 w-6 text-slate-400"></i></div>`}
-            </div>
-            <div class="min-w-0">
-              <div class="text-2xl font-black tracking-tight text-slate-900 truncate">${escapeHtml(title)}</div>
-              <div class="text-slate-500 font-medium">Por ${escapeHtml(guildName)}</div>
-              ${desc75 ? `<div class="mt-2 text-xl font-medium text-slate-800">${desc75}</div>` : ``}
-            </div>
+    return `<article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+      ${(()=>{
+        const b64 = (d.photoBase64 || d.fotoBase64 || d.imageBase64 || d.bannerBase64 || d.foto || d.imagem || "").toString().trim();
+        if (!b64) return '';
+        const src = b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`;
+        return `<div class="relative h-40 w-full overflow-hidden bg-slate-100">
+          <img src="${src}" alt="Banner do evento" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+        </div>`;
+      })()}
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-lg font-black text-slate-900 truncate">${safeStr(it.title || "Evento")}</div>
+            ${when}
           </div>
-
-          ${it.expText ? `<div class="shrink-0"><span class="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-black text-white">${escapeHtml(it.expText)}</span></div>` : ``}
+          <div class="h-11 w-11 shrink-0 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm ring-1 ring-emerald-700/20">
+            <i data-lucide="${t.isPaid ? 'badge-dollar-sign' : 'trophy'}" class="h-5 w-5"></i>
+          </div>
         </div>
 
-        <div class="mt-6 grid gap-4">
-          ${modeRow}
-          ${feeRow}
-          ${prizeRow}
-          ${dateRow}
-          ${timeRow}
-          ${localRow}
-          ${maxRow}
+        <div class="mt-3 flex flex-wrap gap-2">
+          ${tags.join('')}
         </div>
 
-        <div class="mt-6 border-t border-slate-100 pt-5 flex items-center justify-center">
-          ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-extrabold hover:text-emerald-800">Ver infos</a>` : `<span class="text-slate-400 font-semibold">Sem link</span>`}
+        ${desc ? `<p class="mt-3 text-sm text-slate-600 leading-relaxed">${safeStr(desc).slice(0, 160)}</p>` : ``}
+
+        <div class="mt-4 flex items-center justify-between gap-3">
+          <div class="text-xs text-slate-500">
+            ${it.guildName ? `<span class="font-semibold text-slate-700">${safeStr(it.guildName)}</span>` : ``}
+          </div>
+          ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">
+              Ver informações <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </a>` : `<span class="text-xs text-slate-400">Sem link</span>`}
         </div>
       </div>
     </article>`;
@@ -407,7 +377,6 @@ function render(items) {
 
   try { initIcons(); } catch (_) {}
 }
-
 
 function applyFilters() {
   const q = norm(elQ?.value || "");
