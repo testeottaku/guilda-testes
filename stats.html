@@ -208,45 +208,66 @@ async function findMemberPublic(term) {
 function renderMember(res) {
   const d = res.data || {};
   const guildName = safeStr(d.guildName || res.guildName || "Guilda");
-  const nick = safeStr(d.nick || d.nickname || d.nome || d.name || "—");
-  const pid = safeStr(d.playerId || d.id || d.uid || d.gameId || res.id || "—");
-  const tag = safeStr(d.tag || d.classe || d.role || d.rank || "");
 
-  const kdas = safeStr(d.kda || d.kdas || "");
-  const wins = safeStr(d.wins || d.vitorias || "");
-  const points = safeStr(d.points || d.pontos || "");
+  const nick = safeStr(
+    d.nick || d.nickname || d.nickName || d.playerNick || d.playerName || d.nome || d.name || "—"
+  );
+
+  const playerId = safeStr(
+    d.playerId || d.idJogador || d.idPlayer || d.gameId || d.idff || d.idFF || d.freeFireId || d.ffId || d.idFreeFire || d.idJogo || d.idDoJogo || "—"
+  );
+
+  const tag = safeStr(d.tag || d.tagMember || d.tagName || d.clantag || "");
+
+  const metaGuerra = (d.metaGuerra ?? d.bateuMetaGuerra ?? d.warMeta ?? d.guerraMeta ?? d.meta_war);
+  const metaSemanal = (d.metaSemanal ?? d.bateuMetaSemanal ?? d.weekMeta ?? d.semanalMeta ?? d.meta_week);
+
+  const yesNo = (v) => {
+    if (v === true) return "Sim";
+    if (v === false) return "Não";
+    const n = norm(v);
+    if (["sim","true","1","bateu","ok","feito"].includes(n)) return "Sim";
+    if (["nao","não","false","0","faltou"].includes(n)) return "Não";
+    return "—";
+  };
 
   card(`
     <div class="flex items-start justify-between gap-3">
       <div>
-        <div class="text-lg font-black text-slate-900">${escapeHtml(nick)}</div>
-        <div class="text-sm text-slate-600">ID/Nick buscado: <span class="font-semibold">${escapeHtml(pid)}</span></div>
-        <div class="mt-1 text-xs text-slate-500">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
+        <div class="text-xl font-black text-slate-900">${escapeHtml(nick)}</div>
+        <div class="mt-1 text-sm text-slate-600">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
       </div>
-      <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-slate-900 grid place-items-center shadow-sm">
+      <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm">
         <i data-lucide="user" class="h-5 w-5"></i>
       </div>
     </div>
 
-    <div class="mt-4 grid gap-3 sm:grid-cols-3">
+    <div class="mt-5 grid gap-3">
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-        <div class="text-xs text-slate-500">Tag</div>
-        <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(tag || "—")}</div>
+        <div class="text-xs text-slate-500">ID do jogador</div>
+        <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(playerId)}</div>
       </div>
-      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-        <div class="text-xs text-slate-500">Vitórias</div>
-        <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(wins || "—")}</div>
-      </div>
-      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-        <div class="text-xs text-slate-500">Pontos</div>
-        <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(points || "—")}</div>
-      </div>
-    </div>
 
-    ${kdas ? `<div class="mt-3 text-sm text-slate-700">KDA: <span class="font-semibold">${escapeHtml(kdas)}</span></div>` : ''}
+      <div class="grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="text-xs text-slate-500">Tag</div>
+          <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(tag || "—")}</div>
+        </div>
 
-    <div class="mt-4 text-xs text-slate-500">
-      Observação: informações sensíveis (ex.: WhatsApp) não aparecem aqui.
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="text-xs text-slate-500">Meta de guerra</div>
+          <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(yesNo(metaGuerra))}</div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="text-xs text-slate-500">Meta semanal</div>
+          <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(yesNo(metaSemanal))}</div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500">
+        Observação: informações sensíveis (ex.: WhatsApp) não aparecem aqui.
+      </div>
     </div>
   `);
 
