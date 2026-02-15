@@ -170,17 +170,8 @@
 <script>lucide.createIcons();</script>
 <script type="module">
 
-import { db, setupSidebar, initIcons } from './logic.js';
+import { db } from './logic.js';
 import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-setupSidebar();
-initIcons();
-const __sbClose = document.getElementById('sidebar-close');
-__sbClose?.addEventListener('click', () => {
-  document.getElementById('sidebar')?.classList.add('-translate-x-full');
-  document.getElementById('sidebar-overlay')?.classList.add('hidden');
-});
-
 
 const elGrid = document.getElementById('grid');
 const elStatus = document.getElementById('status');
@@ -224,7 +215,7 @@ ddMenu?.addEventListener('click', (e) => {
   ddLabel.textContent = btn.textContent.trim();
   toggleMenu(false);
   applyFilters();
-  try { initIcons(); } catch (_) {}
+  try { lucide.createIcons(); } catch (_) {}
 });
 
 function moneyBRL(v) {
@@ -345,7 +336,7 @@ function render(items) {
       : `<span class="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-800 ring-1 ring-emerald-100">Próximo</span>`;
 
     // Layout inspirado no card do camp.html (foto pequena + infos em lista + ações embaixo)
-    return `<article class="rounded-[28px] border border-slate-200 bg-white shadow-sm overflow-hidden">
+    return `<article class="rounded-[28px] border border-slate-200 bg-white shadow-sm overflow-hidden transition hover:shadow-md hover:-translate-y-0.5">
       <div class="p-6">
         <div class="flex items-start justify-between gap-4">
           <div class="flex items-start gap-4 min-w-0">
@@ -386,7 +377,7 @@ function render(items) {
     </article>`;
   }).join('');
 
-  try { initIcons(); } catch (_) {}
+  try { lucide.createIcons(); } catch (_) {}
 }
 
 function applyFilters() {
