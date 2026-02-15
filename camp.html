@@ -421,6 +421,23 @@
       return { fmt, fee };
     }
 
+    function formatBRL(v){
+      if(v === null || v === undefined || v === '') return null;
+      let n = v;
+      if(typeof n === 'string'){
+        // aceita "1500,50" ou "1500.50"
+        n = n.replace(/\./g, '').replace(',', '.');
+      }
+      n = Number(n);
+      if(!isFinite(n) || n <= 0) return null;
+      try{
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
+      }catch(e){
+        // fallback simples
+        return 'R$ ' + n.toFixed(2).replace('.', ',');
+      }
+    }
+
     function renderCamps(){
       const el = document.getElementById('camps-list');
       const list = window.camps || [];
@@ -441,6 +458,11 @@
         const descRaw = (c.description || '').trim();
         const descShort = descRaw.length > 75 ? (descRaw.slice(0, 75).trimEnd() + '…') : descRaw;
         const maxLabelTxt = (c.format === 'xvx') ? 'equipes' : 'participantes';
+        const prizeTxt = formatBRL(c.prizeTotal);
+        const prizeRow = prizeTxt
+          ? `<div class="flex items-center gap-2"><i data-lucide="gift" class="w-4 h-4 text-emerald-500"></i> ${prizeTxt}</div>`
+          : '';
+
         const iconHtml = c.photoBase64
           ? `<img src="${c.photoBase64}" class="w-11 h-11 rounded-xl object-cover ring-1 ring-gray-200" alt="">`
           : `<div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100">
@@ -469,6 +491,7 @@
               <div class="mt-4 space-y-2 text-sm text-gray-600">
                 <div class="flex items-center gap-2"><i data-lucide="swords" class="w-4 h-4 text-emerald-500"></i> ${fmt}</div>
                 <div class="flex items-center gap-2"><i data-lucide="wallet" class="w-4 h-4 text-emerald-500"></i> ${fee}</div>
+                ${prizeRow}
                 <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i> ${c.date || 'Sem data'}</div>
                 <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i> ${c.time || 'Sem horário'}</div>
                 <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-500"></i> ${c.location || 'Sem local'}</div>
