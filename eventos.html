@@ -39,7 +39,7 @@
     box-shadow: 0 20px 60px rgba(2,6,23,.18); }
   .dd-item { width:100%; text-align:left; padding:.7rem 1rem; font-size:.875rem; display:flex; align-items:center; gap:.6rem; }
   .dd-item:hover { background: rgba(15,23,42,.06); }
-  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#d1fae5; }
+  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#065f46; font-weight:800; }
 
 </style>
 </head>
@@ -90,8 +90,8 @@
 <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-slate-900 text-slate-900 shadow-sm">
-          <i data-lucide="menu" class="h-5 w-5"></i>
+        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50">
+          <i data-lucide="menu" class="h-5 w-5 text-slate-900"></i>
         </button>
         <div class="leading-tight">
           <div class="font-black text-slate-900">Guilda HUB</div>
@@ -103,32 +103,9 @@
   </header>
 
 
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
-    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
-        </div>
-        <div class="leading-tight">
-          <div class="text-slate-900 font-black">Guilda HUB</div>
-          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
-        </div>
-      </div>
-      <button id="sidebar-close" class="h-9 w-9 rounded-xl hover:bg-white/10 text-slate-700 flex items-center justify-center" aria-label="Fechar menu">
-        <i data-lucide="x" class="h-5 w-5"></i>
-      </button>
-    </div>
-    <nav class="p-4 flex flex-col gap-2">
-      <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="log-in" class="h-4 w-4"></i><span>Entrar</span></a>
-      <a href="/eventos" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition bg-emerald-600 text-slate-900"><i data-lucide="trophy" class="h-4 w-4"></i><span>Eventos e Camp</span></a>
-      <a href="/stats" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="chart-no-axes-column" class="h-4 w-4"></i><span>Minhas estatísticas</span></a>
-      <a href="/suporte" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition text-slate-700 hover:bg-white/10"><i data-lucide="headset" class="h-4 w-4"></i><span>Suporte</span></a>
-    </nav>
-    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-slate-200">
-      Dica: se algo não carregar, atualize a página e tente novamente.
-    </div>
-  </aside>
+  
+
+
 
 
 <main class="mx-auto w-full max-w-6xl px-4 py-6">
@@ -201,17 +178,10 @@
 <script>lucide.createIcons();</script>
 <script type="module">
 
-import { db, setupSidebar, initIcons } from './logic.js';
+import { db, initIcons } from './logic.js';
 import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-setupSidebar();
 initIcons();
-const __sbClose = document.getElementById('sidebar-close');
-__sbClose?.addEventListener('click', () => {
-  document.getElementById('sidebar')?.classList.add('-translate-x-full');
-  document.getElementById('sidebar-overlay')?.classList.add('hidden');
-});
-
 
 const elGrid = document.getElementById('grid');
 const elStatus = document.getElementById('status');
@@ -311,6 +281,7 @@ function tag(text, cls = "bg-slate-100 text-slate-700 ring-1 ring-slate-200") {
 
 function render(items) {
   if (!elGrid) return;
+
   if (!items.length) {
     elGrid.innerHTML = `<div class="col-span-full rounded-2xl border border-slate-200 bg-white p-5 text-slate-600">
       Nenhum evento encontrado com esse filtro/pesquisa.
@@ -318,58 +289,103 @@ function render(items) {
     return;
   }
 
+  const pick = (obj, keys, fallback="") => {
+    for (const k of keys) {
+      const v = obj?.[k];
+      if (v !== undefined && v !== null && String(v).trim() !== "") return v;
+    }
+    return fallback;
+  };
+
+  const iconPill = (ico, text) => `
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-slate-700 ring-1 ring-slate-200">
+      <i data-lucide="${ico}" class="h-3.5 w-3.5"></i>${text}
+    </span>`;
+
+  const row = (ico, label, value) => {
+    if (!value) return '';
+    return `<div class="flex items-center gap-2 text-xs text-slate-600">
+      <i data-lucide="${ico}" class="h-4 w-4 text-slate-500"></i>
+      <span class="font-semibold text-slate-700">${label}:</span>
+      <span class="truncate">${safeStr(value)}</span>
+    </div>`;
+  };
+
   elGrid.innerHTML = items.map((it) => {
     const d = it.raw || {};
     const t = getTypeFlags(d);
-    const when = it.dateText ? `<div class="text-xs text-slate-500">${it.dateText}</div>` : '';
-    const prize = moneyBRL(d.prizeTotal ?? d.premiacao ?? d.premio);
 
-    const tags = [];
-    tags.push(tag(it.guildName || "Guilda"));
-    if (t.isXVX) tags.push(tag((t.matchup || "XvX").toUpperCase(), "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200"));
-    if (t.isBR) tags.push(tag((t.mode || "BR").toUpperCase(), "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"));
-    if (t.isPaid) tags.push(tag("PAGO", "bg-amber-50 text-amber-800 ring-1 ring-amber-200"));
-    else tags.push(tag("GRÁTIS", "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"));
-    if (prize) tags.push(tag(`Premiação ${prize}`, "bg-yellow-50 text-yellow-900 ring-1 ring-yellow-200"));
+    const title = safeStr(it.title || "Evento");
+    const guildName = safeStr(it.guildName || "Guilda");
+    const descFull = safeStr(it.description || "");
+    const desc = descFull ? (descFull.length > 75 ? (descFull.slice(0, 75) + "…") : descFull) : "";
 
-    const desc = norm(it.description) ? safeStr(it.description).slice(0, 140) : "";
-    const link = (d.link || d.destino || d.url || "").toString().trim();
+    const link = safeStr(pick(d, ["link","destino","url","contactLink","infoLink"], "")).trim();
+
+    const location = safeStr(pick(d, ["location","local","place","map","cidade"], "")).trim();
+
+    const drops = pick(d, ["drops","quedas"], "");
+    const max = pick(d, ["max","maxPlayers","maxTeams","limite","qtd","teams","equipes"], "");
+    const modeTxt = t.isXVX ? (t.matchup || "XvX") : (t.mode || "BR");
+
+    const feeType = norm(pick(d, ["feeType","taxaTipo","inscricaoTipo"], ""));
+    const feeValueRaw = pick(d, ["feeValue","fee","taxa","inscricao","valorInscricao"], "");
+    const feeValueNum = Number(feeValueRaw);
+    const isPaid = (feeType === "paid") || (isFinite(feeValueNum) && feeValueNum > 0) || t.isPaid;
+    const feeText = isPaid ? (moneyBRL(feeValueNum) || `R$ ${safeStr(feeValueRaw)}`) : "Gratuito";
+
+    const prize = moneyBRL(pick(d, ["prizeTotal","premiacao","premio","prize"], ""));
+
+    const b64 = safeStr(pick(d, ["photoBase64","fotoBase64","imageBase64","bannerBase64","foto","imagem"], "")).trim();
+    const thumb = (() => {
+      if (b64) {
+        const src = b64.startsWith("data:") ? b64 : `data:image/jpeg;base64,${b64}`;
+        return `<img src="${src}" alt="Evento" class="h-14 w-14 rounded-2xl object-cover ring-1 ring-slate-200 bg-slate-100" loading="lazy" />`;
+      }
+      return `<div class="h-14 w-14 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20 grid place-items-center">
+        <i data-lucide="${isPaid ? "badge-dollar-sign" : "trophy"}" class="h-6 w-6 text-emerald-700"></i>
+      </div>`;
+    })();
+
+    const topPills = [
+      iconPill("users", guildName),
+      t.isXVX ? iconPill("swords", modeTxt.toUpperCase()) : iconPill("zap", modeTxt.toUpperCase()),
+      isPaid ? iconPill("badge-dollar-sign", "PAGO") : iconPill("leaf", "GRÁTIS"),
+      prize ? iconPill("trophy", `Premiação ${prize}`) : ""
+    ].filter(Boolean).join("");
 
     return `<article class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
-      ${(()=>{
-        const b64 = (d.photoBase64 || d.fotoBase64 || d.imageBase64 || d.bannerBase64 || d.foto || d.imagem || "").toString().trim();
-        if (!b64) return '';
-        const src = b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`;
-        return `<div class="relative h-40 w-full overflow-hidden bg-slate-100">
-          <img src="${src}" alt="Banner do evento" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy"/>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
-        </div>`;
-      })()}
       <div class="p-5">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <div class="text-lg font-black text-slate-900 truncate">${safeStr(it.title || "Evento")}</div>
-            ${when}
-          </div>
-          <div class="h-11 w-11 shrink-0 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm ring-1 ring-emerald-700/20">
-            <i data-lucide="${t.isPaid ? 'badge-dollar-sign' : 'trophy'}" class="h-5 w-5"></i>
-          </div>
-        </div>
+        <div class="flex items-start gap-3">
+          ${thumb}
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="truncate text-base font-black text-slate-900">${title}</div>
+                <div class="text-xs text-slate-500">Por <span class="font-semibold text-slate-700">${guildName}</span></div>
+              </div>
+              ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-slate-800">
+                Ver <i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </a>` : ``}
+            </div>
 
-        <div class="mt-3 flex flex-wrap gap-2">
-          ${tags.join('')}
-        </div>
+            ${desc ? `<p class="mt-2 text-sm text-slate-600 leading-relaxed">${desc}</p>` : ``}
 
-        ${desc ? `<p class="mt-3 text-sm text-slate-600 leading-relaxed">${safeStr(desc).slice(0, 160)}</p>` : ``}
+            <div class="mt-3 flex flex-wrap gap-2">
+              ${topPills}
+            </div>
 
-        <div class="mt-4 flex items-center justify-between gap-3">
-          <div class="text-xs text-slate-500">
-            ${it.guildName ? `<span class="font-semibold text-slate-700">${safeStr(it.guildName)}</span>` : ``}
+            <div class="mt-4 grid grid-cols-1 gap-2">
+              ${row("map-pin", "Local", location)}
+              ${t.isXVX ? row("layers", "Formato", modeTxt) : row("zap", "Modo", modeTxt)}
+              ${!t.isXVX ? row("repeat", "Quedas", drops) : ``}
+              ${row("users-2", t.isXVX ? "Equipes" : "Participantes", max)}
+              ${row("wallet", "Inscrição", feeText)}
+            </div>
+
+            ${!link ? `<div class="mt-3 text-xs text-slate-400">Sem link de informações</div>` : ``}
           </div>
-          ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">
-              Ver informações <i data-lucide="arrow-right" class="h-4 w-4"></i>
-            </a>` : `<span class="text-xs text-slate-400">Sem link</span>`}
         </div>
       </div>
     </article>`;
