@@ -738,16 +738,48 @@
 
       const user = await checkAuth();
       if(!user) return;
-      document.getElementById('btn-logout').onclick = logout;
+      const logoutBtn = document.getElementById('btn-logout');
+      if(logoutBtn) logoutBtn.onclick = logout;
 
-      // Contexto de guilda
+      // 1) tenta pegar guildId/guildName do contexto cacheado
       try{
         const ctx = getGuildContext() || JSON.parse(localStorage.getItem('guildCtx_cache_v1')||'{}');
         guildId = ctx?.guildId || ctx?.id || null;
         guildName = ctx?.guildName || ctx?.name || null;
       }catch(_){}
 
-      // Hidrata campo guilda no modal se já abrir
+      // 2) fallback: se não tiver guildId, tenta buscar em /users/{uid}
+      try{
+        if(db && !guildId && user?.uid){
+          const uref = doc(db, 'users', user.uid);
+          const usnap = await getDoc(uref);
+          const udata = usnap.exists() ? usnap.data() : null;
+          guildId = (udata && (udata.guildId || udata.gid)) ? (udata.guildId || udata.gid) : guildId;
+        }
+      }catch(err){
+        console.error(err);
+      }
+
+      // 3) fallback do nome: busca configGuilda/{guildId}
+      try{
+        if(db && guildId && !guildName){
+          const gref = doc(db, 'configGuilda', guildId);
+          const gsnap = await getDoc(gref);
+          const gdata = gsnap.exists() ? gsnap.data() : null;
+          guildName = gdata?.name || gdata?.guildName || guildName;
+        }
+      }catch(err){
+        console.error(err);
+      }
+
+      // regrava cache do contexto para as telas (não quebra se faltar algo)
+      try{
+        if(guildId){
+          localStorage.setItem('guildCtx_cache_v1', JSON.stringify({ guildId, guildName }));
+        }
+      }catch(_){}
+
+      // Hidrata campo guilda no modal
       if(guildName){
         const g = document.getElementById('camp-guildname');
         if(g) g.value = guildName;
@@ -771,10 +803,16 @@
             renderCamps();
             showToast('error', 'Falha ao sincronizar campeonatos: ' + err.message);
           });
+        } else {
+          // Sem guildId ainda? mantém cache e mostra aviso leve (sem travar)
+          if(!guildId){
+            console.warn('guildId ausente — usando cache local');
+          }
         }
       }catch(err){
         console.error(err);
       }
+
     }
 
     // Defaults UI
