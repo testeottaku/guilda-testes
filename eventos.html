@@ -171,7 +171,7 @@
 <script type="module">
 
 import { db, setupSidebar, initIcons } from './logic.js';
-import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, collectionGroup, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 setupSidebar();
 initIcons();
@@ -403,15 +403,18 @@ async function loadEventsFromGuildas() {
   </div>`;
 
   const items = [];
+
+  // 1) Tentativa A: varrer documentos em /guildas (funciona quando os docs existem)
   try {
-    const gSnap = await getDocs(query(collection(db, "guildas"), limit(250)));
+    const gSnap = await getDocs(query(collection(db, "guildas"), limit(500)));
     const guilds = gSnap.docs.map(d => ({ id: d.id, data: d.data() || {} }));
 
     for (const g of guilds) {
       const gid = g.id;
       const gname = (g.data.name || g.data.nome || "").toString().trim() || "Guilda";
+
       try {
-        const cSnap = await getDocs(query(collection(db, "guildas", gid, "campeonatos"), limit(200)));
+        const cSnap = await getDocs(query(collection(db, "guildas", gid, "campeonatos"), limit(400)));
         for (const c of cSnap.docs) {
           const data = c.data() || {};
           const title = (data.title || data.titulo || data.name || data.nome || "Evento").toString().trim();
@@ -422,29 +425,69 @@ async function loadEventsFromGuildas() {
           items.push({
             id: c.id,
             guildId: gid,
-            guildName,
             title,
             description,
-            dateText: createdAtMs ? new Date(createdAtMs).toLocaleString('pt-BR') : "",
+            guildName,
+            createdAtMs,
             raw: data
           });
         }
-      } catch (_) {}
+      } catch (e) {
+        // ignora erro de uma guilda específica (sem permissão/subcoleção etc.)
+        console.warn("Falha ao ler campeonatos de", gid, e);
+      }
     }
+  } catch (e) {
+    console.warn("Falha ao listar /guildas, tentando fallback…", e);
+  }
 
-    items.sort((a,b) => (b.raw?.createdAtMs||0) - (a.raw?.createdAtMs||0));
-    allItems = items;
-    setStatus(items.length ? `${items.length} eventos encontrados` : "Nenhum evento encontrado ainda.");
+  // 2) Fallback B: collectionGroup('campeonatos')
+  // Isso funciona mesmo se o doc pai em /guildas não existir (subcoleção “solta”).
+  if (!items.length) {
+    try {
+      const cgSnap = await getDocs(query(collectionGroup(db, "campeonatos"), limit(800)));
+      for (const c of cgSnap.docs) {
+        const data = c.data() || {};
+        const title = (data.title || data.titulo || data.name || data.nome || "Evento").toString().trim();
+        const description = (data.description || data.descricao || "").toString().trim();
+        const guildName = (data.guildName || data.guild || "Guilda").toString().trim();
+        const createdAtMs = Number(data.createdAtMs ?? data.updatedAtMs ?? 0) || 0;
+
+        // tenta inferir guildId do caminho: guildas/{gid}/campeonatos/{id}
+        const path = c.ref.path || "";
+        const m = path.match(/guildas\/([^/]+)\/campeonatos\//);
+        const gid = m ? m[1] : (data.guildId || "");
+
+        items.push({
+          id: c.id,
+          guildId: gid,
+          title,
+          description,
+          guildName,
+          createdAtMs,
+          raw: data
+        });
+      }
+    } catch (e) {
+      console.error("Erro no fallback collectionGroup('campeonatos'):", e);
+    }
+  }
+
+  try {
+    allItems = items
+      .sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0))
+      .map(it => ({ ...it, title: it.title || "Evento", guildName: it.guildName || "Guilda" }));
+
+    setStatus(allItems.length ? `${allItems.length} evento(s) encontrados` : "Nenhum evento encontrado ainda.");
     applyFilters();
   } catch (e) {
-    console.error(e);
+    console.error("Erro ao renderizar eventos:", e);
     setStatus("Não foi possível carregar os eventos. Verifique as regras/coleções.");
     elGrid.innerHTML = `<div class="col-span-full rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800">
       Erro ao carregar eventos. Abra o console para ver detalhes.
     </div>`;
   }
 }
-
 loadEventsFromGuildas();
 
 </script>

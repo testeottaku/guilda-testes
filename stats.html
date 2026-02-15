@@ -108,11 +108,11 @@
     <div class="mt-4 flex flex-col gap-3 sm:flex-row">
       <input id="query" type="text" placeholder="Seu nick ou ID"
         class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
-      <button id="btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition text-white">Buscar</button>
+      <button id="btnSearch" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition text-white">Buscar</button>
     </div>
     <div id="hint" class="mt-3 text-xs text-slate-500"></div>
   </div>
-  <div id="result"></div>
+  <div id="out"></div>
 </section>
 </main>
 
@@ -141,166 +141,161 @@
 
 <script>lucide.createIcons();</script>
 <script type="module">
-
 import { db, setupSidebar, initIcons } from './logic.js';
-import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  collectionGroup, getDocs, query, limit, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 setupSidebar();
 initIcons();
-const __sbClose = document.getElementById('sidebar-close');
-__sbClose?.addEventListener('click', () => {
+
+// close sidebar
+document.getElementById('sidebar-close')?.addEventListener('click', () => {
   document.getElementById('sidebar')?.classList.add('-translate-x-full');
-  document.getElementById('sidebar-overlay')?.classList.add('hidden');
+  document.getElementById('sidebar-backdrop')?.classList.add('hidden');
 });
 
-
-const elInput = document.getElementById('query');
-const elBtn = document.getElementById('btn');
-const elOut = document.getElementById('result');
+const elInp = document.getElementById('query');
+const elBtn = document.getElementById('btnSearch');
+const elOut = document.getElementById('out');
 const elHint = document.getElementById('hint');
 
-const norm = (v) => (v == null ? '' : String(v)).toLowerCase().trim();
-const safeStr = (v) => (v == null ? '' : String(v));
+const norm = (s) => (s ?? '').toString().trim();
+const normLow = (s) => norm(s).toLowerCase();
+const esc = (s) => (s ?? '').toString()
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  .replace(/'/g,'&#039;');
 
-function card(html) {
-  elOut.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">${html}</div>`;
+function badge(text) {
+  return `<span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">${esc(text)}</span>`;
 }
 
-function escapeHtml(s) {
-  return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function line(icon, text) {
+  if (!text) return '';
+  return `<div class="flex items-center gap-3 text-slate-700">
+    <div class="h-10 w-10 rounded-2xl bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
+      <i data-lucide="${icon}" class="h-5 w-5 text-emerald-700"></i>
+    </div>
+    <div class="text-[15px] font-semibold">${esc(String(text))}</div>
+  </div>`;
 }
 
-async function findMemberPublic(term) {
-  const q = norm(term);
-  if (!q) return null;
+async function resolveGuildName(gid, fallbackName="") {
+  const tryName = norm(fallbackName);
+  if (tryName) return tryName;
 
-  // Sem collectionGroup: varre guildas e procura em membros.
-  const gSnap = await getDocs(query(collection(db, "guildas"), limit(250)));
-  const guilds = gSnap.docs.map(d => ({ id: d.id, data: d.data() || {} }));
-
-  for (const g of guilds) {
-    const gid = g.id;
-    const gname = (g.data.name || g.data.nome || "").toString().trim() || "Guilda";
-    try {
-      const mSnap = await getDocs(query(collection(db, "guildas", gid, "membros"), limit(2000)));
-      for (const m of mSnap.docs) {
-        const d = m.data() || {};
-        const nick = norm(d.nick || d.nickname || d.nickName || d.nome || d.name || d.playerNick || d.playerName || d.tag || d.tagName);
-        const pid  = norm(d.playerId || d.id || d.uid || d.gameId || d.idff || d.idFF || d.freeFireId || d.ffId || d.idFreeFire || d.idJogo || d.idDoJogo);
-        const alt  = norm(d.idPlayer || d.idJogador || d.player || d.usuario || d.userId);
-        const email = norm(d.email || d.mail);
-
-        if (q === nick || q === pid || q === alt || q === norm(m.id) || (q && (nick.includes(q) || pid.includes(q) || alt.includes(q) || email.includes(q)))) {
-          return { guildId: gid, guildName: gname, id: m.id, data: d };
-        }
-      }
-    } catch (_) {}
+  if (!gid) return "Guilda";
+  try {
+    const g = await getDoc(doc(db, "guildas", gid));
+    const d = g.exists() ? (g.data() || {}) : {};
+    return norm(d.name || d.nome) || "Guilda";
+  } catch (_) {
+    return "Guilda";
   }
-
-  return null;
 }
 
-function renderMember(res) {
-  const d = res.data || {};
-  const guildName = safeStr(d.guildName || res.guildName || "Guilda");
+function renderMemberCard(member, guildName) {
+  const nick = norm(member.nick) || "Sem nick";
+  const visibleId = norm(member.visibleId || member.playerId || member.idJogador || member.id || member.playerID);
+  const hasTag = !!member.hasTag;
+  const guildWar = !!member.guildWar;
+  const weeklyMeta = !!member.weeklyMeta;
 
-  const nick = safeStr(
-    d.nick || d.nickname || d.nickName || d.playerNick || d.playerName || d.nome || d.name || "—"
-  );
+  const gwMeta = member.guildWarMeta != null ? Number(member.guildWarMeta) : null;
+  const wkMetaVal = member.weeklyMetaValue != null ? Number(member.weeklyMetaValue) : null;
 
-  const playerId = safeStr(
-    d.playerId || d.idJogador || d.idPlayer || d.gameId || d.idff || d.idFF || d.freeFireId || d.ffId || d.idFreeFire || d.idJogo || d.idDoJogo || "—"
-  );
-
-  const tag = safeStr(d.tag || d.tagMember || d.tagName || d.clantag || "");
-
-  const metaGuerra = (d.metaGuerra ?? d.bateuMetaGuerra ?? d.warMeta ?? d.guerraMeta ?? d.meta_war);
-  const metaSemanal = (d.metaSemanal ?? d.bateuMetaSemanal ?? d.weekMeta ?? d.semanalMeta ?? d.meta_week);
-
-  const yesNo = (v) => {
-    if (v === true) return "Sim";
-    if (v === false) return "Não";
-    const n = norm(v);
-    if (["sim","true","1","bateu","ok","feito"].includes(n)) return "Sim";
-    if (["nao","não","false","0","faltou"].includes(n)) return "Não";
-    return "—";
-  };
-
-  card(`
-    <div class="flex items-start justify-between gap-3">
-      <div>
-        <div class="text-xl font-black text-slate-900">${escapeHtml(nick)}</div>
-        <div class="mt-1 text-sm text-slate-600">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
+  elOut.innerHTML = `
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-2xl font-extrabold text-slate-900">${esc(nick)}</div>
+          <div class="mt-1 text-sm font-semibold text-slate-500">Guilda: <span class="text-slate-700">${esc(guildName)}</span></div>
+        </div>
+        ${hasTag ? badge("Tem tag") : badge("Sem tag")}
       </div>
-      <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm">
-        <i data-lucide="user" class="h-5 w-5"></i>
+
+      <div class="mt-6 grid gap-3">
+        ${line("id-card", visibleId ? `ID do jogador: ${visibleId}` : "ID do jogador: não informado")}
+        ${line("swords", `Meta de guerra: ${guildWar ? "BATEU" : "NÃO bateu"}${gwMeta!=null ? ` (meta ${gwMeta})` : ""}`)}
+        ${line("bar-chart-3", `Meta semanal: ${weeklyMeta ? "BATEU" : "NÃO bateu"}${wkMetaVal!=null ? ` (meta ${wkMetaVal})` : ""}`)}
+      </div>
+
+      <div class="mt-5 text-xs text-slate-500">
+        Observação: contato/WhatsApp não é exibido aqui por segurança.
       </div>
     </div>
-
-    <div class="mt-5 grid gap-3">
-      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-        <div class="text-xs text-slate-500">ID do jogador</div>
-        <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(playerId)}</div>
-      </div>
-
-      <div class="grid gap-3 sm:grid-cols-3">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-          <div class="text-xs text-slate-500">Tag</div>
-          <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(tag || "—")}</div>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-          <div class="text-xs text-slate-500">Meta de guerra</div>
-          <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(yesNo(metaGuerra))}</div>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-          <div class="text-xs text-slate-500">Meta semanal</div>
-          <div class="mt-1 font-extrabold text-slate-900">${escapeHtml(yesNo(metaSemanal))}</div>
-        </div>
-      </div>
-
-      <div class="text-xs text-slate-500">
-        Observação: informações sensíveis (ex.: WhatsApp) não aparecem aqui.
-      </div>
-    </div>
-  `);
-
-  try { initIcons(); } catch (_) {}
+  `;
+  initIcons();
 }
 
-async function run() {
-  const term = (elInput?.value || "").trim();
-  if (!term) {
-    elHint.textContent = "Digite um ID ou nick.";
+let cachedMembers = null;
+
+async function loadMembersCache() {
+  if (cachedMembers) return cachedMembers;
+
+  // leitura pública via rules; sem filtros pra não exigir índice
+  const snap = await getDocs(query(collectionGroup(db, "membros"), limit(2000)));
+  cachedMembers = snap.docs.map(d => {
+    const data = d.data() || {};
+    const path = d.ref.path || "";
+    const m = path.match(/guildas\/([^/]+)\/membros\//);
+    const gid = m ? m[1] : (data.guildId || "");
+    return { gid, data };
+  });
+  return cachedMembers;
+}
+
+async function doSearch() {
+  const q = norm(elInp?.value);
+  if (!q) {
+    elHint.textContent = "Digite um ID ou nick";
+    elOut.innerHTML = "";
     return;
   }
+
   elHint.textContent = "Buscando…";
-  elOut.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-5 text-slate-600">Carregando…</div>`;
+  elOut.innerHTML = `<div class="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600">Carregando…</div>`;
+
   try {
-    const res = await findMemberPublic(term);
-    if (!res) {
-      elHint.textContent = "Não encontrei esse jogador ainda.";
-      elOut.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-5 text-slate-600">Nada encontrado.</div>`;
+    const list = await loadMembersCache();
+    const qLow = normLow(q);
+
+    // prioridade: procurar por visibleId exato
+    let hit = list.find(x => norm(x.data.visibleId) === q);
+
+    // fallback: procurar por outros campos de ID comuns
+    if (!hit) {
+      const idFields = ["playerId","idJogador","id","playerID","visibleID","visId"];
+      hit = list.find(x => idFields.some(f => norm(x.data[f]) === q));
+    }
+
+    // fallback: procurar nick (contém)
+    if (!hit) {
+      hit = list.find(x => normLow(x.data.nick).includes(qLow));
+    }
+
+    if (!hit) {
+      elHint.textContent = "Nada encontrado.";
+      elOut.innerHTML = `<div class="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600">Nenhum jogador encontrado.</div>`;
       return;
     }
+
+    const guildName = await resolveGuildName(hit.gid, hit.data.guildName || hit.data.guild || "");
     elHint.textContent = "";
-    renderMember(res);
+    renderMemberCard(hit.data, guildName);
+
   } catch (e) {
-    console.error(e);
-    elHint.textContent = "Erro ao buscar. Abra o console.";
-    elOut.innerHTML = `<div class="rounded-3xl border border-red-200 bg-red-50 p-5 text-red-800">Erro ao buscar.</div>`;
+    console.error("Erro ao buscar stats:", e);
+    elHint.textContent = "";
+    elOut.innerHTML = `<div class="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800">Erro ao buscar. Abra o console.</div>`;
   }
 }
 
-elBtn?.addEventListener('click', run);
-elInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') run(); });
-
+elBtn?.addEventListener('click', doSearch);
+elInp?.addEventListener('keydown', (ev) => {
+  if (ev.key === "Enter") doSearch();
+});
 </script>
 </body>
 </html>
