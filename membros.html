@@ -426,25 +426,47 @@
     window.fetchNick = async () => {
       const uid = document.getElementById('visible-id').value.trim();
       const feedback = document.getElementById('api-feedback');
-      if(!uid) { showToast('error', 'Digite o ID'); return; }
-      
-      feedback.innerHTML = '<span class="text-blue-500">Buscando...</span>';
+      if (!uid) { showToast('error', 'Digite o ID'); return; }
+
+      // API: api.mitsuri.fun (via proxy pra evitar CORS)
+      const KEY = "mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP";
+      const ENDPOINT = "https://api.mitsuri.fun/api/trpc/api.info";
+      const PROXY = "https://corsproxy.io/?";
+
+      feedback.innerHTML = '<span class="text-blue-500">Buscando nick...</span>';
+
       try {
-        const res = await fetch("https://api.mitsuri.fun/api/trpc/api.info", {
+        const res = await fetch(PROXY + encodeURIComponent(ENDPOINT), {
           method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({json:{key:"mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP", uid: uid, region:"BR"}})
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ json: { key: KEY, uid: uid, region: "BR" } })
         });
+
         const data = await res.json();
-        const json = data?.result?.data?.json;
-        if(json && json.nickname) {
-          document.getElementById('nick').value = json.nickname;
-          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${json.nickname} (Nível ${json.level || '?'})</span>`;
-        } else {
-          throw new Error('Não encontrado');
-        }
-      } catch(e) {
-        feedback.innerHTML = '<span class="text-red-500">Jogador não encontrado ou erro na API.</span>';
+
+        // Resposta pode variar: tenta pegar o "json" interno primeiro
+        const raw = data?.result?.data?.json || data?.json || data;
+
+        // Tenta extrair nickname de várias estruturas possíveis
+        const acc = raw?.AccountInfo || raw?.captainBasicInfo || raw || {};
+        const nickname =
+          acc?.AccountName ||
+          acc?.nickname ||
+          raw?.nickname ||
+          raw?.AccountName ||
+          raw?.AccountInfo?.AccountName ||
+          "";
+
+        const nick = String(nickname || "").trim();
+        if (!nick) throw new Error("Nick não encontrado");
+
+        // Só precisamos do nick
+        document.getElementById('nick').value = nick;
+
+        feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${nick}</span>
+          <div class="text-[11px] text-gray-500 mt-1">informação fornecida por api.mitsuri.fun</div>`;
+      } catch (e) {
+        feedback.innerHTML = '<span class="text-red-500">Não foi possível buscar o nick agora. Tente novamente.</span>';
       }
     };
 
