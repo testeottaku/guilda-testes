@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: { red: { 50:'#fef2f2', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c'} } } } }
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
   </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -21,7 +21,7 @@
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-200 text-white">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
             <i data-lucide="shield" class="w-5 h-5"></i>
           </div>
           <div><h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1><p class="text-xs text-gray-400">Painel</p></div>
@@ -31,7 +31,7 @@
         <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="house" class="w-5 h-5"></i> Dashboard
         </a>
-        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-red-50 text-red-700 shadow-sm">
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
           <i data-lucide="users" class="w-5 h-5"></i> Membros
         </a>
         <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
@@ -56,7 +56,7 @@
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
         <div class="flex items-center justify-between px-3 py-2">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm">A</div>
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
             <div><p id="user-role" class="text-sm font-medium text-gray-700">...</p><p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p></div>
           </div>
           <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
@@ -76,7 +76,7 @@
       <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-4">
         <div class="flex items-center justify-between">
           <div><h2 class="text-2xl font-bold text-gray-900">Membros</h2><p class="text-gray-500 text-sm mt-1" id="member-count">Carregando...</p></div>
-          <button onclick="openModal()" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-red-200 hover:shadow-xl hover:shadow-red-200 transition-all active:scale-95">
+          <button onclick="openModal()" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:inline">Adicionar</span>
           </button>
         </div>
@@ -84,7 +84,7 @@
         <div class="flex gap-3">
           <div class="flex-1 relative">
             <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-            <input type="text" id="search-input" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none text-sm transition-all bg-white">
+            <input type="text" id="search-input" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all bg-white">
           </div>
           <button onclick="loadMembers(true)" class="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition-colors" title="Atualizar">↻</button>
         </div>
@@ -126,8 +126,8 @@
         <div>
           <label class="text-sm font-medium text-gray-700 mb-1 block">ID do Jogador *</label>
           <div class="flex gap-2">
-            <input id="visible-id" type="text" placeholder="Ex: 123456789" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none text-sm" required>
-            <button type="button" onclick="fetchNick()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all">
+            <input id="visible-id" type="text" placeholder="Ex: 123456789" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm" required>
+            <button type="button" onclick="fetchNick()" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all">
               <i data-lucide="search" class="w-4 h-4"></i> Buscar
             </button>
           </div>
@@ -136,12 +136,12 @@
 
         <div>
           <label class="text-sm font-medium text-gray-700 mb-1 block">Nick *</label>
-          <input id="nick" type="text" placeholder="Nome do jogador" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none text-sm" required>
+          <input id="nick" type="text" placeholder="Nome do jogador" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm" required>
         </div>
 
         <div>
           <label class="text-sm font-medium text-gray-700 mb-1 block">WhatsApp</label>
-          <input id="whatsapp" type="text" placeholder="11999999999" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none text-sm">
+          <input id="whatsapp" type="text" placeholder="11999999999" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm">
         </div>
 
         <hr class="border-gray-100">
@@ -150,7 +150,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Guerra de Guilda</label>
-            <input type="checkbox" id="guild-war" class="w-5 h-5 accent-red-500">
+            <input type="checkbox" id="guild-war" class="w-5 h-5 accent-emerald-500">
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Meta da Guerra</label>
@@ -163,7 +163,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Meta Semanal</label>
-            <input type="checkbox" id="weekly-meta" class="w-5 h-5 accent-red-500">
+            <input type="checkbox" id="weekly-meta" class="w-5 h-5 accent-emerald-500">
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Valor da Meta</label>
@@ -175,12 +175,12 @@
 
         <div class="flex items-center justify-between">
           <label class="text-sm font-medium text-gray-700">Tem Tag</label>
-          <input type="checkbox" id="has-tag" class="w-5 h-5 accent-red-500">
+          <input type="checkbox" id="has-tag" class="w-5 h-5 accent-emerald-500">
         </div>
 
         <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 flex gap-3">
           <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50">Cancelar</button>
-          <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-medium text-sm shadow-lg hover:shadow-xl">Salvar</button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium text-sm shadow-lg hover:shadow-xl">Salvar</button>
         </div>
       </form>
     </div>
@@ -327,7 +327,7 @@
       el.innerHTML = list.map(m => `
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md animate-in">
           <div class="w-full flex items-center gap-3 p-4 cursor-pointer" onclick="toggleDetails('${m.id}')">
-            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
               ${m.nick ? m.nick.charAt(0).toUpperCase() : '?'}
             </div>
             <div class="flex-1 min-w-0">
@@ -347,15 +347,15 @@
               ${detailBox('Meta Semanal', m.weeklyMeta, m.weeklyMetaValue)}
               <div class="bg-white rounded-xl p-3 border border-gray-100">
                 <p class="text-xs text-gray-400 mb-1">Tag</p>
-                ${m.hasTag ? '<span class="text-red-500 font-bold text-xs">Sim</span>' : '<span class="text-red-400 text-xs">Não</span>'}
+                ${m.hasTag ? '<span class="text-emerald-500 font-bold text-xs">Sim</span>' : '<span class="text-red-400 text-xs">Não</span>'}
               </div>
               <div class="bg-white rounded-xl p-3 border border-gray-100">
                 <p class="text-xs text-gray-400 mb-1">WhatsApp</p>
-                ${m.whatsapp ? `<a href="https://wa.me/55${m.whatsapp}" target="_blank" class="text-red-600 text-xs hover:underline">${m.whatsapp}</a>` : '<span class="text-xs text-gray-400">-</span>'}
+                ${m.whatsapp ? `<a href="https://wa.me/55${m.whatsapp}" target="_blank" class="text-emerald-600 text-xs hover:underline">${m.whatsapp}</a>` : '<span class="text-xs text-gray-400">-</span>'}
               </div>
             </div>
             <div class="flex gap-2 pt-2">
-              <button onclick="editMember('${m.id}')" class="flex-1 py-2.5 rounded-xl border border-red-200 text-red-700 text-sm font-medium hover:bg-red-50">Editar</button>
+              <button onclick="editMember('${m.id}')" class="flex-1 py-2.5 rounded-xl border border-emerald-200 text-emerald-700 text-sm font-medium hover:bg-emerald-50">Editar</button>
               <button onclick="deleteMember('${m.id}')" class="flex-1 py-2.5 rounded-xl border border-red-200 text-red-500 text-sm font-medium hover:bg-red-50">Excluir</button>
             </div>
           </div>
@@ -365,14 +365,14 @@
     }
 
     function badge(active, icon) {
-      return `<div class="w-7 h-7 rounded-lg flex items-center justify-center ${active ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}"><i data-lucide="${icon}" class="w-3 h-3"></i></div>`;
+      return `<div class="w-7 h-7 rounded-lg flex items-center justify-center ${active ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'}"><i data-lucide="${icon}" class="w-3 h-3"></i></div>`;
     }
 
     function detailBox(label, active, meta) {
       return `<div class="bg-white rounded-xl p-3 border border-gray-100">
         <p class="text-xs text-gray-400 mb-1">${label}</p>
         <div class="flex items-center gap-1.5">
-          <i data-lucide="${active ? 'check' : 'x'}" class="w-4 h-4 ${active ? 'text-red-500' : 'text-red-400'}"></i>
+          <i data-lucide="${active ? 'check' : 'x'}" class="w-4 h-4 ${active ? 'text-emerald-500' : 'text-red-400'}"></i>
           <span class="text-xs text-gray-500">Meta: ${meta}</span>
         </div>
       </div>`;
@@ -439,7 +439,7 @@
         const json = data?.result?.data?.json;
         if(json && json.nickname) {
           document.getElementById('nick').value = json.nickname;
-          feedback.innerHTML = `<span class="text-red-600 font-bold">✓ ${json.nickname} (Nível ${json.level || '?'})</span>`;
+          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${json.nickname} (Nível ${json.level || '?'})</span>`;
         } else {
           throw new Error('Não encontrado');
         }
@@ -501,7 +501,7 @@
   </script>
 
   <!-- OTK Footer -->
-<footer id="otk-footer" class="mt-12 border-t border-red-500/10 text-slate-700">
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
   <div class="mx-auto w-full max-w-5xl px-4 py-10">
     <div class="flex flex-col items-center gap-4">
 

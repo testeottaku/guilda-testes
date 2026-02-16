@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    tailwind.config = { theme: { extend: { colors: { red: { 50:'#fef2f2', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c'} } } } }
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
   </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -21,7 +21,7 @@
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-200 text-white">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
             <i data-lucide="shield" class="w-5 h-5"></i>
           </div>
           <div>
@@ -50,7 +50,7 @@
         <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
         </a>
-        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-red-50 text-red-700 shadow-sm">
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
           <i data-lucide="settings" class="w-5 h-5"></i> Admin
         </a>
         <a id="nav-chefe" href="chefe.html" class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
@@ -61,7 +61,7 @@
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
         <div class="flex items-center justify-between px-3 py-2">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm">A</div>
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
             <div>
               <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
               <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
@@ -96,9 +96,9 @@
             <div class="flex justify-between items-center mb-4">
               <h3 class="font-bold text-gray-900 flex items-center gap-2">
                 <i data-lucide="crown" class="w-5 h-5 text-yellow-500"></i>
-                Administradores <span class="ml-2 inline-flex items-center rounded-full bg-red-50 text-red-700 ring-1 ring-red-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span>
+                Administradores <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span>
               </h3>
-              <button id="btn-add-admin" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-lg font-bold hover:bg-red-200">Adicionar</button>
+              <button id="btn-add-admin" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
             </div>
             <p class="text-xs text-gray-400 mb-4">Acesso ao Dashboard e administração de membros.</p>
             <ul id="list-admins" class="space-y-2">
@@ -111,9 +111,9 @@
             <div class="flex justify-between items-center mb-4">
               <h3 class="font-bold text-gray-900 flex items-center gap-2">
                 <i data-lucide="medal" class="w-5 h-5 text-blue-500"></i>
-                Líderes <span class="ml-2 inline-flex items-center rounded-full bg-red-50 text-red-700 ring-1 ring-red-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span>
+                Líderes <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span>
               </h3>
-              <button id="btn-add-leader" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-lg font-bold hover:bg-red-200">Adicionar</button>
+              <button id="btn-add-leader" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
             </div>
             <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
             <ul id="list-leaders" class="space-y-2">
@@ -126,7 +126,7 @@
         <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-8">
           <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-gray-900 flex items-center gap-2">
-              <i data-lucide="gamepad-2" class="w-5 h-5 text-red-600"></i>
+              <i data-lucide="gamepad-2" class="w-5 h-5 text-emerald-600"></i>
               Acesso do Jogador <span class="ml-2 inline-flex items-center rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200 px-2 py-0.5 text-[10px] font-extrabold">PRO</span><span class="ml-2 inline-flex items-center rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200 px-2 py-0.5 text-[10px] font-extrabold">BETA</span>
             </h3>
           </div>
@@ -140,7 +140,7 @@
             <div class="text-xs text-gray-500">E-mail do Jogador (definido por você)</div>
             <div class="space-y-2">
               <input id="player-email" type="email" placeholder="ex: jogador.minhaguilda@gmail.com"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-400" />
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400" />
               <div class="flex items-center justify-between gap-3 text-xs text-gray-400">
                 <span>Sugestão rápida:</span>
                 <button id="btn-fill-player-email" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Usar sugestão</button>
@@ -152,10 +152,10 @@
               <div>
                 <label class="block text-xs text-gray-500 mb-1">Senha do Jogador</label>
                 <input id="player-pass" type="password" minlength="6" placeholder="Mínimo 6 caracteres"
-                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-200" />
+                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
               </div>
               <div class="flex items-end">
-                <button id="btn-create-player-disabled-beta" class="w-full px-4 py-2 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700">
+                <button id="btn-create-player-disabled-beta" class="w-full px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
                   Criar acesso ao Jogador
                 </button>
               </div>
@@ -173,7 +173,7 @@
               <div>
                 <label class="block text-xs text-gray-500 mb-1">Senha do Jogador (para apagar conta)</label>
                 <input id="player-pass-del" type="password" minlength="6" placeholder="Senha do Jogador"
-                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-200" />
+                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
               </div>
               <div class="flex items-end gap-2">
                 <button id="btn-revoke-player" class="w-1/2 px-4 py-2 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200">
@@ -295,7 +295,7 @@
         li.innerHTML = `
           <span class="truncate pr-2 flex items-center gap-2">
             <span class="truncate">${email}</span>
-            ${isMaster ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold">Líder Master</span>` : ''}
+            ${isMaster ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold">Líder Master</span>` : ''}
             ${(!isMaster && isSelf) ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold">Você</span>` : ''}
           </span>
           <button class="btn-remove text-red-400 hover:text-red-600 ${isMaster ? 'opacity-40 cursor-not-allowed' : ''}" data-type="${type}" data-email="${email}" ${isMaster ? 'disabled' : ''}>
@@ -394,7 +394,7 @@
   </script>
 
   <!-- OTK Footer -->
-<footer id="otk-footer" class="mt-12 border-t border-red-500/10 text-slate-700">
+<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
   <div class="mx-auto w-full max-w-5xl px-4 py-10">
     <div class="flex flex-col items-center gap-4">
       <div class="flex items-center justify-center gap-3">

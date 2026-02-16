@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: { extend: { colors: { red: { 50:'#fef2f2', 100:'#fee2e2', 200:'#fecaca', 400:'#f87171', 500:'#ef4444', 600:'#dc2626', 700:'#b91c1c' } } } }
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
     }
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -33,13 +33,13 @@
   .dd-btn { width: 100%; display:flex; align-items:center; justify-content:space-between; gap:.75rem; border-radius: 1rem;
     background: rgba(255,255,255,.9); border:1px solid rgba(15,23,42,.14); padding: .75rem 1rem; font-size: .875rem;
     outline:none; }
-  .dd-btn:focus { box-shadow: 0 0 0 4px rgba(239,68,68,.18); border-color: rgba(239,68,68,.55); }
+  .dd-btn:focus { box-shadow: 0 0 0 4px rgba(16,185,129,.18); border-color: rgba(16,185,129,.55); }
   .dd-menu { position:absolute; left:0; right:0; top: calc(100% + .5rem); background:#ffffff; color:#0f172a;
     border:1px solid rgba(15,23,42,.12); border-radius: 1rem; overflow:hidden; z-index:40;
     box-shadow: 0 20px 60px rgba(2,6,23,.18); }
   .dd-item { width:100%; text-align:left; padding:.7rem 1rem; font-size:.875rem; display:flex; align-items:center; gap:.6rem; }
   .dd-item:hover { background: rgba(15,23,42,.06); }
-  .dd-item[aria-selected="true"] { background: rgba(239,68,68,.16); color:#7f1d1d; font-weight:800; }
+  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#065f46; font-weight:800; }
 
 
   .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
@@ -52,8 +52,8 @@
   <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
     <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="h-9 w-9 rounded-xl bg-red-500/15 ring-1 ring-red-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-red-700"></i>
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
           <div class="text-slate-900 font-black">Guilda • HUB</div>
@@ -100,7 +100,7 @@
           <div class="text-xs text-slate-500">Eventos • Camps</div>
         </div>
       </div>
-      <a href="index.html" class="text-sm font-semibold text-red-700 hover:text-red-800">Voltar</a>
+      <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
     </div>
   </header>
 
@@ -116,7 +116,7 @@
     <div class="flex-1">
       <label class="text-xs text-slate-500">Pesquisar</label>
       <input id="q" type="text" placeholder="Ex: nome da guilda, título, descrição..."
-        class="mt-1 w-full rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-red-400/40" />
+        class="mt-1 w-full rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
     </div>
     <div class="w-full sm:w-[280px]">
       <label class="text-xs text-slate-500">Filtro</label>
@@ -390,8 +390,8 @@ function render(items) {
       }
       const ico = safeStr(pick(d, ["icon","icone","symbol"], "")).trim();
       const useIco = ico ? ico : (isPaid ? "badge-dollar-sign" : "trophy");
-      return `<div class="h-14 w-14 rounded-2xl bg-red-600/10 ring-1 ring-red-500/20 grid place-items-center">
-        <i data-lucide="${useIco}" class="h-6 w-6 text-red-700"></i>
+      return `<div class="h-14 w-14 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20 grid place-items-center">
+        <i data-lucide="${useIco}" class="h-6 w-6 text-emerald-700"></i>
       </div>`;
     })();
 
