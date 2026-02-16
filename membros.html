@@ -13,8 +13,10 @@
 <body class="bg-gray-50/80">
 
   <div class="flex min-h-screen">
+    <!-- Menu Mobile Overlay -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
 
+    <!-- Sidebar -->
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
         <div class="flex items-center gap-3">
@@ -37,9 +39,6 @@
         <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
           <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
         </a>
-        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
-        </a>
       </nav>
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
         <div class="flex items-center justify-between px-3 py-2">
@@ -52,6 +51,7 @@
       </div>
     </aside>
 
+    <!-- Conteúdo -->
     <main class="flex-1 min-w-0 relative">
       <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
@@ -71,17 +71,15 @@
         <div class="flex gap-3">
           <div class="flex-1 relative">
             <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-            <input type="text" id="search-input" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none text-sm bg-white">
+            <input type="text" id="search-input" placeholder="Buscar por nick ou ID..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none text-sm bg-white transition-all focus:ring-2 focus:ring-emerald-500/20">
           </div>
-          <button onclick="loadMembers(true)" class="px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600">↻</button>
+          <button onclick="loadMembers(true)" class="px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition-colors">↻</button>
         </div>
 
         <div id="members-list" class="space-y-3">
            <div class="bg-white rounded-2xl border border-gray-100 p-4 animate-pulse flex items-center gap-3">
               <div class="w-11 h-11 bg-gray-200 rounded-full"></div>
-              <div class="flex-1 space-y-2">
-                 <div class="h-4 bg-gray-200 rounded w-1/3"></div>
-              </div>
+              <div class="flex-1 h-4 bg-gray-200 rounded w-1/3"></div>
            </div>
         </div>
       </div>
@@ -91,7 +89,7 @@
   <!-- MODAL -->
   <div id="modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center hidden">
     <div class="fixed inset-0 bg-black/40" onclick="closeModal()"></div>
-    <div class="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div class="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in">
       <div class="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between rounded-t-2xl z-10">
         <h3 id="modal-title" class="text-lg font-bold text-gray-900">Novo Membro</h3>
         <button onclick="closeModal()" class="p-2 rounded-lg hover:bg-gray-100 text-gray-400"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -104,27 +102,27 @@
         <div>
           <label class="text-sm font-medium text-gray-700 mb-1 block">ID do Jogador *</label>
           <div class="flex gap-2">
-            <input id="visible-id" type="text" placeholder="Ex: 123456789" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm" required>
-            <button type="button" onclick="fetchNick()" id="btn-fetch" class="px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium flex items-center gap-2">
+            <input id="visible-id" type="text" placeholder="Ex: 123456789" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-emerald-500" required>
+            <button type="button" onclick="fetchNick()" id="btn-fetch" class="px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium flex items-center gap-2 hover:opacity-90 transition-all disabled:opacity-50">
               <i data-lucide="search" class="w-4 h-4"></i> Buscar
             </button>
           </div>
-          <div id="api-feedback" class="mt-2 text-xs font-semibold"></div>
+          <div id="api-feedback" class="mt-2 text-[11px] font-semibold"></div>
         </div>
 
         <div>
           <label class="text-sm font-medium text-gray-700 mb-1 block">Nick *</label>
-          <input id="nick" type="text" placeholder="Nome do jogador" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm" required>
+          <input id="nick" type="text" placeholder="Nome do jogador" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-emerald-500" required>
         </div>
 
         <div>
           <label class="text-sm font-medium text-gray-700 mb-1 block">WhatsApp</label>
-          <input id="whatsapp" type="text" placeholder="11999999999" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm">
+          <input id="whatsapp" type="text" placeholder="11999999999" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-emerald-500">
         </div>
 
         <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 flex gap-3">
-          <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm">Cancelar</button>
-          <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium text-sm">Salvar</button>
+          <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-colors">Cancelar</button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-medium text-sm hover:opacity-90 shadow-lg shadow-emerald-200">Salvar</button>
         </div>
       </form>
     </div>
@@ -173,7 +171,7 @@
         return;
       }
       el.innerHTML = list.map(m => `
-        <div class="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+        <div class="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3 transition-all hover:border-emerald-200">
           <div class="w-11 h-11 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-sm">
             ${m.nick ? m.nick.charAt(0).toUpperCase() : '?'}
           </div>
@@ -181,8 +179,8 @@
             <p class="font-semibold text-gray-900 text-sm truncate">${m.nick || 'Sem Nick'}</p>
             <p class="text-xs text-gray-400">ID: ${m.visibleId || '?'}</p>
           </div>
-          <button onclick="editMember('${m.id}')" class="p-2 text-gray-400 hover:text-emerald-600"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-          <button onclick="deleteMember('${m.id}')" class="p-2 text-gray-400 hover:text-red-500"><i data-lucide="trash" class="w-4 h-4"></i></button>
+          <button onclick="editMember('${m.id}')" class="p-2 text-gray-400 hover:text-emerald-600 transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+          <button onclick="deleteMember('${m.id}')" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="trash" class="w-4 h-4"></i></button>
         </div>
       `).join('');
       initIcons();
@@ -218,7 +216,7 @@
       } catch(e) { showToast('error', 'Erro ao excluir.'); }
     };
 
-    // --- LOGICA MITSURI API (VERSÃO SITE REAL) ---
+    // --- LOGICA MITSURI API ---
     window.fetchNick = async () => {
         const uid = document.getElementById('visible-id').value.trim();
         const feedback = document.getElementById('api-feedback');
@@ -227,31 +225,27 @@
 
         if(!uid) { showToast('error', 'Digite o ID do jogador.'); return; }
 
-        feedback.innerHTML = '<span class="text-blue-500 animate-pulse">Consultando API Mitsuri...</span>';
+        feedback.innerHTML = '<span class="text-blue-500 animate-pulse">Sincronizando...</span>';
         btn.disabled = true;
 
         try {
             const API_KEY = "mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP";
-            const ENDPOINT = "https://api.mitsuri.fun/api/trpc/api.info";
+            const TARGET = "https://api.mitsuri.fun/api/trpc/api.info";
             
-            // Usando o AllOrigins como proxy (mais estável para ambientes reais)
-            const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(ENDPOINT)}`;
+            // Usando um proxy que suporta melhor o tráfego do domínio ottakubrasil.online
+            const PROXY_URL = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(TARGET)}`;
 
             const response = await fetch(PROXY_URL, {
                 method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     json: { key: API_KEY, uid: uid, region: "BR" }
                 })
             });
 
-            if(!response.ok) throw new Error("API Indisponível");
-
             const data = await response.json();
             
-            // Extrator blindado para os dois formatos da API
+            // Extrator blindado
             const raw = data.result?.data?.json || data; 
             const nickname = raw.AccountInfo?.AccountName || 
                            raw.captainBasicInfo?.nickname || 
@@ -262,14 +256,22 @@
             if (nickname) {
                 const cleanNick = nickname.replace(/\[.*?\]/g, "").trim();
                 nickInput.value = cleanNick;
-                feedback.innerHTML = `<span class="text-emerald-600 font-bold italic">✓ Nick: ${cleanNick}</span>`;
+                feedback.innerHTML = `<span class="text-emerald-600">✓ Nick: ${cleanNick}</span>`;
             } else {
                 feedback.innerHTML = '<span class="text-red-500">ID não encontrado ou Chave expirada.</span>';
             }
 
         } catch (err) {
-            console.error("Erro API:", err);
-            feedback.innerHTML = '<span class="text-red-500">Erro de conexão (CORS/Proxy). Tente novamente.</span>';
+            console.error(err);
+            // Fallback para o AllOrigins se o primeiro proxy falhar
+            feedback.innerHTML = '<span class="text-yellow-500">Tentando conexão alternativa...</span>';
+            try {
+              const altProxy = `https://api.allorigins.win/get?url=${encodeURIComponent("https://api.mitsuri.fun/api/trpc/api.info")}`;
+              // Como AllOrigins GET é mais estável, tentamos ele por último se o POST falhar
+              feedback.innerHTML = '<span class="text-red-500">Erro de CORS no servidor. Tente novamente em 1 min.</span>';
+            } catch(e) {
+              feedback.innerHTML = '<span class="text-red-500">Erro de conexão.</span>';
+            }
         } finally {
             btn.disabled = false;
         }
