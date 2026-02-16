@@ -422,51 +422,70 @@
       } catch(e) { showToast('error', 'Erro ao excluir.'); }
     };
 
-    // API Mitsuri (Busca de Nick)
+    // API Mitsuri (Busca de Nick) — sempre região BR
+    // Observação: usamos um proxy CORS para funcionar no navegador.
+    const MITSURI_KEY = "mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP";
+    const MITSURI_ENDPOINT = "https://api.mitsuri.fun/api/trpc/api.info";
+    const CORS_PROXY = "https://corsproxy.io/?";
+
+    function pickNickFromMitsuri(raw) {
+      if (!raw) return null;
+
+      // Alguns formatos comuns que aparecem nessa API:
+      // - raw.AccountInfo.AccountName
+      // - raw.captainBasicInfo.nickname
+      // - raw.nickname
+      const acc = raw.AccountInfo || raw.captainBasicInfo || raw;
+      return acc.AccountName || acc.nickname || raw.nickname || null;
+    }
+
     window.fetchNick = async () => {
       const uid = document.getElementById('visible-id').value.trim();
       const feedback = document.getElementById('api-feedback');
-      if (!uid) { showToast('error', 'Digite o ID'); return; }
-
-      // API: api.mitsuri.fun (via proxy pra evitar CORS)
-      const KEY = "mitsuri_UVPRYNm5RNdvirmjrMQqlu8XVpEpFPxP";
-      const ENDPOINT = "https://api.mitsuri.fun/api/trpc/api.info";
-      const PROXY = "https://corsproxy.io/?";
+      if(!uid) { showToast('error', 'Digite o ID'); return; }
 
       feedback.innerHTML = '<span class="text-blue-500">Buscando nick...</span>';
 
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 12000);
+
       try {
-        const res = await fetch(PROXY + encodeURIComponent(ENDPOINT), {
+        const url = CORS_PROXY + encodeURIComponent(MITSURI_ENDPOINT);
+
+        const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ json: { key: KEY, uid: uid, region: "BR" } })
+          body: JSON.stringify({
+            json: { key: MITSURI_KEY, uid: uid, region: "BR" }
+          }),
+          signal: controller.signal
         });
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
 
         const data = await res.json();
 
-        // Resposta pode variar: tenta pegar o "json" interno primeiro
+        // A API vem em TRPC: data.result.data.json
         const raw = data?.result?.data?.json || data?.json || data;
 
-        // Tenta extrair nickname de várias estruturas possíveis
-        const acc = raw?.AccountInfo || raw?.captainBasicInfo || raw || {};
-        const nickname =
-          acc?.AccountName ||
-          acc?.nickname ||
-          raw?.nickname ||
-          raw?.AccountName ||
-          raw?.AccountInfo?.AccountName ||
-          "";
+        const nickname = pickNickFromMitsuri(raw);
+        if (!nickname) throw new Error("Nick não encontrado");
 
-        const nick = String(nickname || "").trim();
-        if (!nick) throw new Error("Nick não encontrado");
+        document.getElementById('nick').value = String(nickname).trim();
 
-        // Só precisamos do nick
-        document.getElementById('nick').value = nick;
-
-        feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${nick}</span>
-          <div class="text-[11px] text-gray-500 mt-1">informação fornecida por api.mitsuri.fun</div>`;
-      } catch (e) {
-        feedback.innerHTML = '<span class="text-red-500">Não foi possível buscar o nick agora. Tente novamente.</span>';
+        feedback.innerHTML = `
+          <div class="text-emerald-600 font-bold">✓ ${String(nickname).trim()}</div>
+          <div class="text-[11px] text-gray-500">Informação fornecida por api.mitsuri.fun</div>
+        `;
+      } catch(e) {
+        console.error("Mitsuri API error:", e);
+        const msg = (e && (e.name === "AbortError")) ? "Tempo esgotado. Tente de novo." : "Jogador não encontrado ou erro na API.";
+        feedback.innerHTML = `
+          <div class="text-red-500">${msg}</div>
+          <div class="text-[11px] text-gray-500">Informação fornecida por api.mitsuri.fun</div>
+        `;
+      } finally {
+        clearTimeout(t);
       }
     };
 
