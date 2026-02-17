@@ -217,6 +217,38 @@
       return raw;
     }
 
+    function nickHasMemberTag(nick) {
+      if (!memberTag) return false;
+      const raw = String(nick || "");
+      const t = String(memberTag || "").trim();
+      if (!t) return false;
+      // Verifica se a tag aparece em qualquer parte do nick (case-insensitive)
+      try {
+        const re = new RegExp(escapeRegExp(t), 'i');
+        return re.test(raw);
+      } catch {
+        return raw.toLowerCase().includes(t.toLowerCase());
+      }
+    }
+
+    function syncHasTagToggleFromNick() {
+      const hasTagEl = document.getElementById('has-tag');
+      const nickEl = document.getElementById('nick');
+      if (!hasTagEl || !nickEl) return;
+
+      // Em modo edição, o nick aparece sem tag (stripKnownTags), então não auto-desmarca.
+      const memberIdEl = document.getElementById('member-id');
+      if (memberIdEl && String(memberIdEl.value || '').trim()) return;
+
+      // Se não tem tag configurada, não deixa marcado automaticamente
+      if (!memberTag) {
+        hasTagEl.checked = false;
+        return;
+      }
+
+      hasTagEl.checked = nickHasMemberTag(nickEl.value);
+    }
+
     // --- LÓGICA DE CACHE SEM PISCAR ---
     // 1. Tenta carregar do cache IMEDIATAMENTE antes de qualquer auth
     const cachedMembersJSON = localStorage.getItem('membersList');
@@ -249,6 +281,13 @@
             hasTagEl.checked = false;
           }
         });
+      }
+
+      // Auto-verificação: se o nick já contém a tag, marca "Tem Tag" sozinho
+      const nickEl = document.getElementById('nick');
+      if (nickEl) {
+        nickEl.addEventListener('input', syncHasTagToggleFromNick);
+        nickEl.addEventListener('blur', syncHasTagToggleFromNick);
       }
       
       // Carrega do servidor (Background Update)
@@ -445,7 +484,8 @@
 
         if (res.ok && name) {
           document.getElementById('nick').value = name;
-          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (Nível ${Number.isFinite(level) ? level : '?'})</span>`;
+          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (Nível ${Number.isFinite(level) ? level : '?'})</span> <span class="text-gray-500">Dados fornecidos por api.mitsuri.fun!</span>`;
+          syncHasTagToggleFromNick();
         } else {
           feedback.innerHTML = '<span class="text-red-500">Jogador não encontrado ou erro na API.</span>';
         }
@@ -478,7 +518,9 @@
         return;
       }
       const tagPrefix = hasTag ? (memberTag.trim() + ' ') : '';
-      const finalNick = tagPrefix + rawNick;
+      // Evita duplicar tag caso a pessoa cole o nick já com tag
+      const nickNoTag = hasTag ? stripKnownTags(rawNick) : rawNick;
+      const finalNick = tagPrefix + nickNoTag;
 
       const payload = {
         visibleId,
