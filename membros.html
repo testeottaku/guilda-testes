@@ -21,7 +21,7 @@
     .switch input:focus + .slider{box-shadow:0 0 0 4px rgba(16,185,129,.18)}
     .switch input:checked + .slider:before{transform:translateX(20px)}
   
-/* playMode picker (check-circle, single select) */
+/* playMode picker (check-circle, multi select) */
 .pm-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 .pm-option{display:flex;align-items:center;gap:.55rem;padding:.75rem 1rem;border:1px solid #e5e7eb;border-radius:14px;background:#fff;cursor:pointer;transition:.15s;font-size:.875rem;color:#374151}
 .pm-option:hover{background:#f9fafb}
@@ -318,20 +318,59 @@
     }
 
 
-    // playMode (single select com visual "check circle")
-    function applyPlayMode(value) {
+    // playMode (multi select com visual "check circle" — pode marcar vários e desmarcar clicando)
+    function getSelectedPlayModes() {
+      const hidden = document.getElementById('play-mode');
+      if (!hidden) return [];
+      const raw = (hidden.value || '').trim();
+      if (!raw) return [];
+      // Preferimos JSON (novo), mas aceitamos string antiga (compat)
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean).map(v => String(v).trim()).filter(Boolean);
+      } catch {}
+      // formato antigo: uma string única
+      return [raw].filter(Boolean);
+    }
+
+    function setSelectedPlayModes(values) {
       const hidden = document.getElementById('play-mode');
       const wrap = document.getElementById('playmode-wrap');
       if (!hidden || !wrap) return;
 
-      const v = (value || '').trim();
-      hidden.value = v;
+      const list = (Array.isArray(values) ? values : [values])
+        .map(v => (v == null ? '' : String(v).trim()))
+        .filter(Boolean);
 
+      hidden.value = list.length ? JSON.stringify(list) : '';
+
+      const set = new Set(list);
       wrap.querySelectorAll('.pm-option').forEach(btn => {
-        const isSelected = (btn.dataset.value || '') === v;
+        const v = (btn.dataset.value || '').trim();
+        const isSelected = set.has(v);
         btn.classList.toggle('pm-selected', isSelected);
         btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
       });
+    }
+
+    function togglePlayMode(value) {
+      const v = (value || '').trim();
+      if (!v) return;
+
+      const current = getSelectedPlayModes();
+      const idx = current.findIndex(x => String(x).trim() === v);
+
+      if (idx >= 0) current.splice(idx, 1);
+      else current.push(v);
+
+      setSelectedPlayModes(current);
+    }
+
+    // compat: chamadas antigas
+    function applyPlayMode(value) {
+      // se vier string, vira seleção única; se vier array, multi
+      if (Array.isArray(value)) setSelectedPlayModes(value);
+      else setSelectedPlayModes(value ? [value] : []);
     }
 
     function initPlayModePicker() {
@@ -345,7 +384,7 @@
       wrap.addEventListener('click', (e) => {
         const btn = e.target.closest('.pm-option');
         if (!btn) return;
-        applyPlayMode(btn.dataset.value || '');
+        togglePlayMode(btn.dataset.value || '');
       });
     }
 
@@ -542,6 +581,7 @@
       document.getElementById('member-id').value = '';
       document.getElementById('modal-title').innerText = 'Novo Membro';
       document.getElementById('api-feedback').innerHTML = '';
+      setSelectedPlayModes([]);
       document.getElementById('modal').classList.remove('hidden');
     };
 
@@ -647,7 +687,10 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
         weeklyMeta: document.getElementById('weekly-meta').checked,
         weeklyMetaValue: Number(document.getElementById('weekly-meta-value').value),
         hasTag: hasTag,
-        playMode: (document.getElementById('play-mode')?.value || null),
+        playMode: (() => {
+          const arr = getSelectedPlayModes();
+          return arr.length ? arr : null;
+        })(),
         joinDate: document.getElementById('join-date').value || new Date().toISOString().split('T')[0],
         updatedAt: serverTimestamp()
       };
