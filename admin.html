@@ -1,197 +1,177 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Guilda HUB</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
-  </script>
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Guilda HUB</title>
+<link href="global.css" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<link href="./style.css" rel="stylesheet"/>
 </head>
-<body class="bg-gray-50/80 neon">
-
-  <div class="flex min-h-screen">
-    <!-- Sidebar Overlay Mobile -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
-      <div class="flex items-center justify-between p-5 border-b border-gray-100">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
-            <i data-lucide="shield" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
-            <p class="text-xs text-gray-400">Painel</p>
-          </div>
-        </div>
-      </div>
-
-      <nav class="p-4 space-y-1">
-        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
+<body class="bg-gray-50/80 gh-body">
+<div class="flex min-h-screen">
+<!-- Sidebar Overlay Mobile -->
+<div class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden" id="sidebar-overlay"></div>
+<!-- Sidebar -->
+<aside class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static" id="sidebar">
+<div class="flex items-center justify-between p-5 border-b border-gray-100">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+<i class="w-5 h-5" data-lucide="shield"></i>
+</div>
+<div>
+<h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+<p class="text-xs text-gray-400">Painel</p>
+</div>
+</div>
+</div>
+<nav class="p-4 space-y-1">
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="dashboard.html">
+<i class="w-5 h-5" data-lucide="house"></i> Dashboard
         </a>
-        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="users" class="w-5 h-5"></i> Membros
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="membros.html">
+<i class="w-5 h-5" data-lucide="users"></i> Membros
         </a>
-        <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="layers" class="w-5 h-5"></i> Lines
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="lines.html">
+<i class="w-5 h-5" data-lucide="layers"></i> Lines
         </a>
-        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="ajustes.html">
+<i class="w-5 h-5" data-lucide="sliders"></i> Ajustes
         </a>
-        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="upgrade.html">
+<i class="w-5 h-5" data-lucide="sparkles"></i> Upgrade
         </a>
-        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
+<a class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="camp.html">
+<i class="w-5 h-5" data-lucide="trophy"></i> Campeonato
         </a>
-        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
-          <i data-lucide="settings" class="w-5 h-5"></i> Admin
+<a class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm" href="admin.html">
+<i class="w-5 h-5" data-lucide="settings"></i> Admin
         </a>
-        <a id="nav-chefe" href="chefe.html" class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="crown" class="w-5 h-5"></i> Chefe
+<a class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="chefe.html" id="nav-chefe">
+<i class="w-5 h-5" data-lucide="crown"></i> Chefe
         </a>
-      </nav>
-
-      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-        <div class="flex items-center justify-between px-3 py-2">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
-            <div>
-              <p id="user-role" class="text-sm font-medium text-gray-700">Carregando...</p>
-              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
-            </div>
-          </div>
-          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-          </button>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Conteúdo Principal -->
-    <main class="flex-1 min-w-0">
-      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
-          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500">
-            <i data-lucide="menu" class="w-5 h-5"></i>
-          </button>
-          <div class="min-w-0">
-            <h1 class="text-lg font-semibold text-gray-900">Configurações de Acesso</h1>
-            <p class="text-xs text-gray-400 mt-0.5">Somente Líder pode gerenciar permissões.</p>
-          </div>
-        </div>
-      </header>
-
-      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <!-- Card Admin -->
-          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-bold text-gray-900 flex items-center gap-2">
-                <i data-lucide="crown" class="w-5 h-5 text-yellow-500"></i>
+</nav>
+<div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+<div class="flex items-center justify-between px-3 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+<div>
+<p class="text-sm font-medium text-gray-700" id="user-role">Carregando...</p>
+<p class="text-xs text-gray-400 truncate w-24" id="user-email">...</p>
+</div>
+</div>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors" id="btn-logout" title="Sair">
+<i class="w-4 h-4" data-lucide="log-out"></i>
+</button>
+</div>
+</div>
+</aside>
+<!-- Conteúdo Principal -->
+<main class="flex-1 min-w-0">
+<header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+<div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+<button class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500" id="mobile-menu-btn">
+<i class="w-5 h-5" data-lucide="menu"></i>
+</button>
+<div class="min-w-0">
+<h1 class="text-lg font-semibold text-gray-900">Configurações de Acesso</h1>
+<p class="text-xs text-gray-400 mt-0.5">Somente Líder pode gerenciar permissões.</p>
+</div>
+</div>
+</header>
+<div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card Admin -->
+<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-gray-900 flex items-center gap-2">
+<i class="w-5 h-5 text-yellow-500" data-lucide="crown"></i>
                 Administradores <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span>
-              </h3>
-              <button id="btn-add-admin" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
-            </div>
-            <p class="text-xs text-gray-400 mb-4">Acesso ao Dashboard e administração de membros.</p>
-            <ul id="list-admins" class="space-y-2">
-                <li class="text-sm text-gray-300 italic animate-pulse">Carregando lista...</li>
-            </ul>
-          </div>
-
-          <!-- Card Líder -->
-          <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-bold text-gray-900 flex items-center gap-2">
-                <i data-lucide="medal" class="w-5 h-5 text-blue-500"></i>
+</h3>
+<button class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200" id="btn-add-admin">Adicionar</button>
+</div>
+<p class="text-xs text-gray-400 mb-4">Acesso ao Dashboard e administração de membros.</p>
+<ul class="space-y-2" id="list-admins">
+<li class="text-sm text-gray-300 italic animate-pulse">Carregando lista...</li>
+</ul>
+</div>
+<!-- Card Líder -->
+<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-gray-900 flex items-center gap-2">
+<i class="w-5 h-5 text-blue-500" data-lucide="medal"></i>
                 Líderes <span class="ml-2 inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2 py-0.5 text-[10px] font-extrabold">PLUS</span>
-              </h3>
-              <button id="btn-add-leader" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200">Adicionar</button>
-            </div>
-            <p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
-            <ul id="list-leaders" class="space-y-2">
-                <li class="text-sm text-gray-300 italic animate-pulse">Carregando lista...</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Card Acesso Jogador (Com mt-8 de espaçamento) -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-8">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-gray-900 flex items-center gap-2">
-              <i data-lucide="gamepad-2" class="w-5 h-5 text-emerald-600"></i>
+</h3>
+<button class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-bold hover:bg-emerald-200" id="btn-add-leader">Adicionar</button>
+</div>
+<p class="text-xs text-gray-400 mb-4">Acesso total ao sistema.</p>
+<ul class="space-y-2" id="list-leaders">
+<li class="text-sm text-gray-300 italic animate-pulse">Carregando lista...</li>
+</ul>
+</div>
+</div>
+<!-- Card Acesso Jogador (Com mt-8 de espaçamento) -->
+<div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-8">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-gray-900 flex items-center gap-2">
+<i class="w-5 h-5 text-emerald-600" data-lucide="gamepad-2"></i>
               Acesso do Jogador <span class="ml-2 inline-flex items-center rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200 px-2 py-0.5 text-[10px] font-extrabold">PRO</span><span class="ml-2 inline-flex items-center rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200 px-2 py-0.5 text-[10px] font-extrabold">BETA</span>
-            </h3>
-          </div>
-
-          <p class="text-xs text-gray-400 mb-4">
+</h3>
+</div>
+<p class="text-xs text-gray-400 mb-4">
             Cria um <b>acesso de Jogador</b> com o e-mail que você definir. Quem entrar com esse usuário verá apenas a tela do Jogador
             (Dashboard + busca por ID), sem qualquer permissão de edição.
           </p>
-
-          <div id="player-create-box" class="space-y-3">
-            <div class="text-xs text-gray-500">E-mail do Jogador (definido por você)</div>
-            <div class="space-y-2">
-              <input id="player-email" type="email" placeholder="ex: jogador.minhaguilda@gmail.com"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400" />
-              <div class="flex items-center justify-between gap-3 text-xs text-gray-400">
-                <span>Sugestão rápida:</span>
-                <button id="btn-fill-player-email" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Usar sugestão</button>
-              </div>
-              <code id="player-email-preview" class="block text-xs text-gray-700 break-all bg-gray-50 border border-gray-200 rounded-xl p-3">jogador.{guildId}@guildahub.app</code>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Senha do Jogador</label>
-                <input id="player-pass" type="password" minlength="6" placeholder="Mínimo 6 caracteres"
-                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
-              </div>
-              <div class="flex items-end">
-                <button id="btn-create-player-disabled-beta" class="w-full px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+<div class="space-y-3" id="player-create-box">
+<div class="text-xs text-gray-500">E-mail do Jogador (definido por você)</div>
+<div class="space-y-2">
+<input class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400" id="player-email" placeholder="ex: jogador.minhaguilda@gmail.com" type="email"/>
+<div class="flex items-center justify-between gap-3 text-xs text-gray-400">
+<span>Sugestão rápida:</span>
+<button class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50" id="btn-fill-player-email">Usar sugestão</button>
+</div>
+<code class="block text-xs text-gray-700 break-all bg-gray-50 border border-gray-200 rounded-xl p-3" id="player-email-preview">jogador.{guildId}@guildahub.app</code>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-gray-500 mb-1">Senha do Jogador</label>
+<input class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" id="player-pass" minlength="6" placeholder="Mínimo 6 caracteres" type="password"/>
+</div>
+<div class="flex items-end">
+<button class="w-full px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700" id="btn-create-player-disabled-beta">
                   Criar acesso ao Jogador
                 </button>
-              </div>
-            </div>
-          </div>
-
-          <div id="player-manage-box" class="hidden space-y-3">
-            <div class="text-xs text-gray-500">E-mail atual do Jogador</div>
-            <div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
-              <code id="player-email-active" class="text-xs text-gray-800 break-all"></code>
-              <button id="btn-copy-player-email-2" class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50">Copiar</button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">Senha do Jogador (para apagar conta)</label>
-                <input id="player-pass-del" type="password" minlength="6" placeholder="Senha do Jogador"
-                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
-              </div>
-              <div class="flex items-end gap-2">
-                <button id="btn-revoke-player" class="w-1/2 px-4 py-2 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200">
+</div>
+</div>
+</div>
+<div class="hidden space-y-3" id="player-manage-box">
+<div class="text-xs text-gray-500">E-mail atual do Jogador</div>
+<div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+<code class="text-xs text-gray-800 break-all" id="player-email-active"></code>
+<button class="text-xs bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg font-bold hover:bg-gray-50" id="btn-copy-player-email-2">Copiar</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-gray-500 mb-1">Senha do Jogador (para apagar conta)</label>
+<input class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-200" id="player-pass-del" minlength="6" placeholder="Senha do Jogador" type="password"/>
+</div>
+<div class="flex items-end gap-2">
+<button class="w-1/2 px-4 py-2 rounded-xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200" id="btn-revoke-player">
                   Revogar
                 </button>
-                <button id="btn-delete-player" class="w-1/2 px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700">
+<button class="w-1/2 px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700" id="btn-delete-player">
                   Deletar conta
                 </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </main>
-  </div>
-
-  <script type="module">
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script type="module">
     import { checkAuth, setupSidebar, initIcons, showToast, logout, auth, db, getGuildContext, ensureUserAccount, createPlayer_DISABLED_BETAAccess, revokePlayerAccess, deletePlayerAccount } from "./logic.js";
     import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -392,24 +372,22 @@
       } catch (e) { showToast('error', 'Erro ao criar.'); }
     });
   </script>
-
-  <!-- OTK Footer -->
-<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
-  <div class="mx-auto w-full max-w-5xl px-4 py-10">
-    <div class="flex flex-col items-center gap-4">
-      <div class="flex items-center justify-center gap-3">
-        <a href="https://instagram.com/ottakubrasil" target="_blank" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"><i data-lucide="instagram" class="h-5 w-5"></i></a>
-        <a href="https://instagram.com/gameotk" target="_blank" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"><i data-lucide="instagram" class="h-5 w-5"></i></a>
-        <a href="https://ottakubrasil.online" target="_blank" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"><i data-lucide="globe" class="h-5 w-5"></i></a>
-      </div>
-      <div class="text-center">
-        <p class="text-sm font-semibold tracking-wide text-slate-800">Ottakubrasil • Guilda Hub</p>
-        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.</p>
-        <p class="mt-4 text-xs text-slate-500">© Ottakubrasil • 2026</p>
-      </div>
-    </div>
-  </div>
+<!-- OTK Footer -->
+<footer class="mt-12 border-t border-emerald-500/10 text-slate-700" id="otk-footer">
+<div class="mx-auto w-full max-w-5xl px-4 py-10">
+<div class="flex flex-col items-center gap-4">
+<div class="flex items-center justify-center gap-3">
+<a class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10" href="https://instagram.com/ottakubrasil" target="_blank"><i class="h-5 w-5" data-lucide="instagram"></i></a>
+<a class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10" href="https://instagram.com/gameotk" target="_blank"><i class="h-5 w-5" data-lucide="instagram"></i></a>
+<a class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10" href="https://ottakubrasil.online" target="_blank"><i class="h-5 w-5" data-lucide="globe"></i></a>
+</div>
+<div class="text-center">
+<p class="text-sm font-semibold tracking-wide text-slate-800">Ottakubrasil • Guilda Hub</p>
+<p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.</p>
+<p class="mt-4 text-xs text-slate-500">© Ottakubrasil • 2026</p>
+</div>
+</div>
+</div>
 </footer>
-
 </body>
 </html>

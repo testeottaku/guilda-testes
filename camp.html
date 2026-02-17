@@ -1,211 +1,190 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Campeonato - Guild Manager</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
-  </script>
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Campeonato - Guild Manager</title>
+<link href="global.css" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<link href="./style.css" rel="stylesheet"/>
 </head>
-<body class="bg-gray-50/80 neon">
-
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
-      <div class="flex items-center justify-between p-5 border-b border-gray-100">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white"><i data-lucide="shield" class="w-5 h-5"></i></div>
-          <div><h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1><p class="text-xs text-gray-400">Painel</p></div>
-        </div>
-      </div>
-      <nav class="p-4 space-y-1">
-        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="house" class="w-5 h-5"></i> Dashboard</a>
-        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="users" class="w-5 h-5"></i> Membros</a>
-        <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="layers" class="w-5 h-5"></i> Lines
+<body class="bg-gray-50/80 gh-body">
+<div class="flex min-h-screen">
+<!-- Sidebar -->
+<div class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden" id="sidebar-overlay"></div>
+<aside class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static" id="sidebar">
+<div class="flex items-center justify-between p-5 border-b border-gray-100">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white"><i class="w-5 h-5" data-lucide="shield"></i></div>
+<div><h1 class="font-bold text-gray-900 text-lg">Guilda e eventos</h1><p class="text-xs text-gray-400">Painel</p></div>
+</div>
+</div>
+<nav class="p-4 space-y-1">
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="dashboard.html"><i class="w-5 h-5" data-lucide="house"></i> Dashboard</a>
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="membros.html"><i class="w-5 h-5" data-lucide="users"></i> Membros</a>
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="lines.html">
+<i class="w-5 h-5" data-lucide="layers"></i> Lines
         </a>
-        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="sliders" class="w-5 h-5"></i> Ajustes</a>
-        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="ajustes.html"><i class="w-5 h-5" data-lucide="sliders"></i> Ajustes</a>
+<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="upgrade.html">
+<i class="w-5 h-5" data-lucide="sparkles"></i> Upgrade
         </a>
-        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm"><i data-lucide="trophy" class="w-5 h-5"></i> Campeonato</a>
-        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="settings" class="w-5 h-5"></i> Admin</a>
-        <a id="nav-chefe" href="chefe.html" class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"><i data-lucide="crown" class="w-5 h-5"></i> Chefe</a>
-      </nav>
-      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-        <div class="flex items-center justify-between px-3 py-2">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
-            <div><p id="user-role" class="text-sm font-medium text-gray-700">...</p><p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p></div>
-          </div>
-          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i></button>
-        </div>
-      </div>
-    </aside>
-
-    <main class="flex-1 min-w-0 relative">
-      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
-          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i data-lucide="menu" class="w-5 h-5"></i></button>
-          <h1 class="text-lg font-semibold text-gray-900">Campeonatos <span class="ml-2 inline-flex items-center rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200 px-2 py-0.5 text-[10px] font-extrabold">PRO</span><span class="ml-2 inline-flex items-center rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200 px-2 py-0.5 text-[10px] font-extrabold">BETA</span></h1>
-        </div>
-      </header>
-
-      <div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
-        <div class="flex items-center justify-between">
-          <div><h2 class="text-2xl font-bold text-gray-900">Eventos</h2><p class="text-gray-500 text-sm mt-1">Gerencie os campeonatos da guilda</p></div>
-          <button id="btn-new-camp" onclick="openCampModal()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all active:scale-95">
-            <i data-lucide="plus" class="w-4 h-4"></i> Novo Campeonato
+<a class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm" href="camp.html"><i class="w-5 h-5" data-lucide="trophy"></i> Campeonato</a>
+<a class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="admin.html"><i class="w-5 h-5" data-lucide="settings"></i> Admin</a>
+<a class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="chefe.html" id="nav-chefe"><i class="w-5 h-5" data-lucide="crown"></i> Chefe</a>
+</nav>
+<div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+<div class="flex items-center justify-between px-3 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+<div><p class="text-sm font-medium text-gray-700" id="user-role">...</p><p class="text-xs text-gray-400 truncate w-24" id="user-email">...</p></div>
+</div>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors" id="btn-logout"><i class="w-4 h-4" data-lucide="log-out"></i></button>
+</div>
+</div>
+</aside>
+<main class="flex-1 min-w-0 relative">
+<header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+<div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+<button class="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500" id="mobile-menu-btn"><i class="w-5 h-5" data-lucide="menu"></i></button>
+<h1 class="text-lg font-semibold text-gray-900">Campeonatos <span class="ml-2 inline-flex items-center rounded-full bg-purple-50 text-purple-700 ring-1 ring-purple-200 px-2 py-0.5 text-[10px] font-extrabold">PRO</span><span class="ml-2 inline-flex items-center rounded-full bg-gray-100 text-gray-600 ring-1 ring-gray-200 px-2 py-0.5 text-[10px] font-extrabold">BETA</span></h1>
+</div>
+</header>
+<div class="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+<div class="flex items-center justify-between">
+<div><h2 class="text-2xl font-bold text-gray-900">Eventos</h2><p class="text-gray-500 text-sm mt-1">Gerencie os campeonatos da guilda</p></div>
+<button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg hover:shadow-xl transition-all active:scale-95" id="btn-new-camp" onclick="openCampModal()">
+<i class="w-4 h-4" data-lucide="plus"></i> Novo Campeonato
           </button>
-        </div>
-
-        <div id="camps-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <!-- Placeholder Skeleton (só se não tiver cache) -->
-           <div class="col-span-1 md:col-span-2 bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center animate-pulse">
-               <p class="text-gray-400 text-sm">Carregando...</p>
-           </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Modal Camp (Mantido igual) -->
-  <div id="camp-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center hidden">
-    <div class="fixed inset-0 bg-black/40" onclick="closeCampModal()"></div>
-    <div class="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto overscroll-contain animate-in" style="padding-bottom: env(safe-area-inset-bottom);">
-      <div class="flex items-center justify-between p-5 border-b border-gray-100 bg-white rounded-t-2xl sticky top-0">
-        <h3 id="camp-modal-title" class="text-lg font-bold text-gray-900">Novo Campeonato</h3>
-        <button onclick="closeCampModal()" class="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <form id="camp-form" class="p-5 space-y-4">
-        <input type="hidden" id="camp-id">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">Nome *</label>
-          <input id="camp-name" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descrição</label>
-          <textarea id="camp-desc" rows="3" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Data</label><input id="camp-date" type="date" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
-          <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Horário</label><input id="camp-time" type="time" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">Guilda (automático)</label>
-          <input id="camp-guildname" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600" disabled>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">Formato *</label>
-          <select id="camp-format" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" required>
-            <option value="br">Battle Royale</option>
-            <option value="xvx">XvX (1v1 até 4v4)</option>
-          </select>
-        </div>
-
-        <div id="br-fields" class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Modo (BR) *</label>
-            <select id="camp-mode" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-              <option value="solo">SOLO</option>
-              <option value="duo">DUO</option>
-              <option value="squad">SQUAD</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Quedas *</label>
-            <select id="camp-drops" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white"></select>
-          </div>
-        </div>
-
-        <div id="xvx-fields" class="grid grid-cols-2 gap-3 hidden">
-          <div class="col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Confronto *</label>
-            <select id="camp-xvx" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-              <option value="1v1">1v1</option>
-              <option value="2v2">2v2</option>
-              <option value="3v3">3v3</option>
-              <option value="4v4">4v4</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Inscrição *</label>
-            <select id="camp-feeType" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-              <option value="free">Gratuito</option>
-              <option value="paid">Pago</option>
-            </select>
-          </div>
-          <div id="fee-value-wrap" class="hidden">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Valor (R$)</label>
-            <input id="camp-feeValue" type="number" step="0.01" min="0" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Ex: 5,00">
-          </div>
-        </div>
-
-                <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">Premiação total (R$) (opcional)</label>
-          <input id="camp-prizeTotal" type="text" inputmode="decimal" autocomplete="off"
-                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-                 placeholder="Ex: 1500,00">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">Link para informações (obrigatório) *</label>
-          <input id="camp-link" type="url"
-                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-                 placeholder="WhatsApp, Instagram, grupo, etc" required>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Foto (opcional)</label>
-            <input id="camp-photo" type="file" accept="image/*" class="w-full text-sm">
-            <p class="text-xs text-gray-500 mt-1">Você pode enviar até 2MB. Se necessário, a imagem será otimizada antes de salvar.</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Símbolo (se não usar foto)</label>
-            <select id="camp-icon" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-              <option value="trophy">🏆 Troféu</option>
-              <option value="crown">👑 Coroa</option>
-              <option value="flame">🔥 Chama</option>
-              <option value="target">🎯 Alvo</option>
-              <option value="swords">⚔️ Espadas</option>
-              <option value="shield">🛡️ Escudo</option>
-            </select>
-          </div>
-        </div>
-
-        <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Local</label><input id="camp-local" type="text" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label id="camp-max-label" class="block text-sm font-medium text-gray-700 mb-1.5">Máx. Participantes</label><select id="camp-max" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white"></select></div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
-            <select id="camp-status" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-              <option value="upcoming">Próximo</option>
-              <option value="ongoing">Em andamento</option>
-              <option value="finished">Finalizado</option>
-            </select>
-          </div>
-        </div>
-        <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeCampModal()" class="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
-          <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  
-  <script type="module">
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="camps-list">
+<!-- Placeholder Skeleton (só se não tiver cache) -->
+<div class="col-span-1 md:col-span-2 bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center animate-pulse">
+<p class="text-gray-400 text-sm">Carregando...</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Camp (Mantido igual) -->
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center hidden" id="camp-modal">
+<div class="fixed inset-0 bg-black/40" onclick="closeCampModal()"></div>
+<div class="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto overscroll-contain animate-in" style="padding-bottom: env(safe-area-inset-bottom);">
+<div class="flex items-center justify-between p-5 border-b border-gray-100 bg-white rounded-t-2xl sticky top-0">
+<h3 class="text-lg font-bold text-gray-900" id="camp-modal-title">Novo Campeonato</h3>
+<button class="p-2 text-gray-400 hover:bg-gray-100 rounded-lg" onclick="closeCampModal()"><i class="w-5 h-5" data-lucide="x"></i></button>
+</div>
+<form class="p-5 space-y-4" id="camp-form">
+<input id="camp-id" type="hidden"/>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Nome *</label>
+<input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-name" required="" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Descrição</label>
+<textarea class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-desc" rows="3"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-sm font-medium text-gray-700 mb-1.5">Data</label><input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-date" type="date"/></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-1.5">Horário</label><input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-time" type="time"/></div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Guilda (automático)</label>
+<input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600" disabled="" id="camp-guildname" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Formato *</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-format" required="">
+<option value="br">Battle Royale</option>
+<option value="xvx">XvX (1v1 até 4v4)</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-3" id="br-fields">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Modo (BR) *</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-mode">
+<option value="solo">SOLO</option>
+<option value="duo">DUO</option>
+<option value="squad">SQUAD</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Quedas *</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-drops"></select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 hidden" id="xvx-fields">
+<div class="col-span-2">
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Confronto *</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-xvx">
+<option value="1v1">1v1</option>
+<option value="2v2">2v2</option>
+<option value="3v3">3v3</option>
+<option value="4v4">4v4</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Inscrição *</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-feeType">
+<option value="free">Gratuito</option>
+<option value="paid">Pago</option>
+</select>
+</div>
+<div class="hidden" id="fee-value-wrap">
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Valor (R$)</label>
+<input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-feeValue" min="0" placeholder="Ex: 5,00" step="0.01" type="number"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Premiação total (R$) (opcional)</label>
+<input autocomplete="off" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-prizeTotal" inputmode="decimal" placeholder="Ex: 1500,00" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Link para informações (obrigatório) *</label>
+<input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-link" placeholder="WhatsApp, Instagram, grupo, etc" required="" type="url"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Foto (opcional)</label>
+<input accept="image/*" class="w-full text-sm" id="camp-photo" type="file"/>
+<p class="text-xs text-gray-500 mt-1">Você pode enviar até 2MB. Se necessário, a imagem será otimizada antes de salvar.</p>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Símbolo (se não usar foto)</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-icon">
+<option value="trophy">🏆 Troféu</option>
+<option value="crown">👑 Coroa</option>
+<option value="flame">🔥 Chama</option>
+<option value="target">🎯 Alvo</option>
+<option value="swords">⚔️ Espadas</option>
+<option value="shield">🛡️ Escudo</option>
+</select>
+</div>
+</div>
+<div><label class="block text-sm font-medium text-gray-700 mb-1.5">Local</label><input class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500" id="camp-local" type="text"/></div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-sm font-medium text-gray-700 mb-1.5" id="camp-max-label">Máx. Participantes</label><select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-max"></select></div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+<select class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white" id="camp-status">
+<option value="upcoming">Próximo</option>
+<option value="ongoing">Em andamento</option>
+<option value="finished">Finalizado</option>
+</select>
+</div>
+</div>
+<div class="flex gap-3 pt-2">
+<button class="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50" onclick="closeCampModal()" type="button">Cancelar</button>
+<button class="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-sm font-medium shadow-lg hover:shadow-xl" type="submit">Salvar</button>
+</div>
+</form>
+</div>
+</div>
+<script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, getGuildContext, showToast, db } from './logic.js';
     import {
       collection, doc, setDoc, deleteDoc, onSnapshot,
@@ -793,51 +772,34 @@
     boot();
 
   </script>
-
-
-  <!-- OTK Footer -->
-<footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
-  <div class="mx-auto w-full max-w-5xl px-4 py-10">
-    <div class="flex flex-col items-center gap-4">
-
-      <div class="flex items-center justify-center gap-3">
-        <a href="https://instagram.com/ottakubrasil" target="_blank" rel="noopener noreferrer"
-           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
-           aria-label="Instagram principal: @ottakubrasil" title="@ottakubrasil">
-          <i data-lucide="instagram" class="h-5 w-5"></i>
-        </a>
-
-        <a href="https://instagram.com/gameotk" target="_blank" rel="noopener noreferrer"
-           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
-           aria-label="Instagram gaming: @gameotk" title="@gameotk">
-          <i data-lucide="instagram" class="h-5 w-5"></i>
-        </a>
-
-        <a href="https://ottakubrasil.online" target="_blank" rel="noopener noreferrer"
-           class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10"
-           aria-label="Site: ottakubrasil.online" title="ottakubrasil.online">
-          <i data-lucide="globe" class="h-5 w-5"></i>
-        </a>
-      </div>
-
-      <div class="text-center">
-        <p class="text-sm font-semibold tracking-wide text-slate-800">
+<!-- OTK Footer -->
+<footer class="mt-12 border-t border-emerald-500/10 text-slate-700" id="otk-footer">
+<div class="mx-auto w-full max-w-5xl px-4 py-10">
+<div class="flex flex-col items-center gap-4">
+<div class="flex items-center justify-center gap-3">
+<a aria-label="Instagram principal: @ottakubrasil" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10" href="https://instagram.com/ottakubrasil" rel="noopener noreferrer" target="_blank" title="@ottakubrasil">
+<i class="h-5 w-5" data-lucide="instagram"></i>
+</a>
+<a aria-label="Instagram gaming: @gameotk" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10" href="https://instagram.com/gameotk" rel="noopener noreferrer" target="_blank" title="@gameotk">
+<i class="h-5 w-5" data-lucide="instagram"></i>
+</a>
+<a aria-label="Site: ottakubrasil.online" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10" href="https://ottakubrasil.online" rel="noopener noreferrer" target="_blank" title="ottakubrasil.online">
+<i class="h-5 w-5" data-lucide="globe"></i>
+</a>
+</div>
+<div class="text-center">
+<p class="text-sm font-semibold tracking-wide text-slate-800">
           Ottakubrasil • Guilda Hub
         </p>
-
-        <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
+<p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
           Central de guilda e eventos: organização, velocidade e controle para facilitar sua vida no dia a dia.
         </p>
-
-        <p class="mt-4 text-xs text-slate-500">
+<p class="mt-4 text-xs text-slate-500">
           © Ottakubrasil • 2026
         </p>
-      </div>
-
-    </div>
-  </div>
+</div>
+</div>
+</div>
 </footer>
-
 </body>
 </html>
-

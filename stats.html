@@ -1,122 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minhas estatísticas</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
-    }
-  </script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Minhas estatísticas</title>
+<link href="global.css" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script>
 
-  <style>
-    /* micro UX */
-    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
-    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
+<script src="https://unpkg.com/lucide@latest"></script>
 
-    .btn-spinner{
-      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
-      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* drawer */
-    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
-    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
-    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
-    .drawer-panel.show{ transform: translateX(0); }
-  
-  .dd { position: relative; }
-  .dd-btn { width: 100%; display:flex; align-items:center; justify-content:space-between; gap:.75rem; border-radius: 1rem;
-    background: rgba(255,255,255,.9); border:1px solid rgba(15,23,42,.14); padding: .75rem 1rem; font-size: .875rem;
-    outline:none; }
-  .dd-btn:focus { box-shadow: 0 0 0 4px rgba(16,185,129,.18); border-color: rgba(16,185,129,.55); }
-  .dd-menu { position:absolute; left:0; right:0; top: calc(100% + .5rem); background:#0b1220; color:#e2e8f0;
-    border:1px solid rgba(255,255,255,.10); border-radius: 1rem; overflow:hidden; z-index:40;
-    box-shadow: 0 18px 40px rgba(0,0,0,.22); }
-  .dd-item { width:100%; text-align:left; padding:.7rem 1rem; font-size:.875rem; display:flex; align-items:center; gap:.6rem; }
-  .dd-item:hover { background: rgba(255,255,255,.06); }
-  .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#d1fae5; }
-
-</style>
 </head>
-<body class="min-h-screen bg-white text-slate-900 neon">
-
-  
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
-    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
-        </div>
-        <div class="leading-tight">
-          <div class="text-slate-900 font-black">Guilda • HUB</div>
-          <div class="text-xs text-slate-500">Estatísticas￼</div>
-        </div>
-      </div>
-      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
-        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
-      </button>
-    </div>
-
-    <nav class="p-3 space-y-1">
-      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="home" class="h-4 w-4"></i>
-        <span class="font-semibold">Início</span>
-      </a>
-      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="calendar" class="h-4 w-4"></i>
-        <span class="font-semibold">Eventos e Camp</span>
-      </a>
-      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
-        <span class="font-semibold">Minhas estatísticas</span>
-      </a>
-      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
-        <i data-lucide="help-circle" class="h-4 w-4"></i>
-        <span class="font-semibold">Suporte</span>
-      </a>
-    </nav>
-
-    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
-      <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
-    </div>
-  </aside>
-
+<body class="min-h-screen bg-white text-slate-900 gh-body">
+<div class="fixed inset-0 z-40 hidden bg-black/40" id="sidebar-overlay"></div>
+<aside class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform" id="sidebar">
+<div class="p-4 border-b border-slate-200 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+<i class="h-5 w-5 text-emerald-700" data-lucide="shield"></i>
+</div>
+<div class="leading-tight">
+<div class="text-slate-900 font-black">Guilda • HUB</div>
+<div class="text-xs text-slate-500">Estatísticas￼</div>
+</div>
+</div>
+<button class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100" id="sidebar-close">
+<i class="h-5 w-5 text-slate-700" data-lucide="x"></i>
+</button>
+</div>
+<nav class="p-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="index.html">
+<i class="h-4 w-4" data-lucide="home"></i>
+<span class="font-semibold">Início</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="eventos.html">
+<i class="h-4 w-4" data-lucide="calendar"></i>
+<span class="font-semibold">Eventos e Camp</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="stats.html">
+<i class="h-4 w-4" data-lucide="bar-chart-3"></i>
+<span class="font-semibold">Minhas estatísticas</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="suporte.html">
+<i class="h-4 w-4" data-lucide="help-circle"></i>
+<span class="font-semibold">Suporte</span>
+</a>
+</nav>
+<div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+<div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
+</div>
+</aside>
 <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
-    <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50">
-          <i data-lucide="menu" class="h-5 w-5"></i>
-        </button>
-        <div class="leading-tight">
-          <div class="font-black text-slate-900">Guilda • HUB</div>
-          <div class="text-xs text-slate-500"> Estatísticas￼</div>
-        </div>
-      </div>
-      <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
-    </div>
-  </header><main class="mx-auto w-full max-w-6xl px-4 py-6">
+<div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50" id="sidebar-open">
+<i class="h-5 w-5" data-lucide="menu"></i>
+</button>
+<div class="leading-tight">
+<div class="font-black text-slate-900">Guilda • HUB</div>
+<div class="text-xs text-slate-500"> Estatísticas￼</div>
+</div>
+</div>
+<a class="text-sm font-semibold text-emerald-700 hover:text-emerald-800" href="index.html">Voltar</a>
+</div>
+</header><main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
-  <div class="rounded-3xl bg-white ring-1 ring-slate-200 p-4">
-    <div class="text-sm font-bold">Buscar meu perfil</div>
-    <p class="mt-1 text-xs text-slate-500">Digite seu nick ou ID para ver suas estatísticas basica.</p>
-    <div class="mt-4 flex flex-col gap-3 sm:flex-row">
-      <input id="query" type="text" placeholder="Seu nick ou ID"
-        class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
-      <button id="btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition text-white">Buscar</button>
-    </div>
-    <div id="hint" class="mt-3 text-xs text-slate-500"></div>
-  </div>
-  <div id="result"></div>
+<div class="rounded-3xl bg-white ring-1 ring-slate-200 p-4">
+<div class="text-sm font-bold">Buscar meu perfil</div>
+<p class="mt-1 text-xs text-slate-500">Digite seu nick ou ID para ver suas estatísticas basica.</p>
+<div class="mt-4 flex flex-col gap-3 sm:flex-row">
+<input class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" id="query" placeholder="Seu nick ou ID" type="text"/>
+<button class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition text-white" id="btn">Buscar</button>
+</div>
+<div class="mt-3 text-xs text-slate-500" id="hint"></div>
+</div>
+<div id="result"></div>
 </section>
 </main>
-
 <script>
 (function(){
   const openBtn = document.getElementById('sidebar-open');
@@ -139,7 +98,6 @@
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
 })();
 </script>
-
 <script>lucide.createIcons();</script>
 <script type="module">
 
