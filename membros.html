@@ -17,7 +17,12 @@
     .switch input{opacity:0;width:0;height:0}
     .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#e5e7eb;transition:.2s;border-radius:999px}
     .slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background:white;transition:.2s;border-radius:999px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
-    .switch input:checked + .slider{background:#10b981}
+    
+
+    .radio-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:14px;font-size:14px;color:#374151;}
+    .radio-row:hover{background:#f9fafb;}
+    .radio-row input[type=radio]{width:16px;height:16px;accent-color:#10b981;}
+.switch input:checked + .slider{background:#10b981}
     .switch input:focus + .slider{box-shadow:0 0 0 4px rgba(16,185,129,.18)}
     .switch input:checked + .slider:before{transform:translateX(20px)}
   </style>
@@ -161,7 +166,10 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Guerra de Guilda</label>
-            <input type="checkbox" id="guild-war" class="w-5 h-5 accent-emerald-500">
+            <label class="switch">
+              <input type="checkbox" id="guild-war">
+              <span class="slider"></span>
+            </label>
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Meta da Guerra</label>
@@ -174,7 +182,10 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Meta Semanal</label>
-            <input type="checkbox" id="weekly-meta" class="w-5 h-5 accent-emerald-500">
+            <label class="switch">
+              <input type="checkbox" id="weekly-meta">
+              <span class="slider"></span>
+            </label>
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Valor da Meta</label>
@@ -190,6 +201,31 @@
             <input type="checkbox" id="has-tag">
             <span class="slider"></span>
           </label>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700">Modo de jogo</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="radio-row">
+              <input type="radio" name="play-mode" value="Rush">
+              <span>Rush</span>
+            </label>
+            <label class="radio-row">
+              <input type="radio" name="play-mode" value="Full Gás">
+              <span>Full Gás</span>
+            </label>
+            <label class="radio-row">
+              <input type="radio" name="play-mode" value="Curandeiro">
+              <span>Curandeiro</span>
+            </label>
+            <label class="radio-row">
+              <input type="radio" name="play-mode" value="Fuzileiro">
+              <span>Fuzileiro</span>
+            </label>
+          </div>
+          <p class="text-xs text-gray-500">Selecione apenas 1.</p>
         </div>
 
         <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 flex gap-3">
@@ -214,6 +250,8 @@
 
     // Tag configurável (Firestore: configGuilda/{uid}.tagMembros)
     let memberTag = null;
+    let hasTagManualOverride = false;
+    let isEditingMember = false;
 
     function escapeRegExp(str) {
       return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -269,17 +307,28 @@
       const nickEl = document.getElementById('nick');
       if (!hasTagEl || !nickEl) return;
 
-      // Se não tem tag configurada, não deixa marcado automaticamente
-      if (!memberTag) {
-        hasTagEl.checked = false;
-        return;
-      }
+      // Se o usuário marcou/desmarcou manualmente, não briga com ele
+      if (hasTagManualOverride) return;
 
-      // Se o usuário marcou manualmente, não desmarca sozinho
-      // (isso é importante pra tags estilizadas diferentes do padrão)
-      if (hasTagEl.dataset.manual === '1' && hasTagEl.checked) return;
+      // Se não tem tag configurada, não marca automaticamente
+      if (!memberTag) return;
 
       hasTagEl.checked = nickHasMemberTag(nickEl.value);
+    }
+
+      
+
+    function getSelectedPlayMode() {
+      return document.querySelector('input[name="play-mode"]:checked')?.value || '';
+    }
+
+    function setSelectedPlayMode(value) {
+      const v = (value || '').trim();
+      document.querySelectorAll('input[name="play-mode"]').forEach(r => {
+        r.checked = (r.value === v);
+      });
+    }
+hasTagEl.checked = nickHasMemberTag(nickEl.value);
     }
 
         // Atualiza automaticamente o "Tem tag?" conforme o usuário digita/cola o nick
@@ -287,6 +336,11 @@
       if (ev && ev.target && ev.target.id === 'nick') {
         syncHasTagToggleFromNick();
       }
+    });
+
+
+    document.getElementById('has-tag')?.addEventListener('change', () => {
+      hasTagManualOverride = true;
     });
 
 // --- LÓGICA DE CACHE SEM PISCAR ---
@@ -320,9 +374,6 @@
             showToast('error', 'Nenhuma tag configurada. Configure em Ajustes.');
             hasTagEl.checked = false;
           }
-
-          // Se o usuário mexeu manualmente, grava isso pra não ficar “brigando” com a auto-verificação
-          hasTagEl.dataset.manual = '1';
         });
       }
 
@@ -469,11 +520,11 @@
     window.openModal = () => {
       document.getElementById('member-form').reset();
       document.getElementById('member-id').value = '';
+      isEditingMember = false;
+      hasTagManualOverride = false;
+      setSelectedPlayMode('');
       document.getElementById('modal-title').innerText = 'Novo Membro';
       document.getElementById('api-feedback').innerHTML = '';
-      // novo cadastro: volta a auto-verificação normal
-      const hasTagEl = document.getElementById('has-tag');
-      if (hasTagEl) hasTagEl.dataset.manual = '0';
       document.getElementById('modal').classList.remove('hidden');
     };
 
@@ -482,6 +533,8 @@
     window.editMember = (id) => {
       const m = membersCache.find(x => x.id === id);
       if(!m) return;
+      isEditingMember = true;
+      hasTagManualOverride = !!m.hasTag && (memberTag ? !nickHasMemberTag(m.nick || '') : true);
       document.getElementById('member-id').value = m.id;
       document.getElementById('visible-id').value = m.visibleId;
       document.getElementById('nick').value = (m.nick || '');
@@ -490,14 +543,12 @@
       document.getElementById('guild-war-meta').value = m.guildWarMeta;
       document.getElementById('weekly-meta').checked = m.weeklyMeta;
       document.getElementById('weekly-meta-value').value = m.weeklyMetaValue;
-      const hasTagEl = document.getElementById('has-tag');
-      // no editar: se já estava marcado no banco, mantém marcado mesmo se a tag for estilizada
-      hasTagEl.checked = !!m.hasTag || nickHasMemberTag(m.nick || '');
-      hasTagEl.dataset.manual = m.hasTag ? '1' : '0';
+      document.getElementById('has-tag').checked = m.hasTag;
+      setSelectedPlayMode(m.playMode || '');
       document.getElementById('join-date').value = m.joinDate;
       
-      // Só tenta auto-verificar quando não veio marcado do banco
-      if (!m.hasTag) syncHasTagToggleFromNick();
+            // Recalcula automaticamente se o nick contém a tag
+      syncHasTagToggleFromNick();
 document.getElementById('modal-title').innerText = 'Editar Membro';
       document.getElementById('modal').classList.remove('hidden');
     };
@@ -562,16 +613,8 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
         if(exist) { showToast('error', 'Esse ID já existe.'); return; }
       }
 
-      const rawNick = document.getElementById('nick').value.trim();
+      const finalNick = document.getElementById('nick').value.trim();
       const hasTag = document.getElementById('has-tag').checked;
-      if (hasTag && !memberTag) {
-        showToast('error', 'Nenhuma tag configurada. Vá em Ajustes e configure antes.');
-        return;
-      }
-      // IMPORTANTE: marcar “Tem tag” NÃO altera o nick.
-      // (a tag pode ser estilizada e você quer manter do jeito que a pessoa usa)
-      const finalNick = rawNick;
-
       const payload = {
         visibleId,
         nick: finalNick,
@@ -581,6 +624,7 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
         weeklyMeta: document.getElementById('weekly-meta').checked,
         weeklyMetaValue: Number(document.getElementById('weekly-meta-value').value),
         hasTag: hasTag,
+        playMode: getSelectedPlayMode(),
         joinDate: document.getElementById('join-date').value || new Date().toISOString().split('T')[0],
         updatedAt: serverTimestamp()
       };
