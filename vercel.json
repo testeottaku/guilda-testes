@@ -63,11 +63,3 @@
     }
   ]
 }
-
-{
-  "functions": {
-    "ffnick/index.js": {
-      "runtime": "nodejs24.x"
-    }
-  }
-}
