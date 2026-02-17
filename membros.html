@@ -236,10 +236,6 @@
       const nickEl = document.getElementById('nick');
       if (!hasTagEl || !nickEl) return;
 
-      // Em modo edição, o nick aparece sem tag (stripKnownTags), então não auto-desmarca.
-      const memberIdEl = document.getElementById('member-id');
-      if (memberIdEl && String(memberIdEl.value || '').trim()) return;
-
       // Se não tem tag configurada, não deixa marcado automaticamente
       if (!memberTag) {
         hasTagEl.checked = false;
@@ -249,7 +245,14 @@
       hasTagEl.checked = nickHasMemberTag(nickEl.value);
     }
 
-    // --- LÓGICA DE CACHE SEM PISCAR ---
+        // Atualiza automaticamente o "Tem tag?" conforme o usuário digita/cola o nick
+    document.addEventListener('input', (ev) => {
+      if (ev && ev.target && ev.target.id === 'nick') {
+        syncHasTagToggleFromNick();
+      }
+    });
+
+// --- LÓGICA DE CACHE SEM PISCAR ---
     // 1. Tenta carregar do cache IMEDIATAMENTE antes de qualquer auth
     const cachedMembersJSON = localStorage.getItem('membersList');
     if(cachedMembersJSON) {
@@ -438,7 +441,7 @@
       if(!m) return;
       document.getElementById('member-id').value = m.id;
       document.getElementById('visible-id').value = m.visibleId;
-      document.getElementById('nick').value = stripKnownTags(m.nick);
+      document.getElementById('nick').value = (m.nick || '');
       document.getElementById('whatsapp').value = m.whatsapp;
       document.getElementById('guild-war').checked = m.guildWar;
       document.getElementById('guild-war-meta').value = m.guildWarMeta;
@@ -447,7 +450,9 @@
       document.getElementById('has-tag').checked = m.hasTag;
       document.getElementById('join-date').value = m.joinDate;
       
-      document.getElementById('modal-title').innerText = 'Editar Membro';
+            // Recalcula automaticamente se o nick contém a tag
+      syncHasTagToggleFromNick();
+document.getElementById('modal-title').innerText = 'Editar Membro';
       document.getElementById('modal').classList.remove('hidden');
     };
 
