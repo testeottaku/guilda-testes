@@ -112,14 +112,14 @@
 
         <div id="members-list" class="space-y-3">
           <!-- Placeholder de carregamento (Só aparece se não tiver cache) -->
-           <div class="bg-white rounded-2xl border border-gray-100 p-4 animate-pulse flex items-center gap-3">
+           <div class="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse flex items-center gap-3">
               <div class="w-11 h-11 bg-gray-200 rounded-full"></div>
               <div class="flex-1 space-y-2">
                  <div class="h-4 bg-gray-200 rounded w-1/3"></div>
                  <div class="h-3 bg-gray-100 rounded w-1/4"></div>
               </div>
            </div>
-           <div class="bg-white rounded-2xl border border-gray-100 p-4 animate-pulse flex items-center gap-3">
+           <div class="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse flex items-center gap-3">
               <div class="w-11 h-11 bg-gray-200 rounded-full"></div>
               <div class="flex-1 space-y-2">
                  <div class="h-4 bg-gray-200 rounded w-1/3"></div>
@@ -140,35 +140,7 @@
         <button onclick="closeModal()" class="p-2 rounded-lg hover:bg-gray-100 text-gray-400"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-    <div class="mt-4">
-      <p class="text-sm font-semibold text-gray-900">Modo de jogo</p>
-      <p class="text-xs text-gray-500 mt-1">Selecione apenas 1.</p>
-
-      <input type="hidden" id="play-mode" value="" />
-
-      <div id="playmode-wrap" class="pm-wrap mt-3">
-        <button type="button" class="pm-option" data-value="Rush">
-          <span class="pm-circle" aria-hidden="true"></span>
-          <span>Rush</span>
-        </button>
-        <button type="button" class="pm-option" data-value="Full Gás">
-          <span class="pm-circle" aria-hidden="true"></span>
-          <span>Full Gás</span>
-        </button>
-        <button type="button" class="pm-option" data-value="Curandeiro">
-          <span class="pm-circle" aria-hidden="true"></span>
-          <span>Curandeiro</span>
-        </button>
-        <button type="button" class="pm-option" data-value="Fuzileiro">
-          <span class="pm-circle" aria-hidden="true"></span>
-          <span>Fuzileiro</span>
-        </button>
-      </div>
-    </div>
-
-
-      
-      <form id="member-form" class="p-4 space-y-4">
+    <form id="member-form" class="p-5 space-y-5">
         <input type="hidden" id="member-id">
         <input type="hidden" id="join-date">
         
@@ -193,6 +165,33 @@
           <input id="whatsapp" type="text" placeholder="11999999999" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm">
         </div>
 
+<div class="mt-6">
+      <p class="text-sm font-semibold text-gray-900">Modo de jogo</p>
+            <input type="hidden" id="play-mode" value="" />
+
+      <div id="playmode-wrap" class="pm-wrap mt-3">
+        <button type="button" class="pm-option" data-value="Rush">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Rush</span>
+        </button>
+        <button type="button" class="pm-option" data-value="Full Gás">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Full Gás</span>
+        </button>
+        <button type="button" class="pm-option" data-value="Curandeiro">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Curandeiro</span>
+        </button>
+        <button type="button" class="pm-option" data-value="Fuzileiro">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Fuzileiro</span>
+        </button>
+      </div>
+    </div>
+
+
+      
+      
         <hr class="border-gray-100">
 
         <!-- Toggles -->
@@ -480,7 +479,7 @@
       // Renderiza HTML
       el.innerHTML = list.map(m => `
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md animate-in">
-          <div class="w-full flex items-center gap-3 p-4 cursor-pointer" onclick="toggleDetails('${m.id}')">
+          <div class="w-full flex items-center gap-3 p-5 cursor-pointer" onclick="toggleDetails('${m.id}')">
             <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
               ${m.nick ? m.nick.charAt(0).toUpperCase() : '?'}
             </div>
