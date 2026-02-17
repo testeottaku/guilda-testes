@@ -161,7 +161,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Guerra de Guilda</label>
-            <input type="checkbox" id="guild-war" class="w-5 h-5 accent-emerald-500">
+            <label class="switch"><input type="checkbox" id="guild-war"><span class="slider"></span></label>
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Meta da Guerra</label>
@@ -174,7 +174,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Meta Semanal</label>
-            <input type="checkbox" id="weekly-meta" class="w-5 h-5 accent-emerald-500">
+            <label class="switch"><input type="checkbox" id="weekly-meta"><span class="slider"></span></label>
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Valor da Meta</label>
@@ -214,6 +214,7 @@
 
     // Tag configurável (Firestore: configGuilda/{uid}.tagMembros)
     let memberTag = null;
+    let hasTagManualOverride = false;
 
     function escapeRegExp(str) {
       return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -269,16 +270,23 @@
       const nickEl = document.getElementById('nick');
       if (!hasTagEl || !nickEl) return;
 
-      // Se não tem tag configurada, não deixa marcado automaticamente
-      if (!memberTag) {
-        hasTagEl.checked = false;
-        return;
-      }
+      // Se o usuário marcou/desmarcou manualmente, não sobrescreve.
+      if (hasTagManualOverride) return;
+
+      // Sem tag configurada, não temos como detectar automaticamente.
+      if (!memberTag) return;
 
       hasTagEl.checked = nickHasMemberTag(nickEl.value);
     }
 
-        // Atualiza automaticamente o "Tem tag?" conforme o usuário digita/cola o nick
+        // Se o usuário mexer no switch manualmente, a verificação automática não sobrescreve.
+    document.addEventListener('change', (ev) => {
+      if (ev && ev.target && ev.target.id === 'has-tag') {
+        hasTagManualOverride = true;
+      }
+    });
+
+    // Atualiza automaticamente o "Tem tag?" conforme o nick muda (API/digitação)
     document.addEventListener('input', (ev) => {
       if (ev && ev.target && ev.target.id === 'nick') {
         syncHasTagToggleFromNick();
@@ -475,6 +483,8 @@
       document.getElementById('member-id').value = m.id;
       document.getElementById('visible-id').value = m.visibleId;
       document.getElementById('nick').value = (m.nick || '');
+      hasTagManualOverride = false;
+      syncHasTagToggleFromNick();
       document.getElementById('whatsapp').value = m.whatsapp;
       document.getElementById('guild-war').checked = m.guildWar;
       document.getElementById('guild-war-meta').value = m.guildWarMeta;
@@ -522,6 +532,8 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
 
         if (res.ok && name) {
           document.getElementById('nick').value = name;
+      hasTagManualOverride = false;
+      syncHasTagToggleFromNick();
           feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (Nível ${Number.isFinite(level) ? level : '?'})</span> <span class="text-gray-500">Dados fornecidos por api.mitsuri.fun!</span>`;
           syncHasTagToggleFromNick();
         } else {
@@ -551,11 +563,9 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
 
       const rawNick = document.getElementById('nick').value.trim();
       const hasTag = document.getElementById('has-tag').checked;
-      if (hasTag && !memberTag) {
-        showToast('error', 'Nenhuma tag configurada. Vá em Ajustes e configure antes.');
-        return;
-      }
-      const finalNick = normalizeNickWithTag(rawNick, memberTag, hasTag);
+      // Importante: marcar "Tem Tag" NÃO altera o nick.
+      // Algumas tags são estilizadas (fontes/símbolos diferentes), então o nick fica exatamente como o usuário digitou.
+      const finalNick = rawNick;
 
       const payload = {
         visibleId,
