@@ -20,6 +20,16 @@
     .switch input:checked + .slider{background:#10b981}
     .switch input:focus + .slider{box-shadow:0 0 0 4px rgba(16,185,129,.18)}
     .switch input:checked + .slider:before{transform:translateX(20px)}
+  
+/* playMode picker (check-circle, single select) */
+.pm-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.pm-option{display:flex;align-items:center;gap:.55rem;padding:.75rem 1rem;border:1px solid #e5e7eb;border-radius:14px;background:#fff;cursor:pointer;transition:.15s;font-size:.875rem;color:#374151}
+.pm-option:hover{background:#f9fafb}
+.pm-circle{width:18px;height:18px;border-radius:999px;border:2px solid #d1d5db;display:inline-block;position:relative;flex:0 0 auto}
+.pm-option.pm-selected{border-color:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+.pm-option.pm-selected .pm-circle{border-color:#10b981;background:#10b981}
+.pm-option.pm-selected .pm-circle:after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:2px solid #fff;border-top:0;border-left:0;transform:rotate(45deg)}
+
   </style>
 </head>
 <body class="bg-gray-50/80">
@@ -129,6 +139,34 @@
         <h3 id="modal-title" class="text-lg font-bold text-gray-900">Novo Membro</h3>
         <button onclick="closeModal()" class="p-2 rounded-lg hover:bg-gray-100 text-gray-400"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
+
+    <div class="mt-4">
+      <p class="text-sm font-semibold text-gray-900">Modo de jogo</p>
+      <p class="text-xs text-gray-500 mt-1">Selecione apenas 1.</p>
+
+      <input type="hidden" id="play-mode" value="" />
+
+      <div id="playmode-wrap" class="pm-wrap mt-3">
+        <button type="button" class="pm-option" data-value="Rush">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Rush</span>
+        </button>
+        <button type="button" class="pm-option" data-value="Full Gás">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Full Gás</span>
+        </button>
+        <button type="button" class="pm-option" data-value="Curandeiro">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Curandeiro</span>
+        </button>
+        <button type="button" class="pm-option" data-value="Fuzileiro">
+          <span class="pm-circle" aria-hidden="true"></span>
+          <span>Fuzileiro</span>
+        </button>
+      </div>
+    </div>
+
+
       
       <form id="member-form" class="p-4 space-y-4">
         <input type="hidden" id="member-id">
@@ -161,7 +199,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Guerra de Guilda</label>
-            <input type="checkbox" id="guild-war" class="w-5 h-5 accent-emerald-500">
+            <label class="switch"><input type="checkbox" id="guild-war"><span class="slider"></span></label>
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Meta da Guerra</label>
@@ -174,7 +212,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Meta Semanal</label>
-            <input type="checkbox" id="weekly-meta" class="w-5 h-5 accent-emerald-500">
+            <label class="switch"><input type="checkbox" id="weekly-meta"><span class="slider"></span></label>
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">Valor da Meta</label>
@@ -208,12 +246,14 @@
     // quando a lista ainda não renderizou.
     setupSidebar();
     initIcons();
+    initPlayModePicker();
     
     // Variável para armazenar a lista na memória
     let membersCache = [];
 
     // Tag configurável (Firestore: configGuilda/{uid}.tagMembros)
     let memberTag = null;
+    let hasTagManualOverride = false;
 
     function escapeRegExp(str) {
       return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -269,20 +309,55 @@
       const nickEl = document.getElementById('nick');
       if (!hasTagEl || !nickEl) return;
 
-      // Se não tem tag configurada, não deixa marcado automaticamente
-      if (!memberTag) {
-        hasTagEl.checked = false;
-        return;
-      }
+      // Se o usuário marcou/desmarcou manualmente, não sobrescreve.
+      if (hasTagManualOverride) return;
 
-      // Se o usuário marcou manualmente, não desmarca sozinho
-      // (isso é importante pra tags estilizadas diferentes do padrão)
-      if (hasTagEl.dataset.manual === '1' && hasTagEl.checked) return;
+      // Sem tag configurada, não temos como detectar automaticamente.
+      if (!memberTag) return;
 
       hasTagEl.checked = nickHasMemberTag(nickEl.value);
     }
 
-        // Atualiza automaticamente o "Tem tag?" conforme o usuário digita/cola o nick
+
+    // playMode (single select com visual "check circle")
+    function applyPlayMode(value) {
+      const hidden = document.getElementById('play-mode');
+      const wrap = document.getElementById('playmode-wrap');
+      if (!hidden || !wrap) return;
+
+      const v = (value || '').trim();
+      hidden.value = v;
+
+      wrap.querySelectorAll('.pm-option').forEach(btn => {
+        const isSelected = (btn.dataset.value || '') === v;
+        btn.classList.toggle('pm-selected', isSelected);
+        btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      });
+    }
+
+    function initPlayModePicker() {
+      const wrap = document.getElementById('playmode-wrap');
+      if (!wrap) return;
+
+      // evita duplicar listener caso o modal abra várias vezes
+      if (wrap.dataset.bound === '1') return;
+      wrap.dataset.bound = '1';
+
+      wrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('.pm-option');
+        if (!btn) return;
+        applyPlayMode(btn.dataset.value || '');
+      });
+    }
+
+        // Se o usuário mexer no switch manualmente, a verificação automática não sobrescreve.
+    document.addEventListener('change', (ev) => {
+      if (ev && ev.target && ev.target.id === 'has-tag') {
+        hasTagManualOverride = true;
+      }
+    });
+
+    // Atualiza automaticamente o "Tem tag?" conforme o nick muda (API/digitação)
     document.addEventListener('input', (ev) => {
       if (ev && ev.target && ev.target.id === 'nick') {
         syncHasTagToggleFromNick();
@@ -320,9 +395,6 @@
             showToast('error', 'Nenhuma tag configurada. Configure em Ajustes.');
             hasTagEl.checked = false;
           }
-
-          // Se o usuário mexeu manualmente, grava isso pra não ficar “brigando” com a auto-verificação
-          hasTagEl.dataset.manual = '1';
         });
       }
 
@@ -471,9 +543,6 @@
       document.getElementById('member-id').value = '';
       document.getElementById('modal-title').innerText = 'Novo Membro';
       document.getElementById('api-feedback').innerHTML = '';
-      // novo cadastro: volta a auto-verificação normal
-      const hasTagEl = document.getElementById('has-tag');
-      if (hasTagEl) hasTagEl.dataset.manual = '0';
       document.getElementById('modal').classList.remove('hidden');
     };
 
@@ -485,19 +554,19 @@
       document.getElementById('member-id').value = m.id;
       document.getElementById('visible-id').value = m.visibleId;
       document.getElementById('nick').value = (m.nick || '');
+      applyPlayMode(m.playMode || '');
+      hasTagManualOverride = false;
+      syncHasTagToggleFromNick();
       document.getElementById('whatsapp').value = m.whatsapp;
       document.getElementById('guild-war').checked = m.guildWar;
       document.getElementById('guild-war-meta').value = m.guildWarMeta;
       document.getElementById('weekly-meta').checked = m.weeklyMeta;
       document.getElementById('weekly-meta-value').value = m.weeklyMetaValue;
-      const hasTagEl = document.getElementById('has-tag');
-      // no editar: se já estava marcado no banco, mantém marcado mesmo se a tag for estilizada
-      hasTagEl.checked = !!m.hasTag || nickHasMemberTag(m.nick || '');
-      hasTagEl.dataset.manual = m.hasTag ? '1' : '0';
+      document.getElementById('has-tag').checked = m.hasTag;
       document.getElementById('join-date').value = m.joinDate;
       
-      // Só tenta auto-verificar quando não veio marcado do banco
-      if (!m.hasTag) syncHasTagToggleFromNick();
+            // Recalcula automaticamente se o nick contém a tag
+      syncHasTagToggleFromNick();
 document.getElementById('modal-title').innerText = 'Editar Membro';
       document.getElementById('modal').classList.remove('hidden');
     };
@@ -535,6 +604,8 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
 
         if (res.ok && name) {
           document.getElementById('nick').value = name;
+      hasTagManualOverride = false;
+      syncHasTagToggleFromNick();
           feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (Nível ${Number.isFinite(level) ? level : '?'})</span> <span class="text-gray-500">Dados fornecidos por api.mitsuri.fun!</span>`;
           syncHasTagToggleFromNick();
         } else {
@@ -564,12 +635,8 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
 
       const rawNick = document.getElementById('nick').value.trim();
       const hasTag = document.getElementById('has-tag').checked;
-      if (hasTag && !memberTag) {
-        showToast('error', 'Nenhuma tag configurada. Vá em Ajustes e configure antes.');
-        return;
-      }
-      // IMPORTANTE: marcar “Tem tag” NÃO altera o nick.
-      // (a tag pode ser estilizada e você quer manter do jeito que a pessoa usa)
+      // Importante: marcar "Tem Tag" NÃO altera o nick.
+      // Algumas tags são estilizadas (fontes/símbolos diferentes), então o nick fica exatamente como o usuário digitou.
       const finalNick = rawNick;
 
       const payload = {
@@ -581,6 +648,7 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
         weeklyMeta: document.getElementById('weekly-meta').checked,
         weeklyMetaValue: Number(document.getElementById('weekly-meta-value').value),
         hasTag: hasTag,
+        playMode: (document.getElementById('play-mode')?.value || null),
         joinDate: document.getElementById('join-date').value || new Date().toISOString().split('T')[0],
         updatedAt: serverTimestamp()
       };
