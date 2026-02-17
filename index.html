@@ -27,6 +27,7 @@
     tailwind.config.theme.extend.colors = Object.assign({}, tailwind.config.theme.extend.colors || {}, { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } });
   </script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="./style.css"/>
 <style>
     /* micro UX */
     .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
@@ -61,8 +62,8 @@ body{background-color:#06060a;font-family:Inter,system-ui,sans-serif}
 
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:#111119}
-::-webkit-scrollbar-thumb{background:#f97316;border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:#fb923c}
+::-webkit-scrollbar-thumb{background:#10b981;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#34d399}
 
 /* Mobile menu toggle without JS */
 #nav-toggle{position:absolute;left:-9999px}
@@ -100,7 +101,7 @@ body{background-color:#06060a;font-family:Inter,system-ui,sans-serif}
 }
 </style>
 </head>
-<body class="landing-dark min-h-screen bg-dark-950 text-slate-50">
+<body class="landing-dark min-h-screen bg-dark-950 text-slate-50 neon">
 <div class="fixed inset-0 z-40 hidden bg-black/40" id="sidebar-overlay"></div>
 <aside class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform" id="sidebar">
 <div class="p-4 border-b border-slate-200 flex items-center justify-between">
