@@ -422,58 +422,68 @@
       } catch(e) { showToast('error', 'Erro ao excluir.'); }
     };
 
-    // Busca de Nick (via API serverless para evitar CORS) — sempre região BR
-const NICK_API_ENDPOINT = "/api/ffnick";
-
+    // API (Busca de Nick)
+// Novo formato:
+// GET /api/proxy?endpoint=ff_info&query=130098219
+// Header: x-api-key: <sua-chave>
+// Resposta:
+// { "AccountInfo": { "Level": 75, "Likes": 17322, "Name": "Mitsuri✿", "Region": "BR" } }
 window.fetchNick = async () => {
-  const uidRaw = document.getElementById('visible-id').value.trim();
+  const uid = document.getElementById('visible-id').value.trim();
   const feedback = document.getElementById('api-feedback');
 
-  if (!uidRaw) { showToast('error', 'Digite o ID'); return; }
+  if (!uid) { showToast('error', 'Digite o ID'); return; }
 
-  const uid = uidRaw.replace(/[^\d]/g, "");
-  if (!uid) { showToast('error', 'ID inválido'); return; }
+  feedback.innerHTML = '<span class="text-blue-500">Buscando...</span>';
 
-  feedback.innerHTML = '<span class="text-blue-500">Buscando nick...</span>';
-
+  // evita travar se a API demorar/ficar fora
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), 12000);
 
   try {
-    const res = await fetch(`${NICK_API_ENDPOINT}?uid=${encodeURIComponent(uid)}`, {
-      method: "GET",
-      headers: { "Accept": "application/json" },
-      signal: controller.signal
+    const url = `/api/proxy?endpoint=ff_info&query=${encodeURIComponent(uid)}`;
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        // chave informada (troca aqui se você mudar depois)
+        'x-api-key': 'dn_vffredz543',
+      },
+      cache: 'no-store',
+      signal: controller.signal,
     });
 
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data || !data.nick) {
-      const msg = data?.error || data?.message || ("HTTP " + res.status);
-      throw new Error(msg);
+    clearTimeout(t);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
     }
 
-    document.getElementById('nick').value = String(data.nick);
+    const data = await res.json().catch(() => ({}));
+    const info = data?.AccountInfo || {};
 
-    feedback.innerHTML = `
-      <div class="text-emerald-600 font-bold">✓ ${String(data.nick)}</div>
-      <div class="text-[11px] text-gray-500">Informação fornecida por api.mitsuri.fun</div>
-    `;
+    const name = (info.Name || '').toString().trim();
+    const level = info.Level;
+
+    if (!name) {
+      throw new Error('Sem nome');
+    }
+
+    document.getElementById('nick').value = name;
+
+    const lvlTxt = (Number.isFinite(level) ? `Nível ${level}` : 'Nível ?');
+    feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (${lvlTxt})</span>`;
   } catch (e) {
-    console.error("Nick API error:", e);
-    const msg = (e && e.name === "AbortError")
-      ? "Tempo esgotado. Tente de novo."
-      : "Jogador não encontrado ou erro na API.";
-
-    feedback.innerHTML = `
-      <div class="text-red-500">${msg}</div>
-      <div class="text-[11px] text-gray-500">Informação fornecida por api.mitsuri.fun</div>
-    `;
-  } finally {
     clearTimeout(t);
+
+    const isTimeout = (e && (e.name === 'AbortError'));
+    feedback.innerHTML = isTimeout
+      ? '<span class="text-red-500">A API demorou demais para responder. Tenta de novo.</span>'
+      : '<span class="text-red-500">Jogador não encontrado ou erro na API.</span>';
   }
 };
 
-// Salvar
+    // Salvar
     document.getElementById('member-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('member-id').value;
