@@ -422,66 +422,42 @@
       } catch(e) { showToast('error', 'Erro ao excluir.'); }
     };
 
-    // API (Busca de Nick)
-// Novo formato:
-// GET /api/proxy?endpoint=ff_info&query=130098219
-// Header: x-api-key: <sua-chave>
-// Resposta:
-// { "AccountInfo": { "Level": 75, "Likes": 17322, "Name": "Mitsuri✿", "Region": "BR" } }
-window.fetchNick = async () => {
-  const uid = document.getElementById('visible-id').value.trim();
-  const feedback = document.getElementById('api-feedback');
+    // Busca de Nick (via /api/proxy no seu próprio domínio: sem CORS)
+    window.fetchNick = async () => {
+      const uid = document.getElementById('visible-id').value.trim();
+      const feedback = document.getElementById('api-feedback');
+      if(!uid) { showToast('error', 'Digite o ID'); return; }
 
-  if (!uid) { showToast('error', 'Digite o ID'); return; }
+      feedback.innerHTML = '<span class="text-blue-500">Buscando...</span>';
 
-  feedback.innerHTML = '<span class="text-blue-500">Buscando...</span>';
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 12000);
 
-  // evita travar se a API demorar/ficar fora
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), 12000);
+      try {
+        const url = `/api/proxy?endpoint=ff_info&query=${encodeURIComponent(uid)}`;
+        const res = await fetch(url, { method: 'GET', signal: controller.signal });
+        const data = await res.json().catch(() => ({}));
 
-  try {
-    const url = `/api/proxy?endpoint=ff_info&query=${encodeURIComponent(uid)}`;
+        const info = data?.AccountInfo;
+        // A Mitsuri mudou o JSON: pode vir como Name/Level ou AccountName/AccountLevel
+        const name = info?.Name ?? info?.AccountName;
+        const level = info?.Level ?? info?.AccountLevel;
 
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        // chave informada (troca aqui se você mudar depois)
-        'x-api-key': 'dn_vffredz543',
-      },
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-
-    clearTimeout(t);
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
-
-    const data = await res.json().catch(() => ({}));
-    const info = data?.AccountInfo || {};
-
-    const name = (info.Name || '').toString().trim();
-    const level = info.Level;
-
-    if (!name) {
-      throw new Error('Sem nome');
-    }
-
-    document.getElementById('nick').value = name;
-
-    const lvlTxt = (Number.isFinite(level) ? `Nível ${level}` : 'Nível ?');
-    feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (${lvlTxt})</span>`;
-  } catch (e) {
-    clearTimeout(t);
-
-    const isTimeout = (e && (e.name === 'AbortError'));
-    feedback.innerHTML = isTimeout
-      ? '<span class="text-red-500">A API demorou demais para responder. Tenta de novo.</span>'
-      : '<span class="text-red-500">Jogador não encontrado ou erro na API.</span>';
-  }
-};
+        if (res.ok && name) {
+          document.getElementById('nick').value = name;
+          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ ${name} (Nível ${Number.isFinite(level) ? level : '?'})</span>`;
+        } else {
+          feedback.innerHTML = '<span class="text-red-500">Jogador não encontrado ou erro na API.</span>';
+        }
+      } catch(e) {
+        const msg = (e?.name === 'AbortError')
+          ? 'A API demorou demais para responder.'
+          : 'Jogador não encontrado ou erro na API.';
+        feedback.innerHTML = `<span class="text-red-500">${msg}</span>`;
+      } finally {
+        clearTimeout(t);
+      }
+    };
 
     // Salvar
     document.getElementById('member-form').addEventListener('submit', async (e) => {
