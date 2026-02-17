@@ -18,8 +18,8 @@
             }
           },
           boxShadow: {
-            soft: "0 10px 30px rgba(2, 6, 23, .08)",
-            green: "0 18px 50px rgba(16, 185, 129, .22)"
+            glow: "0 0 0 1px rgba(16,185,129,.25), 0 0 50px rgba(16,185,129,.20)",
+            soft: "0 16px 50px rgba(2,6,23,.55)"
           }
         }
       }
@@ -29,110 +29,99 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    /* micro UX */
-    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
-    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
-
-    .btn-spinner{
-      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
-      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+    :root{
+      --bg1:#070a12;
+      --bg2:#05070e;
     }
+    .reveal{opacity:0;transform:translateY(14px);filter:blur(2px);transition:opacity .55s ease,transform .55s ease,filter .55s ease}
+    .reveal.show{opacity:1;transform:translateY(0);filter:blur(0)}
+    .btn-spinner{width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* drawer */
-    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
-    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
-    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
-    .drawer-panel.show{ transform: translateX(0); }
+    /* background neon */
+    .radial-a{position:absolute;inset:auto;filter:blur(70px);opacity:.55}
+    .radial-b{position:absolute;inset:auto;filter:blur(90px);opacity:.45}
 
-    /* subtle background texture (keeps it "menos template") */
-    .noise {
-      position: absolute; inset: 0; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
-      mix-blend-mode: soft-light; opacity: .25;
-    }
-    .gridfade {
-      background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, .08) 1px, transparent 0);
+    /* subtle grid */
+    .gridfade{
+      background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,.10) 1px, transparent 0);
       background-size: 22px 22px;
-      mask-image: radial-gradient(ellipse at top, black 20%, transparent 72%);
-      opacity: .55;
+      mask-image: radial-gradient(ellipse at top, black 16%, transparent 72%);
+      opacity:.45;
     }
+
+    /* drawer */
+    .drawer-backdrop{opacity:0;pointer-events:none;transition:opacity .22s ease}
+    .drawer-backdrop.show{opacity:1;pointer-events:auto}
+    .drawer-panel{transform:translateX(110%);transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+    .drawer-panel.show{transform:translateX(0)}
   </style>
 </head>
 
-<body class="min-h-screen bg-white text-slate-900 selection:bg-emerald-200/70 selection:text-slate-900">
+<body class="min-h-screen text-slate-100" style="background:radial-gradient(1200px 700px at 20% 0%, rgba(16,185,129,.12), transparent 60%), linear-gradient(180deg, var(--bg1), var(--bg2));">
 
   <!-- Sidebar -->
-  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-slate-900/50 backdrop-blur-sm"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[290px] -translate-x-full bg-white border-r border-slate-200 transition-transform">
-    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[290px] -translate-x-full border-r border-white/10 bg-black/60 backdrop-blur-xl transition-transform">
+    <div class="p-4 border-b border-white/10 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="h-9 w-9 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-800"></i>
+        <div class="h-9 w-9 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-400/25 flex items-center justify-center shadow-glow">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-200"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-slate-900 font-black tracking-tight">Guilda HUB</div>
-          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+          <div class="text-white font-black tracking-tight">Guilda HUB</div>
+          <div class="text-xs text-slate-300/80">FF • eventos • stats</div>
         </div>
       </div>
-      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-2xl hover:bg-slate-100">
-        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
+      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-2xl hover:bg-white/5">
+        <i data-lucide="x" class="h-5 w-5 text-slate-200"></i>
       </button>
     </div>
 
     <nav class="p-3 space-y-1">
-      <a href="eventos.html" class="group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-slate-700 hover:bg-slate-100">
-        <span class="h-9 w-9 rounded-2xl bg-emerald-50 border border-emerald-100 grid place-items-center">
-          <i data-lucide="calendar" class="h-4 w-4 text-emerald-800"></i>
+      <a href="eventos.html" class="group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-slate-200 hover:bg-white/5">
+        <span class="h-9 w-9 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-400/20 grid place-items-center">
+          <i data-lucide="calendar" class="h-4 w-4 text-emerald-200"></i>
         </span>
         <span class="font-extrabold">Eventos e Camp</span>
       </a>
-      <a href="stats.html" class="group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-slate-700 hover:bg-slate-100">
-        <span class="h-9 w-9 rounded-2xl bg-emerald-50 border border-emerald-100 grid place-items-center">
-          <i data-lucide="bar-chart-3" class="h-4 w-4 text-emerald-800"></i>
+      <a href="stats.html" class="group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-slate-200 hover:bg-white/5">
+        <span class="h-9 w-9 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-400/20 grid place-items-center">
+          <i data-lucide="bar-chart-3" class="h-4 w-4 text-emerald-200"></i>
         </span>
         <span class="font-extrabold">Minhas estatísticas</span>
       </a>
-      <a href="suporte.html" class="group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-slate-700 hover:bg-slate-100">
-        <span class="h-9 w-9 rounded-2xl bg-emerald-50 border border-emerald-100 grid place-items-center">
-          <i data-lucide="help-circle" class="h-4 w-4 text-emerald-800"></i>
+      <a href="suporte.html" class="group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-slate-200 hover:bg-white/5">
+        <span class="h-9 w-9 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-400/20 grid place-items-center">
+          <i data-lucide="help-circle" class="h-4 w-4 text-emerald-200"></i>
         </span>
         <span class="font-extrabold">Suporte</span>
       </a>
     </nav>
 
-    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-slate-200">
-      <div class="leading-relaxed">
-        Dica: dá pra navegar sem login pra ver eventos e consultar stats públicas.
-      </div>
+    <div class="mt-auto p-4 text-xs text-slate-300/80 border-t border-white/10">
+      Sem enrolação: entrou, já usa. Sem login, dá pra ver eventos e stats públicas.
     </div>
   </aside>
 
   <!-- Top bar -->
-  <header class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 backdrop-blur">
+  <header class="sticky top-0 z-30 border-b border-white/10 bg-black/30 backdrop-blur-xl">
     <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
       <div class="flex items-center gap-3">
         <button id="sidebar-open" type="button"
-          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 text-white transition hover:bg-white/10"
           aria-label="Abrir menu">
           <i data-lucide="menu" class="h-5 w-5"></i>
         </button>
-
         <div class="leading-tight">
-          <div class="text-sm font-black tracking-tight">Guilda HUB</div>
-          <div class="text-[11px] font-semibold text-slate-500">Organização e controle</div>
+          <div class="text-sm font-black tracking-tight text-white">Guilda HUB</div>
+          <div class="text-[11px] font-semibold text-slate-300/80">organização de guilda</div>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <a href="#recursos" class="hidden sm:inline-flex rounded-2xl px-3 py-2 text-sm font-extrabold text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 transition">
-          Recursos
-        </a>
-        <a href="#como-funciona" class="hidden sm:inline-flex rounded-2xl px-3 py-2 text-sm font-extrabold text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 transition">
-          Como funciona
-        </a>
         <button id="open-auth-top" type="button"
-          class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-emerald-700 active:scale-[.98]">
+          class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-black text-black shadow-glow transition hover:bg-emerald-400 active:scale-[.98]">
           <i data-lucide="log-in" class="h-4 w-4"></i>
           Entrar
         </button>
@@ -142,420 +131,204 @@
 
   <!-- Hero -->
   <main class="relative overflow-hidden">
-    <!-- background -->
     <div class="pointer-events-none absolute inset-0">
-      <div class="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-emerald-300/30 blur-3xl"></div>
-      <div class="absolute -bottom-40 -left-32 h-[520px] w-[520px] rounded-full bg-green-200/35 blur-3xl"></div>
+      <div class="radial-a -top-28 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-emerald-500/30"></div>
+      <div class="radial-b -bottom-48 -left-40 h-[560px] w-[560px] rounded-full bg-emerald-400/18"></div>
       <div class="absolute inset-0 gridfade"></div>
-      <div class="noise"></div>
     </div>
 
     <section class="relative mx-auto w-full max-w-6xl px-4 pt-10 pb-10 sm:pt-14">
       <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
         <!-- copy -->
         <div class="reveal" data-reveal>
-          <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-900">
-            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            Feito pro ritmo de guilda no Free Fire
+          <div class="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-200">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,.55)]"></span>
+            FF • feito pra liderança
           </div>
 
-          <h1 class="mt-4 text-3xl font-black tracking-tight sm:text-5xl">
-            Sua guilda organizada
-            <span class="text-emerald-700">sem virar bagunça</span>.
+          <h1 class="mt-4 text-3xl font-black tracking-tight sm:text-5xl text-white">
+            Controle a guilda
+            <span class="text-emerald-300">sem viver no improviso</span>.
           </h1>
 
-          <p class="mt-4 text-base leading-relaxed text-slate-600 max-w-xl">
-            Membros, lines, regras e eventos num painel só.
-            Pra liderança parar de caçar informação em conversa antiga e focar no jogo.
+          <p class="mt-4 text-base leading-relaxed text-slate-300 max-w-xl">
+            Um painel simples pra organizar membros, lines e eventos. Sem poluição. Sem enrolação.
           </p>
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button id="open-auth-2" type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white shadow-soft hover:bg-slate-800 active:scale-[.98] transition">
+              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-black shadow-glow hover:bg-emerald-400 active:scale-[.98] transition">
               <i data-lucide="sparkles" class="h-4 w-4"></i>
-              Começar agora
+              Entrar / Criar conta
             </button>
 
-            <a href="#recursos"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 hover:bg-slate-50 active:scale-[.98] transition">
-              <i data-lucide="layout-grid" class="h-4 w-4 text-emerald-700"></i>
-              Ver o que tem
+            <a href="#como-funciona"
+              class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-white hover:bg-white/10 active:scale-[.98] transition">
+              <i data-lucide="arrow-down" class="h-4 w-4 text-emerald-200"></i>
+              Como funciona
             </a>
           </div>
 
-          <div class="mt-7 grid grid-cols-3 gap-3 max-w-xl">
-            <div class="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur p-3">
-              <div class="text-[11px] font-black text-slate-500">Menos ruído</div>
-              <div class="mt-1 text-sm font-black">Tudo no painel</div>
+          <div class="mt-7 grid gap-2 max-w-xl">
+            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+              <i data-lucide="zap" class="h-4 w-4 text-emerald-200"></i>
+              <span class="text-sm text-slate-200"><span class="font-black text-white">Consulta rápida</span> do que importa.</span>
             </div>
-            <div class="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur p-3">
-              <div class="text-[11px] font-black text-slate-500">Mais padrão</div>
-              <div class="mt-1 text-sm font-black">Tag & cargos</div>
+            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+              <i data-lucide="shield-check" class="h-4 w-4 text-emerald-200"></i>
+              <span class="text-sm text-slate-200"><span class="font-black text-white">Padrão de liderança</span> sem briga.</span>
             </div>
-            <div class="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur p-3">
-              <div class="text-[11px] font-black text-slate-500">Mais rápido</div>
-              <div class="mt-1 text-sm font-black">Consulta em 2 cliques</div>
+            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+              <i data-lucide="smartphone" class="h-4 w-4 text-emerald-200"></i>
+              <span class="text-sm text-slate-200"><span class="font-black text-white">Feito pra celular</span> e uso diário.</span>
             </div>
-          </div>
-
-          <!-- social proof micro -->
-          <div class="mt-7 flex items-center gap-3 text-xs text-slate-600">
-            <div class="flex -space-x-2">
-              <span class="h-8 w-8 rounded-full border-2 border-white bg-emerald-200 grid place-items-center font-black text-emerald-900">G</span>
-              <span class="h-8 w-8 rounded-full border-2 border-white bg-slate-200 grid place-items-center font-black text-slate-900">H</span>
-              <span class="h-8 w-8 rounded-full border-2 border-white bg-green-200 grid place-items-center font-black text-green-900">B</span>
-            </div>
-            <span><span class="font-black text-slate-900">Setup pronto</span> pra liderança que quer parar de improvisar.</span>
           </div>
         </div>
 
-        <!-- mock panel -->
+        <!-- compact neon card -->
         <div class="reveal" data-reveal>
-          <div class="relative overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft">
-            <div class="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-200/50 blur-3xl"></div>
-
-            <div class="relative p-5 sm:p-6">
+          <div class="relative overflow-hidden rounded-[28px] border border-white/10 bg-black/30 backdrop-blur-xl shadow-soft">
+            <div class="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-500/20 blur-3xl"></div>
+            <div class="relative p-6">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-green">
-                    <i data-lucide="shield" class="h-5 w-5"></i>
+                  <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 flex items-center justify-center shadow-glow">
+                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
                   </div>
                   <div>
-                    <div class="text-base font-black">Painel da guilda</div>
-                    <div class="text-xs font-semibold text-slate-500">visão rápida do essencial</div>
+                    <div class="text-base font-black text-white">Painel da guilda</div>
+                    <div class="text-xs font-semibold text-slate-300/80">um lugar pra cada coisa</div>
                   </div>
                 </div>
-                <div class="hidden sm:flex items-center gap-2 text-xs font-black text-slate-600">
-                  <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1">
-                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span> online
-                  </span>
+                <span class="text-xs font-black text-emerald-200">online</span>
+              </div>
+
+              <div class="mt-5 grid gap-3">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="flex items-center gap-2 text-sm font-black text-white">
+                    <i data-lucide="users" class="h-4 w-4 text-emerald-200"></i>
+                    Membros & cargos
+                  </div>
+                  <p class="mt-1 text-sm text-slate-300">Quem é líder, admin, secundário e jogador.</p>
+                </div>
+
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="flex items-center gap-2 text-sm font-black text-white">
+                    <i data-lucide="list-checks" class="h-4 w-4 text-emerald-200"></i>
+                    Lines & eventos
+                  </div>
+                  <p class="mt-1 text-sm text-slate-300">Sem “me manda aí” e sem perder call.</p>
+                </div>
+
+                <div class="rounded-2xl border border-emerald-400/25 bg-emerald-500/10 p-4">
+                  <div class="flex items-center gap-2 text-sm font-black text-emerald-100">
+                    <i data-lucide="badge-check" class="h-4 w-4"></i>
+                    Visual limpo
+                  </div>
+                  <p class="mt-1 text-sm text-emerald-100/80">Direto ao ponto. Menos tela, mais uso.</p>
                 </div>
               </div>
 
-              <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-sm font-black">
-                      <i data-lucide="users" class="h-4 w-4 text-emerald-700"></i>
-                      Membros
-                    </div>
-                    <span class="text-xs font-black text-slate-600">+ rápido</span>
-                  </div>
-                  <div class="mt-3 space-y-2">
-                    <div class="h-2 rounded-full bg-slate-200"></div>
-                    <div class="h-2 w-4/5 rounded-full bg-slate-200"></div>
-                    <div class="h-2 w-3/5 rounded-full bg-slate-200"></div>
-                  </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-sm font-black">
-                      <i data-lucide="list-checks" class="h-4 w-4 text-emerald-700"></i>
-                      Lines
-                    </div>
-                    <span class="text-xs font-black text-slate-600">padronizado</span>
-                  </div>
-                  <div class="mt-3 space-y-2">
-                    <div class="flex items-center gap-2">
-                      <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                      <div class="h-2 w-3/4 rounded-full bg-slate-200"></div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                      <div class="h-2 w-2/3 rounded-full bg-slate-200"></div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                      <div class="h-2 w-1/2 rounded-full bg-slate-200"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:col-span-2">
-                  <div class="flex items-start gap-3">
-                    <div class="h-10 w-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                      <i data-lucide="zap" class="h-5 w-5 text-emerald-800"></i>
-                    </div>
-                    <div class="flex-1">
-                      <div class="text-sm font-black">Checklist de liderança</div>
-                      <p class="mt-1 text-sm text-slate-600">
-                        Regras, metas e eventos no mesmo lugar. Menos “cadê?”, mais execução.
-                      </p>
-                      <div class="mt-3 flex flex-wrap gap-2 text-xs font-black">
-                        <span class="rounded-full bg-slate-900 text-white px-3 py-1">Regras</span>
-                        <span class="rounded-full bg-emerald-600 text-white px-3 py-1">Eventos</span>
-                        <span class="rounded-full bg-emerald-50 border border-emerald-200 text-emerald-900 px-3 py-1">Stats</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-5 flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                <div class="flex items-center gap-3">
-                  <i data-lucide="badge-check" class="h-5 w-5 text-emerald-800"></i>
-                  <div>
-                    <div class="text-sm font-black">Visual limpo, direto</div>
-                    <div class="text-xs font-semibold text-emerald-900/70">feito pra usar no celular sem sofrimento</div>
-                  </div>
-                </div>
-                <div class="hidden sm:block text-xs font-black text-emerald-900/70">✅</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 flex items-center gap-2 text-xs text-slate-600">
-            <i data-lucide="lock" class="h-4 w-4 text-emerald-700"></i>
-            Login abre o painel completo. Sem login, dá pra ver eventos e stats públicas.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pain points -->
-    <section class="relative border-t border-slate-200/70 bg-white">
-      <div class="mx-auto w-full max-w-6xl px-4 py-12">
-        <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
-          <div class="reveal" data-reveal>
-            <h2 class="text-2xl font-black tracking-tight">O que o Guilda HUB resolve de verdade</h2>
-            <p class="mt-2 text-sm leading-relaxed text-slate-600 max-w-xl">
-              Se sua liderança vive de print, planilha e conversa perdida, aqui é o antídoto.
-            </p>
-
-            <div class="mt-6 space-y-3">
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-start gap-3">
-                  <span class="mt-0.5 h-8 w-8 rounded-2xl bg-emerald-600 text-white grid place-items-center">
-                    <i data-lucide="message-square-warning" class="h-4 w-4"></i>
-                  </span>
-                  <div>
-                    <div class="text-sm font-black">“Cadê a line?” “Qual é a tag?”</div>
-                    <p class="mt-1 text-sm text-slate-600">Tudo fica consultável, sem depender do grupo.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-start gap-3">
-                  <span class="mt-0.5 h-8 w-8 rounded-2xl bg-emerald-600 text-white grid place-items-center">
-                    <i data-lucide="shield-alert" class="h-4 w-4"></i>
-                  </span>
-                  <div>
-                    <div class="text-sm font-black">Conflito por regra que “ninguém viu”</div>
-                    <p class="mt-1 text-sm text-slate-600">Regras centralizadas e fáceis de achar.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-start gap-3">
-                  <span class="mt-0.5 h-8 w-8 rounded-2xl bg-emerald-600 text-white grid place-items-center">
-                    <i data-lucide="timer" class="h-4 w-4"></i>
-                  </span>
-                  <div>
-                    <div class="text-sm font-black">Tempo indo embora no básico</div>
-                    <p class="mt-1 text-sm text-slate-600">Processo curto. Você entra e já usa.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-6">
               <button id="open-auth-3" type="button"
-                class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-700 active:scale-[.98] transition">
-                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                class="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-white text-black px-5 py-3 text-sm font-black hover:bg-slate-100 active:scale-[.98] transition">
+                <i data-lucide="log-in" class="h-4 w-4"></i>
                 Abrir login
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Features (minimal) -->
+    <section class="border-t border-white/10">
+      <div class="mx-auto w-full max-w-6xl px-4 py-10">
+        <div class="reveal" data-reveal>
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">3 coisas que você ganha</h2>
+          <p class="mt-2 text-sm text-slate-300 max-w-2xl">
+            Só o que importa pra liderança. Sem textão.
+          </p>
+        </div>
+
+        <div class="mt-6 grid gap-4 sm:grid-cols-3">
+          <div class="reveal rounded-[24px] border border-white/10 bg-black/25 backdrop-blur p-5" data-reveal>
+            <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 flex items-center justify-center shadow-glow">
+              <i data-lucide="search" class="h-5 w-5"></i>
+            </div>
+            <div class="mt-4 text-base font-black text-white">Achar rápido</div>
+            <p class="mt-2 text-sm text-slate-300">Tag, line, regra, evento. Tudo fácil de puxar.</p>
+          </div>
+
+          <div class="reveal rounded-[24px] border border-white/10 bg-black/25 backdrop-blur p-5" data-reveal>
+            <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 flex items-center justify-center shadow-glow">
+              <i data-lucide="shield" class="h-5 w-5"></i>
+            </div>
+            <div class="mt-4 text-base font-black text-white">Organizar cargos</div>
+            <p class="mt-2 text-sm text-slate-300">Líder, admin e secundário com regra clara.</p>
+          </div>
+
+          <div class="reveal rounded-[24px] border border-white/10 bg-black/25 backdrop-blur p-5" data-reveal>
+            <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 flex items-center justify-center shadow-glow">
+              <i data-lucide="clock" class="h-5 w-5"></i>
+            </div>
+            <div class="mt-4 text-base font-black text-white">Poupar tempo</div>
+            <p class="mt-2 text-sm text-slate-300">Menos improviso no básico, mais foco no jogo.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works (tiny) -->
+    <section id="como-funciona" class="border-t border-white/10">
+      <div class="mx-auto w-full max-w-6xl px-4 py-10">
+        <div class="grid gap-6 lg:grid-cols-2 lg:items-center">
           <div class="reveal" data-reveal>
-            <div class="rounded-[28px] border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-6 shadow-soft text-white">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-2xl bg-white/10 border border-white/10 grid place-items-center">
-                    <i data-lucide="sparkles" class="h-5 w-5"></i>
-                  </div>
-                  <div>
-                    <div class="text-base font-black">Padrão = velocidade</div>
-                    <div class="text-xs font-semibold text-white/70">um lugar pra cada coisa</div>
-                  </div>
-                </div>
-                <div class="text-xs font-black text-white/70">Guilda HUB</div>
-              </div>
-
-              <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
-                  <div class="text-sm font-black">Cargos & acessos</div>
-                  <p class="mt-1 text-sm text-white/75">Organiza liderança sem virar “terra de ninguém”.</p>
-                </div>
-                <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
-                  <div class="text-sm font-black">Eventos e camp</div>
-                  <p class="mt-1 text-sm text-white/75">Agenda clara pra não perder call importante.</p>
-                </div>
-                <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
-                  <div class="text-sm font-black">Stats públicas</div>
-                  <p class="mt-1 text-sm text-white/75">Consulta rápida pra quem só quer conferir.</p>
-                </div>
-                <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
-                  <div class="text-sm font-black">Tudo no celular</div>
-                  <p class="mt-1 text-sm text-white/75">Leve, direto, sem “encher linguiça”.</p>
-                </div>
-              </div>
-
-              <div class="mt-5 rounded-2xl bg-emerald-500/15 border border-emerald-400/20 p-4">
-                <div class="flex items-start gap-3">
-                  <i data-lucide="zap" class="mt-0.5 h-5 w-5 text-emerald-200"></i>
-                  <div>
-                    <div class="text-sm font-black">Ideia simples</div>
-                    <p class="mt-1 text-sm text-white/75">
-                      Tirar o básico do improviso. A guilda cresce, mas o controle continua.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section id="recursos" class="border-t border-slate-200/70 bg-slate-50/50">
-      <div class="mx-auto w-full max-w-6xl px-4 py-12">
-        <div class="reveal" data-reveal>
-          <h2 class="text-2xl font-black tracking-tight">Recursos que não parecem “enfeite”</h2>
-          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-            A ideia é: abrir, achar, usar. Sem ficar caçando tela.
-          </p>
-        </div>
-
-        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div class="reveal rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm hover:shadow-soft transition" data-reveal>
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-              <i data-lucide="user-cog" class="h-5 w-5"></i>
-            </div>
-            <div class="mt-4 text-base font-black">Cargos e permissões</div>
-            <p class="mt-2 text-sm text-slate-600">Organize líder, admin e acessos com regra clara.</p>
-          </div>
-
-          <div class="reveal rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm hover:shadow-soft transition" data-reveal>
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-              <i data-lucide="tags" class="h-5 w-5"></i>
-            </div>
-            <div class="mt-4 text-base font-black">Tag e padrão</div>
-            <p class="mt-2 text-sm text-slate-600">Deixa a identificação do membro óbvia e rápida.</p>
-          </div>
-
-          <div class="reveal rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm hover:shadow-soft transition" data-reveal>
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-              <i data-lucide="clipboard-list" class="h-5 w-5"></i>
-            </div>
-            <div class="mt-4 text-base font-black">Consulta rápida</div>
-            <p class="mt-2 text-sm text-slate-600">Sem rolar conversa. Sem print. Sem caos.</p>
-          </div>
-
-          <div class="reveal rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm hover:shadow-soft transition" data-reveal>
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-              <i data-lucide="swords" class="h-5 w-5"></i>
-            </div>
-            <div class="mt-4 text-base font-black">Foco em FF</div>
-            <p class="mt-2 text-sm text-slate-600">Pensado na rotina real de guilda, sem firula.</p>
-          </div>
-
-          <div class="reveal rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm hover:shadow-soft transition" data-reveal>
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-              <i data-lucide="bolt" class="h-5 w-5"></i>
-            </div>
-            <div class="mt-4 text-base font-black">Fluxo simples</div>
-            <p class="mt-2 text-sm text-slate-600">O que importa fica na frente. O resto não atrapalha.</p>
-          </div>
-
-          <div class="reveal rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm hover:shadow-soft transition" data-reveal>
-            <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
-              <i data-lucide="shield-check" class="h-5 w-5"></i>
-            </div>
-            <div class="mt-4 text-base font-black">Tema consistente</div>
-            <p class="mt-2 text-sm text-slate-600">Verde do site, leitura fácil, cara de produto de verdade.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- How it works -->
-    <section id="como-funciona" class="mx-auto w-full max-w-6xl px-4 py-12">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div class="reveal" data-reveal>
-          <h2 class="text-2xl font-black tracking-tight">Como funciona</h2>
-          <p class="mt-2 text-sm leading-relaxed text-slate-600">
-            3 passos e já dá pra operar a guilda com padrão.
-          </p>
-
-          <ol class="mt-6 space-y-3">
-            <li class="reveal rounded-2xl border border-slate-200 bg-white p-4" data-reveal>
-              <div class="flex items-start gap-3">
-                <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-600 text-xs font-black text-white">1</div>
-                <div>
-                  <div class="text-sm font-black">Criar conta</div>
-                  <p class="mt-1 text-sm text-slate-600">Dá o nome da guilda e pronto, painel criado.</p>
-                </div>
-              </div>
-            </li>
-            <li class="reveal rounded-2xl border border-slate-200 bg-white p-4" data-reveal>
-              <div class="flex items-start gap-3">
-                <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-600 text-xs font-black text-white">2</div>
-                <div>
-                  <div class="text-sm font-black">Montar estrutura</div>
-                  <p class="mt-1 text-sm text-slate-600">Membros, cargos e lines do seu jeito.</p>
-                </div>
-              </div>
-            </li>
-            <li class="reveal rounded-2xl border border-slate-200 bg-white p-4" data-reveal>
-              <div class="flex items-start gap-3">
-                <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-600 text-xs font-black text-white">3</div>
-                <div>
-                  <div class="text-sm font-black">Operar com padrão</div>
-                  <p class="mt-1 text-sm text-slate-600">Consulta rápida e decisões mais limpas.</p>
-                </div>
-              </div>
-            </li>
-          </ol>
-
-          <div class="mt-6">
-            <button type="button" id="open-auth"
-              class="inline-flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-900 hover:bg-emerald-100 active:scale-[.98] transition">
-              <i data-lucide="arrow-right" class="h-4 w-4"></i>
-              Entrar / Criar conta
-            </button>
-          </div>
-        </div>
-
-        <div class="reveal" data-reveal>
-          <div class="rounded-[28px] border border-slate-200 bg-slate-50 p-6">
-            <div class="flex items-center gap-3">
-              <div class="h-10 w-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center">
-                <i data-lucide="message-square-text" class="h-5 w-5 text-emerald-700"></i>
-              </div>
-              <div>
-                <div class="text-base font-black">Pra não depender do grupo</div>
-                <div class="text-xs font-semibold text-slate-500">menos “me manda aí”, mais autonomia</div>
-              </div>
-            </div>
+            <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">Como funciona</h2>
+            <p class="mt-2 text-sm text-slate-300 max-w-xl">
+              3 passos. Acabou.
+            </p>
 
             <div class="mt-5 grid gap-3">
-              <div class="reveal rounded-2xl border border-slate-200 bg-white p-4" data-reveal>
-                <div class="text-sm font-black">Informação centralizada</div>
-                <p class="mt-1 text-sm text-slate-600">A liderança encontra rápido o que precisa, sem conversa antiga.</p>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="text-sm font-black text-white">1) Entrar / Criar conta</div>
+                <div class="mt-1 text-sm text-slate-300">Cria a guilda e já abre o painel.</div>
               </div>
-              <div class="reveal rounded-2xl border border-slate-200 bg-white p-4" data-reveal>
-                <div class="text-sm font-black">Organização de verdade</div>
-                <p class="mt-1 text-sm text-slate-600">Se todo mundo segue o padrão, a guilda flui.</p>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="text-sm font-black text-white">2) Montar cargos e lines</div>
+                <div class="mt-1 text-sm text-slate-300">Tudo organizado do seu jeito.</div>
               </div>
-              <div class="reveal rounded-2xl border border-slate-200 bg-white p-4" data-reveal>
-                <div class="text-sm font-black">Mais tempo pro jogo</div>
-                <p class="mt-1 text-sm text-slate-600">Menos energia no básico, mais foco no que importa.</p>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="text-sm font-black text-white">3) Operar no dia a dia</div>
+                <div class="mt-1 text-sm text-slate-300">Consulta rápida sem depender do grupo.</div>
+              </div>
+            </div>
+
+            <button id="open-auth" type="button"
+              class="mt-5 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-black shadow-glow hover:bg-emerald-400 active:scale-[.98] transition">
+              <i data-lucide="arrow-right" class="h-4 w-4"></i>
+              Começar agora
+            </button>
+          </div>
+
+          <div class="reveal" data-reveal>
+            <div class="rounded-[28px] border border-white/10 bg-black/25 backdrop-blur p-6">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 flex items-center justify-center shadow-glow">
+                  <i data-lucide="sparkles" class="h-5 w-5"></i>
+                </div>
+                <div>
+                  <div class="text-base font-black text-white">Menos poluição</div>
+                  <div class="text-xs font-semibold text-slate-300/80">tudo limpo e direto</div>
+                </div>
+              </div>
+              <p class="mt-4 text-sm text-slate-300">
+                O site não tenta te convencer com mil blocos. Ele só funciona.
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2 text-xs font-black">
+                <span class="rounded-full bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 px-3 py-1">Eventos</span>
+                <span class="rounded-full bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 px-3 py-1">Lines</span>
+                <span class="rounded-full bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 px-3 py-1">Cargos</span>
+                <span class="rounded-full bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 px-3 py-1">Stats</span>
               </div>
             </div>
           </div>
@@ -564,56 +337,50 @@
     </section>
 
     <!-- Footer -->
-    <footer id="otk-footer" class="mt-12 border-t border-emerald-500/10 text-slate-700">
-      <div class="mx-auto w-full max-w-5xl px-4 py-10">
-        <div class="flex flex-col items-center gap-4">
-          <div class="flex items-center justify-center gap-3">
+    <footer class="border-t border-white/10">
+      <div class="mx-auto w-full max-w-6xl px-4 py-8">
+        <div class="flex flex-col items-center gap-3 text-center">
+          <div class="flex items-center gap-2">
             <a href="https://instagram.com/ottakubrasil" target="_blank"
-              class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10">
+              class="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition">
               <i data-lucide="instagram" class="h-5 w-5"></i>
             </a>
             <a href="https://instagram.com/gameotk" target="_blank"
-              class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10">
+              class="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition">
               <i data-lucide="instagram" class="h-5 w-5"></i>
             </a>
             <a href="https://ottakubrasil.online" target="_blank"
-              class="flex h-11 w-11 items-center justify-center rounded-full bg-black/5 ring-1 ring-black/10 transition hover:bg-black/10">
+              class="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition">
               <i data-lucide="globe" class="h-5 w-5"></i>
             </a>
           </div>
-
-          <div class="text-center">
-            <p class="text-sm font-black tracking-wide text-slate-900">Ottakubrasil • Guilda HUB</p>
-            <p class="mt-2 max-w-xl text-xs leading-relaxed text-slate-600">
-              Central de guilda e eventos: organização, velocidade e controle pra facilitar sua vida no dia a dia.
-            </p>
-            <p class="mt-4 text-xs text-slate-500">© Ottakubrasil • 2026</p>
-          </div>
+          <div class="text-sm font-black text-white">Ottakubrasil • Guilda HUB</div>
+          <div class="text-xs text-slate-300/80">© 2026</div>
         </div>
       </div>
     </footer>
   </main>
 
   <!-- Auth drawer -->
-  <div id="auth-backdrop" class="drawer-backdrop fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm"></div>
+  <div id="auth-backdrop" class="drawer-backdrop fixed inset-0 z-40 bg-black/65 backdrop-blur-sm"></div>
 
-  <aside id="auth-drawer" class="drawer-panel fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-slate-200 bg-white shadow-2xl">
+  <aside id="auth-drawer" class="drawer-panel fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-white/10 bg-black/60 backdrop-blur-xl shadow-2xl">
     <div class="flex h-full flex-col">
-      <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+      <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/30 text-emerald-700 flex items-center justify-center">
+          <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/25 text-emerald-200 flex items-center justify-center shadow-glow">
             <i data-lucide="shield" class="h-5 w-5"></i>
           </div>
           <div>
-            <div class="text-sm font-black leading-tight">Acesse Guilda • HUB</div>
-            <div class="text-xs font-semibold text-slate-500">Entrar ou criar conta</div>
+            <div class="text-sm font-black leading-tight text-white">Acessar Guilda • HUB</div>
+            <div class="text-xs font-semibold text-slate-300/80">entrar ou criar conta</div>
           </div>
         </div>
 
         <button id="close-auth" type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[.98] transition"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 active:scale-[.98] transition"
           aria-label="Fechar">
-          <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
+          <i data-lucide="x" class="h-5 w-5 text-slate-200"></i>
         </button>
       </div>
 
@@ -621,62 +388,62 @@
         <!-- Login -->
         <form id="login-form" class="flex flex-col gap-3">
           <div>
-            <label class="text-xs font-black text-slate-600 ml-1">Email</label>
+            <label class="text-xs font-black text-slate-300/80 ml-1">Email</label>
             <input id="email" type="email"
-              class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+              class="w-full px-4 py-3 rounded-xl border border-white/10 bg-black/30 text-white outline-none text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15 transition-all"
               placeholder="seuemail@exemplo.com" required />
           </div>
 
           <div>
-            <label class="text-xs font-black text-slate-600 ml-1">Senha</label>
+            <label class="text-xs font-black text-slate-300/80 ml-1">Senha</label>
             <input id="password" type="password"
-              class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+              class="w-full px-4 py-3 rounded-xl border border-white/10 bg-black/30 text-white outline-none text-sm focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15 transition-all"
               placeholder="••••••••" required />
           </div>
 
           <button id="btn-login" type="submit"
-            class="mt-1 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-green-700 text-white font-black text-sm shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+            class="mt-1 w-full py-3 rounded-xl bg-emerald-500 text-black font-black text-sm shadow-glow hover:bg-emerald-400 transition-all active:scale-95 flex items-center justify-center gap-2">
             <span>Entrar</span>
           </button>
 
-          <div class="text-[10px] text-slate-500 text-center leading-tight px-2">
+          <div class="text-[10px] text-slate-300/70 text-center leading-tight px-2">
             Use um usuário de líder/admin (ou login de jogador).
           </div>
         </form>
 
         <!-- Toggle -->
-        <div class="mt-4 flex items-center justify-center gap-2 text-sm text-slate-600">
+        <div class="mt-4 flex items-center justify-center gap-2 text-sm text-slate-300/80">
           <span id="login-hint">Não tem conta?</span>
-          <button id="btn-show-signup" type="button" class="font-black text-emerald-700 hover:underline">Criar conta</button>
-          <button id="btn-show-login" type="button" class="hidden font-black text-emerald-700 hover:underline">Voltar para Login</button>
+          <button id="btn-show-signup" type="button" class="font-black text-emerald-300 hover:underline">Criar conta</button>
+          <button id="btn-show-login" type="button" class="hidden font-black text-emerald-300 hover:underline">Voltar</button>
         </div>
 
         <!-- Signup -->
         <form id="signup-form" class="hidden mt-6 space-y-4">
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1" for="username">Nome de usuário (Guilda)</label>
+            <label class="block text-sm font-semibold text-slate-200 mb-1" for="username">Nome da guilda</label>
             <input id="username" type="text" required
-              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-xl border border-white/10 bg-black/30 text-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15"
               placeholder="Ex: Ottakubrasil" />
-            <p class="mt-1 text-xs text-slate-500">Esse nome identifica sua guilda.</p>
+            <p class="mt-1 text-xs text-slate-300/70">Esse nome identifica sua guilda.</p>
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1" for="signup-email">Email</label>
+            <label class="block text-sm font-semibold text-slate-200 mb-1" for="signup-email">Email</label>
             <input id="signup-email" type="email" required
-              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-xl border border-white/10 bg-black/30 text-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15"
               placeholder="seuemail@email.com" />
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1" for="signup-password">Senha</label>
+            <label class="block text-sm font-semibold text-slate-200 mb-1" for="signup-password">Senha</label>
             <input id="signup-password" type="password" required minlength="6"
-              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-xl border border-white/10 bg-black/30 text-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15"
               placeholder="mínimo 6 caracteres" />
           </div>
 
           <button id="btn-signup" type="submit"
-            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-black text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60 active:scale-[.98] transition">
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white text-black px-4 py-3 font-black hover:bg-slate-100 disabled:opacity-60 active:scale-[.98] transition">
             <span>Criar conta</span>
           </button>
         </form>
@@ -688,7 +455,7 @@
   <div id="toast-container" class="fixed top-5 right-5 z-[60] flex flex-col gap-2"></div>
 
   <script>
-    // Drawer open/close (non-module; works before auth module)
+    // Auth drawer open/close (non-module)
     const backdrop = document.getElementById('auth-backdrop');
     const drawer = document.getElementById('auth-drawer');
 
@@ -712,7 +479,7 @@
     backdrop?.addEventListener('click', closeAuth);
     window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeAuth(); });
 
-    // Sidebar open/close (single implementation)
+    // Sidebar open/close
     (function(){
       const openBtn = document.getElementById('sidebar-open');
       const closeBtn = document.getElementById('sidebar-close');
@@ -755,7 +522,7 @@
     import { auth, showToast, checkAuth, finalizeSignup, setupSidebar, initIcons } from './logic.js';
     import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // Mantém compatibilidade com seu logic.js (caso ele use isso em outras páginas)
+    // Compat
     try { setupSidebar?.(); initIcons?.(); } catch(_) {}
 
     // Se já estiver logado, vai pro dashboard
@@ -810,7 +577,7 @@
     btnShowSignup?.addEventListener('click', showSignup);
     btnShowLogin?.addEventListener('click', showLogin);
 
-    // Criar conta (username + email + senha)
+    // Criar conta
     signupForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
