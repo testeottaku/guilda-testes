@@ -20,15 +20,6 @@
     .switch input:checked + .slider{background:#10b981}
     .switch input:focus + .slider{box-shadow:0 0 0 4px rgba(16,185,129,.18)}
     .switch input:checked + .slider:before{transform:translateX(20px)}
-
-/* playMode picker (check-circle, single select) */
-.pm-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.pm-option{display:flex;align-items:center;gap:.55rem;padding:.75rem 1rem;border:1px solid #e5e7eb;border-radius:14px;background:#fff;cursor:pointer;transition:.15s;font-size:.875rem;color:#374151}
-.pm-option:hover{background:#f9fafb}
-.pm-circle{width:18px;height:18px;border-radius:999px;border:2px solid #d1d5db;display:inline-block;position:relative;flex:0 0 auto}
-.pm-option.pm-selected{border-color:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.12)}
-.pm-option.pm-selected .pm-circle{border-color:#10b981;background:#10b981}
-.pm-option.pm-selected .pm-circle:after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:2px solid #fff;border-top:0;border-left:0;transform:rotate(45deg)}
   </style>
 </head>
 <body class="bg-gray-50/80">
@@ -200,29 +191,6 @@
             <span class="slider"></span>
           </label>
         </div>
-<hr class="border-gray-100">
-
-<div>
-  <label class="text-sm font-medium text-gray-700 mb-2 block">Modo de jogo</label>
-  <input type="hidden" id="play-mode" value="">
-  <div class="pm-wrap">
-    <button type="button" class="pm-option" data-playmode="Rush">
-      <span class="pm-circle"></span><span>Rush</span>
-    </button>
-    <button type="button" class="pm-option" data-playmode="Full Gás">
-      <span class="pm-circle"></span><span>Full Gás</span>
-    </button>
-    <button type="button" class="pm-option" data-playmode="Curandeiro">
-      <span class="pm-circle"></span><span>Curandeiro</span>
-    </button>
-    <button type="button" class="pm-option" data-playmode="Fuzileiro">
-      <span class="pm-circle"></span><span>Fuzileiro</span>
-    </button>
-  </div>
-  <p class="text-xs text-gray-500 mt-2">Selecione apenas 1.</p>
-</div>
-
-
 
         <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 flex gap-3">
           <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50">Cancelar</button>
@@ -240,7 +208,6 @@
     // quando a lista ainda não renderizou.
     setupSidebar();
     initIcons();
-    initPlayModePicker();
     
     // Variável para armazenar a lista na memória
     let membersCache = [];
@@ -307,28 +274,6 @@
         hasTagEl.checked = false;
         return;
       }
-
-
-// playMode (single select, "check circle")
-function applyPlayMode(value) {
-  const hidden = document.getElementById('play-mode');
-  if (hidden) hidden.value = value || '';
-  document.querySelectorAll('.pm-option[data-playmode]').forEach(btn => {
-    const on = (btn.dataset.playmode === (value || ''));
-    btn.classList.toggle('pm-selected', on);
-  });
-}
-
-function initPlayModePicker() {
-  const wrap = document.querySelector('.pm-wrap');
-  if (!wrap) return;
-
-  wrap.addEventListener('click', (ev) => {
-    const btn = ev.target.closest('.pm-option[data-playmode]');
-    if (!btn) return;
-    applyPlayMode(btn.dataset.playmode);
-  });
-}
 
       // Se o usuário marcou manualmente, não desmarca sozinho
       // (isso é importante pra tags estilizadas diferentes do padrão)
@@ -526,7 +471,6 @@ function initPlayModePicker() {
       document.getElementById('member-id').value = '';
       document.getElementById('modal-title').innerText = 'Novo Membro';
       document.getElementById('api-feedback').innerHTML = '';
-      applyPlayMode('');
       // novo cadastro: volta a auto-verificação normal
       const hasTagEl = document.getElementById('has-tag');
       if (hasTagEl) hasTagEl.dataset.manual = '0';
@@ -554,7 +498,6 @@ function initPlayModePicker() {
       
       // Só tenta auto-verificar quando não veio marcado do banco
       if (!m.hasTag) syncHasTagToggleFromNick();
-      applyPlayMode(m.playMode || '');
 document.getElementById('modal-title').innerText = 'Editar Membro';
       document.getElementById('modal').classList.remove('hidden');
     };
@@ -638,7 +581,6 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
         weeklyMeta: document.getElementById('weekly-meta').checked,
         weeklyMetaValue: Number(document.getElementById('weekly-meta-value').value),
         hasTag: hasTag,
-        playMode: (document.getElementById('play-mode')?.value || null),
         joinDate: document.getElementById('join-date').value || new Date().toISOString().split('T')[0],
         updatedAt: serverTimestamp()
       };
