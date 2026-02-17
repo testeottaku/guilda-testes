@@ -1,161 +1,174 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Painel do Chefe - Guilda Hub</title>
-<link href="global.css" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-
-<link href="./style.css" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Chefe - Guilda Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
+  </script>
+  <link rel="stylesheet" href="./style.css" />
 </head>
-<body class="bg-gray-50/80 font-sans antialiased gh-body">
-<div class="flex min-h-screen">
-<!-- Overlay Mobile -->
-<div class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden" id="sidebar-overlay"></div>
-<!-- Sidebar -->
-<aside class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static" id="sidebar">
-<div class="flex items-center justify-between p-5 border-b border-gray-100">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
-<i class="w-5 h-5" data-lucide="shield"></i>
-</div>
-<div>
-<h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
-<p class="text-xs text-gray-500" id="vip-label">Guilda: <span class="font-bold text-gray-800 uppercase">free</span></p>
-</div>
-</div>
-</div>
-<nav class="p-4 space-y-1">
-<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="dashboard.html">
-<i class="w-5 h-5" data-lucide="house"></i> Dashboard
+<body class="bg-gray-50/80 font-sans antialiased">
+
+  <div class="flex min-h-screen">
+    <!-- Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform -translate-x-full transition-transform duration-300 lg:translate-x-0 lg:static">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200 text-white">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-gray-900 text-lg leading-tight">Guilda e eventos</h1>
+            <p id="vip-label" class="text-xs text-gray-500">Guilda: <span class="font-bold text-gray-800 uppercase">free</span></p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="house" class="w-5 h-5"></i> Dashboard
         </a>
-<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="membros.html">
-<i class="w-5 h-5" data-lucide="users"></i> Membros
+        <a href="membros.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i> Membros
         </a>
-<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="lines.html">
-<i class="w-5 h-5" data-lucide="layers"></i> Lines
+        <a href="lines.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="layers" class="w-5 h-5"></i> Lines
         </a>
-<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="ajustes.html">
-<i class="w-5 h-5" data-lucide="sliders"></i> Ajustes
+        <a href="ajustes.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sliders" class="w-5 h-5"></i> Ajustes
         </a>
-<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="upgrade.html">
-<i class="w-5 h-5" data-lucide="sparkles"></i> Upgrade
+        <a href="upgrade.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="sparkles" class="w-5 h-5"></i> Upgrade
         </a>
-<a class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="camp.html">
-<i class="w-5 h-5" data-lucide="trophy"></i> Campeonato
+        <a href="camp.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="trophy" class="w-5 h-5"></i> Campeonato
         </a>
-<a class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors" href="admin.html">
-<i class="w-5 h-5" data-lucide="settings"></i> Admin
+        <a href="admin.html" class="only-leader w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i> Admin
         </a>
-<a class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm" href="chefe.html" id="nav-chefe">
-<i class="w-5 h-5" data-lucide="crown"></i> Chefe
+        <a id="nav-chefe" href="chefe.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700 shadow-sm">
+          <i data-lucide="crown" class="w-5 h-5"></i> Chefe
         </a>
-</nav>
-<div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-<div class="flex items-center justify-between px-3 py-2">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
-<div>
-<p class="text-sm font-medium text-gray-700" id="user-role">Chefe</p>
-<p class="text-xs text-gray-400 truncate w-24" id="user-email">...</p>
-</div>
-</div>
-<button class="p-2 text-gray-400 hover:text-red-500 transition-colors" id="btn-logout">
-<i class="w-4 h-4" data-lucide="log-out"></i>
-</button>
-</div>
-</div>
-</aside>
-<!-- Conteúdo -->
-<main class="flex-1 min-w-0 bg-gray-50/50">
-<header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200">
-<div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
-<div class="flex items-center gap-3">
-<button class="lg:hidden p-2 rounded-lg hover:bg-gray-100" id="mobile-menu-btn">
-<i class="w-5 h-5" data-lucide="menu"></i>
-</button>
-<h2 class="text-xl font-black text-gray-900 tracking-tight">Painel de Controlo Global</h2>
-</div>
-<button class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition" id="btn-reload">
-<i class="w-5 h-5" data-lucide="rotate-cw"></i>
-</button>
-</div>
-</header>
-<section class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-<!-- Dashboard Stats -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-<div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-<p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total de Guildas</p>
-<h3 class="text-3xl font-black text-gray-900 mt-1" id="stat-guilds">0</h3>
-</div>
-<div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-<p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Solicitações Pendentes</p>
-<h3 class="text-3xl font-black text-emerald-600 mt-1" id="stat-solicita">0</h3>
-</div>
-<button class="flex items-center justify-center gap-3 bg-emerald-600 text-white rounded-2xl p-5 hover:bg-emerald-700 transition shadow-lg shadow-emerald-100" id="btn-open-solicita">
-<i class="w-6 h-6" data-lucide="bell"></i>
-<span class="font-bold">Gerir Solicitações</span>
-</button>
-</div>
-<!-- Filtro -->
-<div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-<div class="relative">
-<i class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" data-lucide="search"></i>
-<input class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" id="guild-search" placeholder="Procurar por nome, ID ou e-mail de líder..." type="text"/>
-<div class="mt-3 flex flex-wrap items-center gap-2">
-<span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Filtro:</span>
-<select class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-[11px] font-black" id="vip-filter">
-<option value="all">Todos</option>
-<option value="free">Free</option>
-<option value="plus">Plus</option>
-<option value="pro">Pro</option>
-<option value="business">Business</option>
-</select>
-</div>
-</div>
-</div>
-<!-- Grid Guildas -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="guilds-grid">
-<div class="col-span-full py-20 text-center space-y-3">
-<div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
-<p class="text-gray-500 font-medium">A sincronizar dados do Firestore...</p>
-</div>
-</div>
-<!-- Painel de Solicitações -->
-<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" id="solicita-panel">
-<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="solicita-overlay"></div>
-<div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-<div class="p-6 border-b border-gray-100 flex items-center justify-between bg-emerald-50/50">
-<div>
-<h3 class="text-xl font-black text-gray-900">Solicitações (Upgrade)</h3>
-<p class="text-xs text-gray-500 mt-1">Aprova ou rejeita pedidos de planos VIP.</p>
-</div>
-<button class="p-2 hover:bg-white rounded-xl transition text-gray-400" id="btn-close-solicita">
-<i class="w-6 h-6" data-lucide="x"></i>
-</button>
-</div>
-<div class="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4" id="solicita-grid">
-<!-- Cards de solicita -->
-</div>
-</div>
-</div>
-</section>
-</main>
-</div>
-<!-- Drawer Global -->
-<div class="hidden fixed inset-0 z-[60]" id="drawer">
-<div class="absolute inset-0 bg-black/40" id="drawer-backdrop"></div>
-<div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-full" id="drawer-body">
-<div class="p-6 border-b border-gray-100 flex items-center justify-between">
-<h4 class="font-black text-gray-900 text-xl tracking-tight" id="drawer-title">Detalhes</h4>
-<button class="p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition" id="drawer-close"><i class="w-6 h-6" data-lucide="x"></i></button>
-</div>
-<div class="flex-1 overflow-y-auto p-6" id="drawer-content"></div>
-</div>
-</div>
-<script type="module">
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div class="flex items-center justify-between px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">A</div>
+            <div>
+              <p id="user-role" class="text-sm font-medium text-gray-700">Chefe</p>
+              <p id="user-email" class="text-xs text-gray-400 truncate w-24">...</p>
+            </div>
+          </div>
+          <button id="btn-logout" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="flex-1 min-w-0 bg-gray-50/50">
+      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+              <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            <h2 class="text-xl font-black text-gray-900 tracking-tight">Painel de Controlo Global</h2>
+          </div>
+          <button id="btn-reload" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+             <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </header>
+
+      <section class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total de Guildas</p>
+            <h3 id="stat-guilds" class="text-3xl font-black text-gray-900 mt-1">0</h3>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Solicitações Pendentes</p>
+            <h3 id="stat-solicita" class="text-3xl font-black text-emerald-600 mt-1">0</h3>
+          </div>
+          <button id="btn-open-solicita" class="flex items-center justify-center gap-3 bg-emerald-600 text-white rounded-2xl p-5 hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+            <i data-lucide="bell" class="w-6 h-6"></i>
+            <span class="font-bold">Gerir Solicitações</span>
+          </button>
+        </div>
+
+        <!-- Filtro -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+          <div class="relative">
+            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+            <input id="guild-search" type="text" placeholder="Procurar por nome, ID ou e-mail de líder..." 
+                   class="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm" />
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Filtro:</span>
+            <select id="vip-filter" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-[11px] font-black">
+              <option value="all">Todos</option>
+              <option value="free">Free</option>
+              <option value="plus">Plus</option>
+              <option value="pro">Pro</option>
+              <option value="business">Business</option>
+            </select>
+          </div>
+          </div>
+        </div>
+
+        <!-- Grid Guildas -->
+        <div id="guilds-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div class="col-span-full py-20 text-center space-y-3">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
+            <p class="text-gray-500 font-medium">A sincronizar dados do Firestore...</p>
+          </div>
+        </div>
+
+        <!-- Painel de Solicitações -->
+        <div id="solicita-panel" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="solicita-overlay"></div>
+          <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-emerald-50/50">
+              <div>
+                <h3 class="text-xl font-black text-gray-900">Solicitações (Upgrade)</h3>
+                <p class="text-xs text-gray-500 mt-1">Aprova ou rejeita pedidos de planos VIP.</p>
+              </div>
+              <button id="btn-close-solicita" class="p-2 hover:bg-white rounded-xl transition text-gray-400">
+                <i data-lucide="x" class="w-6 h-6"></i>
+              </button>
+            </div>
+            <div id="solicita-grid" class="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Cards de solicita -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Drawer Global -->
+  <div id="drawer" class="hidden fixed inset-0 z-[60]">
+    <div id="drawer-backdrop" class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-full" id="drawer-body">
+      <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+        <h4 id="drawer-title" class="font-black text-gray-900 text-xl tracking-tight">Detalhes</h4>
+        <button id="drawer-close" class="p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+      </div>
+      <div id="drawer-content" class="flex-1 overflow-y-auto p-6"></div>
+    </div>
+  </div>
+
+  <script type="module">
     import { checkAuth, setupSidebar, initIcons, logout, db, ensureCeoStatus, applyCeoNavVisibility, showToast, getVipTier } from './logic.js';
     import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, serverTimestamp, Timestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 

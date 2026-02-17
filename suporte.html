@@ -1,113 +1,144 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Suporte</title>
-<link href="global.css" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suporte</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* micro UX */
+    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
 
+    .btn-spinner{
+      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
+      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* drawer */
+    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
+    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
+    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
+    .drawer-panel.show{ transform: translateX(0); }
+  </style>
 </head>
-<body class="min-h-screen bg-white text-slate-900 gh-body">
-<div class="fixed inset-0 z-40 hidden bg-black/40" id="sidebar-overlay"></div>
-<aside class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform" id="sidebar">
-<div class="p-4 border-b border-slate-200 flex items-center justify-between">
-<div class="flex items-center gap-2">
-<div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-<i class="h-5 w-5 text-emerald-700" data-lucide="shield"></i>
-</div>
-<div class="leading-tight">
-<div class="text-slate-900 font-black">Guilda HUB</div>
-<div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
-</div>
-</div>
-<button class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100" id="sidebar-close">
-<i class="h-5 w-5 text-slate-700" data-lucide="x"></i>
-</button>
-</div>
-<nav class="p-3 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="index.html">
-<i class="h-4 w-4" data-lucide="home"></i>
-<span class="font-semibold">Início</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="eventos.html">
-<i class="h-4 w-4" data-lucide="calendar"></i>
-<span class="font-semibold">Eventos e Camp</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="stats.html">
-<i class="h-4 w-4" data-lucide="bar-chart-3"></i>
-<span class="font-semibold">Minhas estatísticas</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="suporte.html">
-<i class="h-4 w-4" data-lucide="help-circle"></i>
-<span class="font-semibold">Suporte</span>
-</a>
-</nav>
-<div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
-<div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
-</div>
-</aside>
+<body class="min-h-screen bg-white text-slate-900">
+
+  
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-slate-900 font-black">Guilda HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
+        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
+      </button>
+    </div>
+
+    <nav class="p-3 space-y-1">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
+        <i data-lucide="home" class="h-4 w-4"></i>
+        <span class="font-semibold">Início</span>
+      </a>
+      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
+        <i data-lucide="calendar" class="h-4 w-4"></i>
+        <span class="font-semibold">Eventos e Camp</span>
+      </a>
+      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
+        <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+        <span class="font-semibold">Minhas estatísticas</span>
+      </a>
+      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
+        <i data-lucide="help-circle" class="h-4 w-4"></i>
+        <span class="font-semibold">Suporte</span>
+      </a>
+    </nav>
+
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+      <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
+    </div>
+  </aside>
+
 <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
-<div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<button class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50" id="sidebar-open">
-<i class="h-5 w-5" data-lucide="menu"></i>
-</button>
-<div class="leading-tight">
-<div class="font-black text-slate-900">Guilda HUB</div>
-<div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
-</div>
-</div>
-<a class="text-sm font-semibold text-emerald-700 hover:text-emerald-800" href="index.html">Voltar</a>
-</div>
-</header><main class="mx-auto w-full max-w-6xl px-4 py-6">
+    <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50">
+          <i data-lucide="menu" class="h-5 w-5"></i>
+        </button>
+        <div class="leading-tight">
+          <div class="font-black text-slate-900">Guilda HUB</div>
+          <div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+        </div>
+      </div>
+      <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
+    </div>
+  </header><main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
-<article class="rounded-3xl bg-white ring-1 ring-slate-200 p-5">
-<div class="flex items-start justify-between gap-3">
-<div>
-<h2 class="text-lg font-black">Suporte</h2>
-<p class="mt-2 text-sm text-slate-700/90">
+  <article class="rounded-3xl bg-white ring-1 ring-slate-200 p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-black">Suporte</h2>
+        <p class="mt-2 text-sm text-slate-700/90">
           Se você travou em alguma tela, não achou sua guilda, não aparece evento, ou quer sugerir melhoria,
           chama a gente. O objetivo do Guilda HUB é deixar tudo mais simples e organizado.
         </p>
-<p class="mt-2 text-sm text-slate-700/90">
+        <p class="mt-2 text-sm text-slate-700/90">
           Para resolver rápido: manda print + o que você clicou antes do erro. Isso ajuda demais.
         </p>
-</div>
-<i class="h-7 w-7 text-emerald-700" data-lucide="life-buoy"></i>
-</div>
-<div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-<a class="rounded-2xl bg-white ring-1 ring-slate-200 p-4 hover:bg-white/10 transition" href="https://instagram.com/guildahub" rel="noopener noreferrer" target="_blank">
-<div class="flex items-center gap-3">
-<div class="h-10 w-10 rounded-2xl bg-pink-500/15 ring-1 ring-pink-400/20 flex items-center justify-center">
-<i class="h-5 w-5 text-pink-200" data-lucide="instagram"></i>
-</div>
-<div>
-<div class="text-sm font-black">Instagram</div>
-<div class="text-xs text-slate-500">@guildahub</div>
-</div>
-</div>
-</a>
-<a class="rounded-2xl bg-white ring-1 ring-slate-200 p-4 hover:bg-white/10 transition" href="https://chat.whatsapp.com/FsBRk3VNaGm29UmXldwaOE?mode=gi_t" rel="noopener noreferrer" target="_blank">
-<div class="flex items-center gap-3">
-<div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-<i class="h-5 w-5 text-emerald-200" data-lucide="message-circle"></i>
-</div>
-<div>
-<div class="text-sm font-black">Grupo WhatsApp</div>
-<div class="text-xs text-slate-500">Suporte oficial</div>
-</div>
-</div>
-</a>
-</div>
-<p class="mt-5 text-xs text-slate-500">
+      </div>
+      <i data-lucide="life-buoy" class="h-7 w-7 text-emerald-700"></i>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <a href="https://instagram.com/guildahub" target="_blank" rel="noopener noreferrer"
+        class="rounded-2xl bg-white ring-1 ring-slate-200 p-4 hover:bg-white/10 transition">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-pink-500/15 ring-1 ring-pink-400/20 flex items-center justify-center">
+            <i data-lucide="instagram" class="h-5 w-5 text-pink-200"></i>
+          </div>
+          <div>
+            <div class="text-sm font-black">Instagram</div>
+            <div class="text-xs text-slate-500">@guildahub</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="https://chat.whatsapp.com/FsBRk3VNaGm29UmXldwaOE?mode=gi_t" target="_blank" rel="noopener noreferrer"
+        class="rounded-2xl bg-white ring-1 ring-slate-200 p-4 hover:bg-white/10 transition">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
+            <i data-lucide="message-circle" class="h-5 w-5 text-emerald-200"></i>
+          </div>
+          <div>
+            <div class="text-sm font-black">Grupo WhatsApp</div>
+            <div class="text-xs text-slate-500">Suporte oficial</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <p class="mt-5 text-xs text-slate-500">
       Atendimento depende da fila do dia. Quanto mais claro você for, mais rápido a gente resolve.
     </p>
-</article>
+  </article>
 </section>
 </main>
+
 <script>
 (function(){
   const openBtn = document.getElementById('sidebar-open');
@@ -130,6 +161,7 @@
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
 })();
 </script>
+
 <script>lucide.createIcons();</script>
 <script type="module">
 

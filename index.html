@@ -5,12 +5,102 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Guilda • HUB</title>
-<link href="global.css" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script>
-
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "dark-950": "#06060a",
+            "dark-900": "#0a0a12",
+            "dark-800": "#111119",
+            "dark-700": "#1a1a26",
+            "dark-600": "#242434",
+            "dark-500": "#2e2e42",
+          },
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+          }
+        }
+      }
+    }
+    // keep emerald palette used across the site
+    tailwind.config.theme.extend.colors = Object.assign({}, tailwind.config.theme.extend.colors || {}, { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } });
+  </script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<style>
+    /* micro UX */
+    .reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
 
+    .btn-spinner{
+      width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
+      border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* drawer */
+    .drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
+    .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
+    .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
+    .drawer-panel.show{ transform: translateX(0); }
+  
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulse-soft{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes slide-up{0%{opacity:0;transform:translateY(40px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes fade-in{0%{opacity:0}100%{opacity:1}}
+@keyframes gradient-move{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+.animate-float{animation:float 6s ease-in-out infinite}
+.animate-slide-up{animation:slide-up .7s ease-out forwards}
+.animate-fade-in{animation:fade-in .5s ease-out forwards}
+.animate-gradient{background-size:200% 200%;animation:gradient-move 3s ease infinite}
+.animate-pulse-soft{animation:pulse-soft 2s ease-in-out infinite}
+
+html{scroll-behavior:smooth}
+body{background-color:#06060a;font-family:Inter,system-ui,sans-serif}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#111119}
+::-webkit-scrollbar-thumb{background:#f97316;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#fb923c}
+
+/* Mobile menu toggle without JS */
+#nav-toggle{position:absolute;left:-9999px}
+#nav-toggle:checked ~ .nav-mobile{display:block}
+#nav-toggle:checked ~ .nav-shell .icon-menu{display:none}
+#nav-toggle:checked ~ .nav-shell .icon-close{display:block}
+.icon-close{display:none}
+
+/* Navbar: keep the "scrolled" look always (no JS scroll listener) */
+.nav-fixed{
+  border-bottom:1px solid rgba(249,115,22,.10);
+  background:rgba(6,6,10,.90);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+  box-shadow:0 10px 30px rgba(0,0,0,.20);
+}
+
+
+/* ===== Landing dark neon (index) ===== */
+.landing-dark{ background:#06060a; color:#f8fafc; }
+.landing-dark .header-surface{ background:rgba(6,6,10,.72); border-color:rgba(255,255,255,.08); }
+.landing-dark .header-link{ color:rgba(226,232,240,.78); }
+.landing-dark .header-link:hover{ color:#fff; background:rgba(255,255,255,.06); }
+.landing-dark .header-btn{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.08); color:#f8fafc; }
+.landing-dark .header-btn:hover{ background:rgba(255,255,255,.10); }
+
+/* subtle grid */
+.grid-mask{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 75%);
+}
+</style>
 </head>
-<body class="landing-dark min-h-screen bg-slate-950 text-slate-50 gh-body">
+<body class="landing-dark min-h-screen bg-dark-950 text-slate-50">
 <div class="fixed inset-0 z-40 hidden bg-black/40" id="sidebar-overlay"></div>
 <aside class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform" id="sidebar">
 <div class="p-4 border-b border-slate-200 flex items-center justify-between">
@@ -62,7 +152,7 @@
 <a class="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm font-semibold transition header-link" href="#como-funciona">
           Como funciona
         </a>
-<button class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-emerald-400 active:scale-[.98]" id="open-auth-top" type="button">
+<button class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-extrabold text-dark-950 shadow-sm transition hover:bg-emerald-400 active:scale-[.98]" id="open-auth-top" type="button">
 <i class="h-4 w-4" data-lucide="log-in"></i>
           Entrar
         </button>
@@ -93,7 +183,7 @@
           O Guilda • HUB centraliza membros, lines e eventos. Ideal pra reduzir bagunça, evitar erros e ganhar velocidade no dia a dia da guilda.
         </p>
 <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-<button class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-extrabold text-slate-950 shadow-[0_0_32px_rgba(52,211,153,.25)] transition hover:bg-emerald-400 active:scale-[.98]" id="open-auth-2" type="button">
+<button class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-extrabold text-dark-950 shadow-[0_0_32px_rgba(52,211,153,.25)] transition hover:bg-emerald-400 active:scale-[.98]" id="open-auth-2" type="button">
 <i class="h-4 w-4" data-lucide="sparkles"></i>
             Entrar e começar
           </button>
@@ -164,7 +254,7 @@
 </div>
 </div>
 </div>
-</section><section class="relative bg-slate-950 py-16" id="recursos">
+</section><section class="relative bg-dark-950 py-16" id="recursos">
 <div class="mx-auto w-full max-w-6xl px-4">
 <div class="max-w-2xl">
 <div class="text-sm font-extrabold text-emerald-400">Recursos</div>
@@ -232,12 +322,12 @@
 <li class="flex gap-2"><i class="mt-0.5 h-4 w-4 text-emerald-400" data-lucide="check"></i> Eventos básicos</li>
 <li class="flex gap-2"><i class="mt-0.5 h-4 w-4 text-emerald-400" data-lucide="check"></i> Permissões essenciais</li>
 </ul>
-<button class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white/10 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-white/15" id="" onclick="openAuth()" type="button">
+<button class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white/10 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-white/15" id onclick="openAuth()" type="button">
           Entrar
         </button>
 </div>
 <div class="relative rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-6 shadow-[0_0_60px_rgba(52,211,153,.18)]">
-<div class="absolute -top-3 right-6 rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-slate-950">Mais usado</div>
+<div class="absolute -top-3 right-6 rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-dark-950">Mais usado</div>
 <div class="text-sm font-extrabold text-emerald-200">PRO</div>
 <div class="mt-1 text-3xl font-black text-white">VIP</div>
 <ul class="mt-4 space-y-2 text-sm text-slate-100/90">
@@ -245,7 +335,7 @@
 <li class="flex gap-2"><i class="mt-0.5 h-4 w-4 text-emerald-300" data-lucide="check"></i> Mais limites e mais controle</li>
 <li class="flex gap-2"><i class="mt-0.5 h-4 w-4 text-emerald-300" data-lucide="check"></i> Prioridade em novidades</li>
 </ul>
-<a class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-emerald-300" href="upgrade.html">
+<a class="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-extrabold text-dark-950 transition hover:bg-emerald-300" href="upgrade.html">
           Ver upgrade
         </a>
 </div>
@@ -263,7 +353,7 @@
 </div>
 </div>
 </div>
-</section><section class="relative bg-slate-950 py-16" id="como-funciona">
+</section><section class="relative bg-dark-950 py-16" id="como-funciona">
 <div class="mx-auto w-full max-w-6xl px-4">
 <div class="max-w-2xl">
 <div class="text-sm font-extrabold text-emerald-400">Como funciona</div>
@@ -293,13 +383,13 @@
 <div class="text-lg font-black text-white">Pronto pra deixar sua guilda organizada?</div>
 <div class="mt-1 text-sm text-slate-100/80">Entra agora e monta seu painel.</div>
 </div>
-<button class="inline-flex items-center justify-center rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-emerald-300 active:scale-[.98]" id="open-auth-3" type="button">
+<button class="inline-flex items-center justify-center rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-extrabold text-dark-950 transition hover:bg-emerald-300 active:scale-[.98]" id="open-auth-3" type="button">
           Entrar
         </button>
 </div>
 </div>
 </div>
-</section><footer class="border-t border-white/5 bg-slate-950">
+</section><footer class="border-t border-white/5 bg-dark-950">
 <div class="mx-auto w-full max-w-6xl px-4 py-10">
 <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 <div>
