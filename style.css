@@ -1,19 +1,32 @@
-/* Estilos globais - Mantendo 100% igual ao original */
+/* Estilos globais (Tema neon escuro) */
 * { -webkit-tap-highlight-color: transparent; }
+
+:root{
+  --bg0:#06060a;
+  --bg1:#0b1020;
+  --surface: rgba(15,23,42,.66);
+  --surface2: rgba(17,24,39,.72);
+  --border: rgba(148,163,184,.14);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --muted2:#64748b;
+  --emerald:#10b981;
+}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
-  background-color: #f9fafb; /* bg-gray-50 */
+  background-color: var(--bg1);
+  color: var(--text);
 }
 
 /* Scrollbar personalizada */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,.04); }
+::-webkit-scrollbar-thumb { background: rgba(16,185,129,.55); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(16,185,129,.85); }
 
 /* Animações */
 .animate-in { animation: slideDown 0.2s ease-out; }
@@ -33,9 +46,49 @@ body {
 .login-screen.show { display: flex; }
 
 .login-card {
-  width: min(420px, 100%); background: rgba(255,255,255,0.95); border: 1px solid rgba(17,24,39,0.10);
-  border-radius: 22px; box-shadow: 0 30px 70px rgba(0,0,0,0.24); padding: 18px;
+  width: min(420px, 100%);
+  background: rgba(10,10,18,.92);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 22px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.34);
+  padding: 18px;
 }
+
+/* ==============================
+   Tailwind (CDN) - overrides do tema
+   (Mantém todas as funcionalidades, só muda visual)
+============================== */
+
+body.neon .bg-gray-50, body.neon .bg-gray-50\/80{ background-color: var(--bg1) !important; }
+body.neon .bg-gray-100{ background-color: rgba(255,255,255,.04) !important; }
+body.neon .bg-white, body.neon .bg-white\/80{ background-color: var(--surface) !important; }
+body.neon .bg-black\/30{ background-color: rgba(0,0,0,.55) !important; }
+
+body.neon .border-gray-100, body.neon .border-gray-200{ border-color: var(--border) !important; }
+
+body.neon .text-gray-900{ color: var(--text) !important; }
+body.neon .text-gray-700{ color: #e2e8f0 !important; }
+body.neon .text-gray-600{ color: #cbd5e1 !important; }
+body.neon .text-gray-500{ color: var(--muted) !important; }
+body.neon .text-gray-400{ color: var(--muted2) !important; }
+
+body.neon .hover\\:bg-gray-50:hover{ background-color: rgba(255,255,255,.05) !important; }
+body.neon .hover\\:bg-gray-100:hover{ background-color: rgba(255,255,255,.07) !important; }
+
+body.neon .bg-emerald-50{ background-color: rgba(16,185,129,.12) !important; }
+body.neon .text-emerald-700{ color: #34d399 !important; }
+
+/* Inputs / selects */
+body.neon input, body.neon select, body.neon textarea{
+  color: var(--text);
+  caret-color: var(--emerald);
+}
+body.neon input::placeholder, body.neon textarea::placeholder{ color: rgba(148,163,184,.75); }
+
+/* Ajustes pontuais de componentes que tinham estilos inline claros */
+body.neon .switch .slider{ background: rgba(148,163,184,.22) !important; }
+body.neon .pm-option{ background: rgba(15,23,42,.55) !important; border-color: rgba(148,163,184,.18) !important; color: #e2e8f0 !important; }
+body.neon .pm-option:hover{ background: rgba(15,23,42,.75) !important; }
 
 /* Spinner e botões */
 .btn-spinner {
