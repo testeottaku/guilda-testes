@@ -10,6 +10,17 @@
     tailwind.config = { theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857'} } } } }
   </script>
   <link rel="stylesheet" href="./style.css" />
+
+  <style>
+    /* switch */
+    .switch{position:relative;display:inline-block;width:46px;height:26px}
+    .switch input{opacity:0;width:0;height:0}
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#e5e7eb;transition:.2s;border-radius:999px}
+    .slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background:white;transition:.2s;border-radius:999px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+    .switch input:checked + .slider{background:#10b981}
+    .switch input:focus + .slider{box-shadow:0 0 0 4px rgba(16,185,129,.18)}
+    .switch input:checked + .slider:before{transform:translateX(20px)}
+  </style>
 </head>
 <body class="bg-gray-50/80">
 
@@ -175,7 +186,10 @@
 
         <div class="flex items-center justify-between">
           <label class="text-sm font-medium text-gray-700">Tem Tag</label>
-          <input type="checkbox" id="has-tag" class="w-5 h-5 accent-emerald-500">
+          <label class="switch">
+            <input type="checkbox" id="has-tag">
+            <span class="slider"></span>
+          </label>
         </div>
 
         <div class="sticky bottom-0 bg-white border-t border-gray-100 pt-4 flex gap-3">
@@ -215,6 +229,25 @@
         if (re.test(raw)) return raw.replace(re, "").trim();
       }
       return raw;
+    }
+
+
+    // Garante que o nick fique com apenas 1 tag no começo (evita duplicar no editar)
+    function normalizeNickWithTag(rawNick, tag, wantsTag) {
+      const nick = (rawNick || '').trim();
+      if (!wantsTag || !tag) return nick;
+
+      const t = String(tag).trim();
+      if (!t) return nick;
+
+      // remove repetições da tag no começo: "TAG TAG Nick" -> "Nick"
+      const esc = escapeRegExp(t);
+      let cleaned = nick.replace(new RegExp('^(?:' + esc + '\\s*)+', 'g'), '').trim();
+      // fallback case-insensitive (caso a tag venha com variação de maiúsculas/minúsculas)
+      if (cleaned === nick) {
+        cleaned = nick.replace(new RegExp('^(?:' + esc + '\\s*)+', 'gi'), '').trim();
+      }
+      return cleaned ? (t + ' ' + cleaned) : t;
     }
 
     function nickHasMemberTag(nick) {
@@ -522,10 +555,7 @@ document.getElementById('modal-title').innerText = 'Editar Membro';
         showToast('error', 'Nenhuma tag configurada. Vá em Ajustes e configure antes.');
         return;
       }
-      const tagPrefix = hasTag ? (memberTag.trim() + ' ') : '';
-      // Evita duplicar tag caso a pessoa cole o nick já com tag
-      const nickNoTag = hasTag ? stripKnownTags(rawNick) : rawNick;
-      const finalNick = tagPrefix + nickNoTag;
+      const finalNick = normalizeNickWithTag(rawNick, memberTag, hasTag);
 
       const payload = {
         visibleId,
