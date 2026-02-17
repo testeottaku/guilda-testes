@@ -102,36 +102,36 @@ body{background-color:#06060a;font-family:Inter,system-ui,sans-serif}
 </head>
 <body class="landing-dark min-h-screen bg-dark-950 text-slate-50">
 <div class="fixed inset-0 z-40 hidden bg-black/40" id="sidebar-overlay"></div>
-<aside class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform" id="sidebar">
-<div class="p-4 border-b border-slate-200 flex items-center justify-between">
+<aside class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-dark-900/70 backdrop-blur border-r border-white/10 transition-transform" id="sidebar">
+<div class="p-4 border-b border-white/10 flex items-center justify-between">
 <div class="flex items-center gap-2">
 <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-<i class="h-5 w-5 text-emerald-700" data-lucide="shield"></i>
+<i class="h-5 w-5 text-emerald-300" data-lucide="shield"></i>
 </div>
 <div class="leading-tight">
-<div class="text-slate-900 font-black">Guilda HUB</div>
-<div class="text-xs text-slate-500">Eventos • Camps • Stats</div>
+<div class="text-white font-black">Guilda HUB</div>
+<div class="text-xs text-slate-300/70">Eventos • Camps • Stats</div>
 </div>
 </div>
-<button class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100" id="sidebar-close">
-<i class="h-5 w-5 text-slate-700" data-lucide="x"></i>
+<button class="h-10 w-10 grid place-items-center rounded-xl hover:bg-white/5" id="sidebar-close">
+<i class="h-5 w-5 text-slate-200" data-lucide="x"></i>
 </button>
 </div>
 <nav class="p-3 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="eventos.html">
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5" href="eventos.html">
 <i class="h-4 w-4" data-lucide="calendar"></i>
 <span class="font-semibold">Eventos e Camp</span>
 </a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="stats.html">
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5" href="stats.html">
 <i class="h-4 w-4" data-lucide="bar-chart-3"></i>
 <span class="font-semibold">Minhas estatísticas</span>
 </a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100" href="suporte.html">
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5" href="suporte.html">
 <i class="h-4 w-4" data-lucide="help-circle"></i>
 <span class="font-semibold">Suporte</span>
 </a>
 </nav>
-<div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
+<div class="mt-auto p-4 text-xs text-slate-300/60 border-t border-white/10">
 <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
 </div>
 </aside>
@@ -407,60 +407,60 @@ body{background-color:#06060a;font-family:Inter,system-ui,sans-serif}
 </footer></main>
 <!-- Auth drawer -->
 <div class="drawer-backdrop fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm" id="auth-backdrop"></div>
-<aside class="drawer-panel fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-slate-200 bg-white shadow-2xl" id="auth-drawer">
+<aside class="drawer-panel fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-white/10 bg-dark-900/80 backdrop-blur shadow-2xl" id="auth-drawer">
 <div class="flex h-full flex-col">
-<div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+<div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
 <div class="flex items-center gap-3">
-<div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/30 text-emerald-700 flex items-center justify-center">
+<div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
 <i class="h-5 w-5" data-lucide="shield"></i>
 </div>
 <div>
 <div class="text-sm font-black leading-tight">Acesse Guilda • HUB</div>
-<div class="text-xs font-medium text-slate-500">Entrar ou criar conta</div>
+<div class="text-xs font-medium text-slate-300/70">Entrar ou criar conta</div>
 </div>
 </div>
-<button aria-label="Fechar" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[.98] transition" id="close-auth" type="button">
-<i class="h-5 w-5 text-slate-700" data-lucide="x"></i>
+<button aria-label="Fechar" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 active:scale-[.98] transition" id="close-auth" type="button">
+<i class="h-5 w-5 text-slate-200" data-lucide="x"></i>
 </button>
 </div>
 <div class="flex-1 overflow-y-auto px-5 py-5">
 <!-- Login -->
 <form class="flex flex-col gap-3" id="login-form">
 <div>
-<label class="text-xs font-bold text-slate-600 ml-1">Email</label>
-<input class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all" id="email" placeholder="seuemail@exemplo.com" required="" type="email"/>
+<label class="text-xs font-bold text-slate-300/80 ml-1">Email</label>
+<input class="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 outline-none text-sm text-slate-50 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/15 transition-all" id="email" placeholder="seuemail@exemplo.com" required="" type="email"/>
 </div>
 <div>
-<label class="text-xs font-bold text-slate-600 ml-1">Senha</label>
-<input class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all" id="password" placeholder="••••••••" required="" type="password"/>
+<label class="text-xs font-bold text-slate-300/80 ml-1">Senha</label>
+<input class="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 outline-none text-sm text-slate-50 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/15 transition-all" id="password" placeholder="••••••••" required="" type="password"/>
 </div>
 <button class="mt-1 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-green-700 text-slate-900 font-bold text-sm shadow-lg shadow-emerald-200 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2" id="btn-login" type="submit">
 <span>Entrar</span>
 </button>
-<div class="text-[10px] text-slate-500 text-center leading-tight px-2">
+<div class="text-[10px] text-slate-300/70 text-center leading-tight px-2">
             Use um usuário de líder/admin (ou login de jogador).
           </div>
 </form>
 <!-- Toggle -->
-<div class="mt-4 flex items-center justify-center gap-2 text-sm text-slate-600">
+<div class="mt-4 flex items-center justify-center gap-2 text-sm text-slate-300/70">
 <span id="login-hint">Não tem conta?</span>
-<button class="font-semibold text-emerald-700 hover:underline" id="btn-show-signup" type="button">Criar conta</button>
-<button class="hidden font-semibold text-emerald-700 hover:underline" id="btn-show-login" type="button">Voltar para Login</button>
+<button class="font-semibold text-emerald-300 hover:underline" id="btn-show-signup" type="button">Criar conta</button>
+<button class="hidden font-semibold text-emerald-300 hover:underline" id="btn-show-login" type="button">Voltar para Login</button>
 </div>
 <!-- Signup -->
 <form class="hidden mt-6 space-y-4" id="signup-form">
 <div>
-<label class="block text-sm font-medium text-slate-700 mb-1" for="username">Nome de usuário (Guilda)</label>
-<input class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200" id="username" placeholder="Ex: Ottakubrasil" required="" type="text"/>
-<p class="mt-1 text-xs text-slate-500">Esse nome identifica sua guilda.</p>
+<label class="block text-sm font-medium text-slate-200 mb-1" for="username">Nome de usuário (Guilda)</label>
+<input class="w-full rounded-xl border border-white/10 bg-white/5 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200" id="username" placeholder="Ex: Ottakubrasil" required="" type="text"/>
+<p class="mt-1 text-xs text-slate-300/70">Esse nome identifica sua guilda.</p>
 </div>
 <div>
-<label class="block text-sm font-medium text-slate-700 mb-1" for="signup-email">Email</label>
-<input class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200" id="signup-email" placeholder="seuemail@email.com" required="" type="email"/>
+<label class="block text-sm font-medium text-slate-200 mb-1" for="signup-email">Email</label>
+<input class="w-full rounded-xl border border-white/10 bg-white/5 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200" id="signup-email" placeholder="seuemail@email.com" required="" type="email"/>
 </div>
 <div>
-<label class="block text-sm font-medium text-slate-700 mb-1" for="signup-password">Senha</label>
-<input class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200" id="signup-password" minlength="6" placeholder="mínimo 6 caracteres" required="" type="password"/>
+<label class="block text-sm font-medium text-slate-200 mb-1" for="signup-password">Senha</label>
+<input class="w-full rounded-xl border border-white/10 bg-white/5 bg-white px-4 py-3 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200" id="signup-password" minlength="6" placeholder="mínimo 6 caracteres" required="" type="password"/>
 </div>
 <button class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-slate-900 shadow-sm hover:bg-emerald-700 disabled:opacity-60 active:scale-[.98] transition" id="btn-signup" type="submit">
 <span>Criar conta</span>
