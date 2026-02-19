@@ -66,3 +66,9 @@ border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s lin
 .drawer-backdrop.show{ opacity:1; pointer-events:auto; }
 .drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
 .drawer-panel.show{ transform: translateX(0); }
+
+/* Garantia: botões de ação do drawer de autenticação sempre com texto branco */
+#btn-login,
+#btn-signup {
+  color: #fff !important;
+}
