@@ -49,3 +49,20 @@ body {
   position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;
 }
 
+
+
+/* ===== Extras do Index (drawer/auth + seleção) ===== */
+::selection{background-color:#22c55e;color:#fff;}
+/* micro UX */
+.reveal { opacity: 0; transform: translateY(18px); filter: blur(2px); transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+.reveal.show { opacity: 1; transform: translateY(0); filter: blur(0); }
+.btn-spinner{
+width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.55);
+border-top-color:rgba(255,255,255,0);display:inline-block;animation:spin .9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* drawer */
+.drawer-backdrop{ opacity:0; pointer-events:none; transition: opacity .25s ease; }
+.drawer-backdrop.show{ opacity:1; pointer-events:auto; }
+.drawer-panel{ transform: translateX(110%); transition: transform .35s cubic-bezier(.2,.9,.2,1); }
+.drawer-panel.show{ transform: translateX(0); }
