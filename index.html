@@ -14,55 +14,71 @@
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 font-sans">
 
-    <!-- Navbar -->
-    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-2">
-                    <i data-lucide="shield" class="w-8 h-8 text-green-500"></i>
-                    <span class="text-xl font-bold tracking-wider text-slate-900">GUILDA<span class="text-green-500">HUB</span></span>
-                </div>
-                
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#recursos" class="text-sm font-medium text-slate-600 hover:text-green-500 transition-colors">Recursos</a>
-                    <a href="#vantagens" class="text-sm font-medium text-slate-600 hover:text-green-500 transition-colors">Vantagens</a>
-                    <a href="eventos.html" class="text-sm font-medium text-slate-600 hover:text-green-500 transition-colors">Eventos</a>
-                    <a href="stats.html" class="text-sm font-medium text-slate-600 hover:text-green-500 transition-colors">Stats</a>
-                    <a href="suporte.html" class="text-sm font-medium text-slate-600 hover:text-green-500 transition-colors">Suporte</a>
-                    <button id="open-auth-top" type="button" class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
-                        Entrar
-                    </button>
-                    <button id="open-auth-2" type="button" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity shadow-md shadow-green-500/20">
-                        Criar Guilda
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden flex items-center">
-                    <button id="menu-btn" class="text-slate-600 hover:text-slate-900">
-                        <i id="menu-icon" data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                </div>
-            </div>
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-9 w-9 rounded-xl bg-emerald-500 grid place-items-center shadow-sm shadow-emerald-500/25">
+          <i data-lucide="shield" class="h-5 w-5 text-white"></i>
         </div>
-
-        <!-- Mobile Menu (Hidden by default) -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 shadow-lg">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#recursos" class="block px-3 py-2 text-base font-medium text-slate-600 hover:text-green-500 hover:bg-slate-50 rounded-md">Recursos</a>
-                <a href="#vantagens" class="block px-3 py-2 text-base font-medium text-slate-600 hover:text-green-500 hover:bg-slate-50 rounded-md">Vantagens</a>
-                <a href="eventos.html" class="block px-3 py-2 text-base font-medium text-slate-600 hover:text-green-500 hover:bg-slate-50 rounded-md">Eventos</a>
-                <a href="stats.html" class="block px-3 py-2 text-base font-medium text-slate-600 hover:text-green-500 hover:bg-slate-50 rounded-md">Stats</a>
-                <a href="suporte.html" class="block px-3 py-2 text-base font-medium text-slate-600 hover:text-green-500 hover:bg-slate-50 rounded-md">Suporte</a>
-                <button id="open-auth-top-mobile" type="button" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md">Entrar</button>
-                <button id="open-auth-2-mobile" type="button" class="block w-full mt-2 text-center bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-3 rounded-md font-bold text-base shadow-md">
-                    Criar Guilda
-                </button>
-            </div>
+        <div class="leading-tight">
+          <div class="text-slate-900 font-black">Guilda • HUB</div>
+          <div class="text-xs text-slate-500">Início</div>
         </div>
+      </div>
+      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
+        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
+      </button>
+    </div>
+
+    <nav class="p-3 flex flex-col gap-2">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-900 hover:bg-slate-100">
+        <i data-lucide="home" class="h-4 w-4"></i>
+        <span class="font-semibold">Início</span>
+      </a>
+      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-900 hover:bg-slate-100">
+        <i data-lucide="calendar" class="h-4 w-4"></i>
+        <span class="font-semibold">Eventos e Camp</span>
+      </a>
+      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-900 hover:bg-slate-100">
+        <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+        <span class="font-semibold">Minhas estatísticas</span>
+      </a>
+      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-900 hover:bg-slate-100">
+        <i data-lucide="help-circle" class="h-4 w-4"></i>
+        <span class="font-semibold">Suporte</span>
+      </a>
     </nav>
+  </aside>
+
+
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
+  <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50">
+        <i data-lucide="menu" class="h-5 w-5 text-slate-900"></i>
+      </button>
+      <div class="leading-tight">
+        <div class="font-black text-slate-900">Guilda • HUB</div>
+        <div class="text-xs text-slate-500">Início</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="eventos.html" class="text-sm font-semibold text-slate-700 hover:text-slate-900">Eventos</a>
+        <a href="stats.html" class="text-sm font-semibold text-slate-700 hover:text-slate-900">Stats</a>
+        <a href="suporte.html" class="text-sm font-semibold text-slate-700 hover:text-slate-900">Suporte</a>
+      </nav>
+
+      <button id="open-auth-top" type="button" class="bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-2 rounded-xl font-black text-sm hover:opacity-90 transition-opacity shadow-md shadow-emerald-500/20">
+        Entrar
+      </button>
+    </div>
+  </div>
+</header>
 
     <!-- Hero Section -->
     <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative overflow-hidden md:overflow-visible">
@@ -285,41 +301,7 @@
   <div id="toast-container" class="fixed top-5 right-5 z-[60] flex flex-col gap-2"></div>
 
 <!-- Scripts -->
-    <script>
-        // Inicializa os ícones do Lucide
-        lucide.createIcons();
-
-        // Lógica do menu mobile
-        const menuBtn = document.getElementById('menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuIcon = document.getElementById('menu-icon');
-
-        let isMenuOpen = false;
-
-        menuBtn.addEventListener('click', () => {
-            isMenuOpen = !isMenuOpen;
-            
-            if (isMenuOpen) {
-                mobileMenu.classList.remove('hidden');
-                menuIcon.setAttribute('data-lucide', 'x');
-            } else {
-                mobileMenu.classList.add('hidden');
-                menuIcon.setAttribute('data-lucide', 'menu');
-            }
-            
-            // Re-renderiza o ícone para atualizar de 'menu' para 'x' (ou vice-versa)
-            lucide.createIcons();
-        });
-    </script>
-
-    <script>
-      // Liga botões do menu mobile ao drawer de autenticação
-      document.getElementById('open-auth-top-mobile')?.addEventListener('click', openAuth);
-      document.getElementById('open-auth-2-mobile')?.addEventListener('click', openAuth);
-    </script>
-
-
-<script>
+        <script>
     // Drawer open/close (non-module; works before auth module)
     const backdrop = document.getElementById('auth-backdrop');
     const drawer = document.getElementById('auth-drawer');
