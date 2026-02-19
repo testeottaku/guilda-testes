@@ -7,20 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            "dark-950": "#06060a",
-            "dark-900": "#0a0a12",
-            "dark-800": "#111119",
-            "dark-700": "#1a1a26",
-            "dark-600": "#242434",
-            "dark-500": "#2e2e42",
-            emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' }
-          },
-          fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] }
-        }
-      }
+      theme: { extend: { colors: { emerald: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857' } } } }
     }
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -54,109 +41,76 @@
   .dd-item:hover { background: rgba(255,255,255,.06); }
   .dd-item[aria-selected="true"] { background: rgba(16,185,129,.16); color:#d1fae5; }
 
-
-/* ===== Shared dark neon theme (from index) ===== */
-html{scroll-behavior:smooth}
-body{background-color:#06060a;font-family:Inter,system-ui,sans-serif}
-
-/* scrollbar */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#111119}
-::-webkit-scrollbar-thumb{background:rgba(52,211,153,.55);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(52,211,153,.85)}
-
-/* Navbar surface */
-.landing-dark{ background:#06060a; color:#f8fafc; }
-.landing-dark .header-surface{ background:rgba(6,6,10,.72); border-color:rgba(255,255,255,.08); }
-.landing-dark .header-link{ color:rgba(226,232,240,.78); }
-.landing-dark .header-link:hover{ color:#fff; background:rgba(255,255,255,.06); }
-.landing-dark .header-btn{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.08); color:#f8fafc; }
-.landing-dark .header-btn:hover{ background:rgba(255,255,255,.10); }
-
-/* dropdown overrides for dark */
-.landing-dark .dd-btn{
-  background: rgba(255,255,255,.06) !important;
-  border:1px solid rgba(255,255,255,.10) !important;
-  color:#e2e8f0 !important;
-}
-.landing-dark .dd-menu{
-  background:#0b1220 !important;
-  color:#e2e8f0 !important;
-  border:1px solid rgba(255,255,255,.10) !important;
-}
-.landing-dark .dd-item:hover{ background: rgba(255,255,255,.06) !important; }
-.landing-dark .dd-item[aria-selected="true"]{ background: rgba(16,185,129,.16) !important; color:#d1fae5 !important; }
-
 </style>
 </head>
-<body class="landing-dark min-h-screen bg-dark-950 text-slate-50">
+<body class="min-h-screen bg-white text-slate-900">
 
   
   <div id="sidebar-overlay" class="fixed inset-0 z-40 hidden bg-black/40"></div>
-  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-dark-900/70 backdrop-blur border-r border-white/10 transition-transform">
-    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+  <aside id="sidebar" class="fixed left-0 top-0 z-50 h-full w-[280px] -translate-x-full bg-white backdrop-blur border-r border-slate-200 transition-transform">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="h-9 w-9 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/20 flex items-center justify-center">
-          <i data-lucide="shield" class="h-5 w-5 text-emerald-300"></i>
+          <i data-lucide="shield" class="h-5 w-5 text-emerald-700"></i>
         </div>
         <div class="leading-tight">
-          <div class="text-white font-black">Guilda • HUB</div>
-          <div class="text-xs text-slate-300/70">Estatísticas￼</div>
+          <div class="text-slate-900 font-black">Guilda • HUB</div>
+          <div class="text-xs text-slate-500">Estatísticas￼</div>
         </div>
       </div>
-      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-white/10">
-        <i data-lucide="x" class="h-5 w-5 text-slate-200"></i>
+      <button id="sidebar-close" class="h-10 w-10 grid place-items-center rounded-xl hover:bg-slate-100">
+        <i data-lucide="x" class="h-5 w-5 text-slate-700"></i>
       </button>
     </div>
 
     <nav class="p-3 space-y-1">
-      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/10">
+      <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="home" class="h-4 w-4"></i>
         <span class="font-semibold">Início</span>
       </a>
-      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/10">
+      <a href="eventos.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="calendar" class="h-4 w-4"></i>
         <span class="font-semibold">Eventos e Camp</span>
       </a>
-      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/10">
+      <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
         <span class="font-semibold">Minhas estatísticas</span>
       </a>
-      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/10">
+      <a href="suporte.html" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100">
         <i data-lucide="help-circle" class="h-4 w-4"></i>
         <span class="font-semibold">Suporte</span>
       </a>
     </nav>
 
-    <div class="mt-auto p-4 text-xs text-slate-300/70 border-t border-white/10">
+    <div class="mt-auto p-4 text-xs text-slate-500 border-t border-white/10">
       <div class="leading-relaxed">Dica: você pode navegar sem login para ver eventos e consultar stats públicas.</div>
     </div>
   </aside>
 
-<header class="sticky top-0 z-30 border-b backdrop-blur header-surface">
+<header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <button id="sidebar-open" class="h-11 w-11 grid place-items-center rounded-2xl ring-1 shadow-sm transition header-btn">
+        <button id="sidebar-open" class="h-10 w-10 grid place-items-center rounded-xl bg-white ring-1 ring-slate-200 text-slate-900 shadow-sm hover:bg-slate-50">
           <i data-lucide="menu" class="h-5 w-5"></i>
         </button>
         <div class="leading-tight">
-          <div class="font-black text-white">Guilda • HUB</div>
-          <div class="text-xs text-slate-300/70"> Estatísticas￼</div>
+          <div class="font-black text-slate-900">Guilda • HUB</div>
+          <div class="text-xs text-slate-500"> Estatísticas￼</div>
         </div>
       </div>
-      <a href="index.html" class="text-sm font-semibold rounded-xl px-3 py-2 transition header-link">Voltar</a>
+      <a href="index.html" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Voltar</a>
     </div>
   </header><main class="mx-auto w-full max-w-6xl px-4 py-6">
 <section class="space-y-4">
-  <div class="rounded-3xl border border-white/10 bg-white/5 p-4">
+  <div class="rounded-3xl bg-white ring-1 ring-slate-200 p-4">
     <div class="text-sm font-bold">Buscar meu perfil</div>
-    <p class="mt-1 text-xs text-slate-300/70">Digite seu nick ou ID para ver suas estatísticas basica.</p>
+    <p class="mt-1 text-xs text-slate-500">Digite seu nick ou ID para ver suas estatísticas basica.</p>
     <div class="mt-4 flex flex-col gap-3 sm:flex-row">
       <input id="query" type="text" placeholder="Seu nick ou ID"
-        class="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
+        class="flex-1 rounded-2xl bg-white ring-1 ring-slate-200 px-4 py-3 text-sm outline-none focus:ring-emerald-400/40" />
       <button id="btn" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black hover:bg-emerald-700 transition text-white">Buscar</button>
     </div>
-    <div id="hint" class="mt-3 text-xs text-slate-300/70"></div>
+    <div id="hint" class="mt-3 text-xs text-slate-500"></div>
   </div>
   <div id="result"></div>
 </section>
@@ -209,7 +163,7 @@ const norm = (v) => (v == null ? '' : String(v)).toLowerCase().trim();
 const safeStr = (v) => (v == null ? '' : String(v));
 
 function card(html) {
-  elOut.innerHTML = `<div class="rounded-3xl border border-white/10 bg-white p-5 shadow-sm">${html}</div>`;
+  elOut.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">${html}</div>`;
 }
 
 function escapeHtml(s) {
@@ -262,9 +216,6 @@ function renderMember(res) {
     d.gameId || d.idff || d.idFF || d.freeFireId || d.ffId || d.idFreeFire || res.id || "—"
   );
 
-  const playModeRaw = d.playMode;
-  const playMode = (playModeRaw == null || String(playModeRaw).trim() === '') ? '—' : String(playModeRaw).trim();
-
   const hasTag = (d.hasTag === true) || !!(d.tag && String(d.tag).trim());
   const guildWarOk = (d.guildWar === true);
   const weeklyOk = (d.weeklyMeta === true);
@@ -274,15 +225,15 @@ function renderMember(res) {
 
   const yesNoPill = (ok) =>
     ok
-      ? `<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-300 ring-1 ring-emerald-100">Sim</span>`
-      : `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-200 ring-1 ring-white/10">Não</span>`;
+      ? `<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">Sim</span>`
+      : `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Não</span>`;
 
   card(`
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <div class="text-lg font-black text-white truncate">${escapeHtml(nick)}</div>
-        <div class="mt-1 text-xs text-slate-300/70">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
-        <div class="mt-1 text-sm text-slate-200">ID do jogador: <span class="font-extrabold">${escapeHtml(playerId)}</span></div>
+        <div class="text-lg font-black text-slate-900 truncate">${escapeHtml(nick)}</div>
+        <div class="mt-1 text-xs text-slate-500">Guilda: <span class="font-semibold">${escapeHtml(guildName)}</span></div>
+        <div class="mt-1 text-sm text-slate-700">ID do jogador: <span class="font-extrabold">${escapeHtml(playerId)}</span></div>
       </div>
       <div class="h-11 w-11 rounded-2xl bg-emerald-600 text-white grid place-items-center shadow-sm shrink-0">
         <i data-lucide="user" class="h-5 w-5"></i>
@@ -290,36 +241,29 @@ function renderMember(res) {
     </div>
 
     <div class="mt-5 grid gap-3 sm:grid-cols-2">
-      <div class="rounded-2xl border border-white/10 bg-white p-4">
-        <div class="text-xs text-slate-300/70">Tem tag?</div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <div class="text-xs text-slate-500">Tem tag?</div>
         <div class="mt-2">${yesNoPill(hasTag)}</div>
       </div>
 
-      <div class="rounded-2xl border border-white/10 bg-white p-4">
-        <div class="text-xs text-slate-300/70">Modo de jogo</div>
-        <div class="mt-2">
-          <span class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-black text-slate-800 ring-1 ring-white/10">${escapeHtml(playMode)}</span>
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-white/10 bg-white p-4">
-        <div class="text-xs text-slate-300/70">Bateu meta de guerra?</div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <div class="text-xs text-slate-500">Bateu meta de guerra?</div>
         <div class="mt-2 flex items-center gap-2">
           ${yesNoPill(guildWarOk)}
-          ${guildWarMeta ? `<span class="text-xs text-slate-300/70">Meta: <span class="font-bold text-slate-200">${escapeHtml(guildWarMeta)}</span></span>` : ``}
+          ${guildWarMeta ? `<span class="text-xs text-slate-500">Meta: <span class="font-bold text-slate-700">${escapeHtml(guildWarMeta)}</span></span>` : ``}
         </div>
       </div>
 
-      <div class="rounded-2xl border border-white/10 bg-white p-4 sm:col-span-2">
-        <div class="text-xs text-slate-300/70">Bateu meta semanal?</div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:col-span-2">
+        <div class="text-xs text-slate-500">Bateu meta semanal?</div>
         <div class="mt-2 flex items-center gap-2">
           ${yesNoPill(weeklyOk)}
-          ${weeklyMetaValue ? `<span class="text-xs text-slate-300/70">Meta: <span class="font-bold text-slate-200">${escapeHtml(weeklyMetaValue)}</span></span>` : ``}
+          ${weeklyMetaValue ? `<span class="text-xs text-slate-500">Meta: <span class="font-bold text-slate-700">${escapeHtml(weeklyMetaValue)}</span></span>` : ``}
         </div>
       </div>
     </div>
 
-    <div class="mt-4 text-xs text-slate-300/70">
+    <div class="mt-4 text-xs text-slate-500">
       Observação: O nick que aparece aqui é o nick que o seu lider da guilda cadastrou em nossa plataforma.
     </div>
   `);
@@ -335,12 +279,12 @@ async function run() {
     return;
   }
   elHint.textContent = "Buscando…";
-  elOut.innerHTML = `<div class="rounded-3xl border border-white/10 bg-white p-5 text-slate-300/80">Carregando…</div>`;
+  elOut.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-5 text-slate-600">Carregando…</div>`;
   try {
     const res = await findMemberPublic(term);
     if (!res) {
       elHint.textContent = "Não encontrei esse jogador ainda.";
-      elOut.innerHTML = `<div class="rounded-3xl border border-white/10 bg-white p-5 text-slate-300/80">Nada encontrado.</div>`;
+      elOut.innerHTML = `<div class="rounded-3xl border border-slate-200 bg-white p-5 text-slate-600">Nada encontrado.</div>`;
       return;
     }
     elHint.textContent = "";
