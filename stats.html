@@ -216,6 +216,9 @@ function renderMember(res) {
     d.gameId || d.idff || d.idFF || d.freeFireId || d.ffId || d.idFreeFire || res.id || "—"
   );
 
+  const playModeRaw = d.playMode;
+  const playMode = (playModeRaw == null || String(playModeRaw).trim() === '') ? '—' : String(playModeRaw).trim();
+
   const hasTag = (d.hasTag === true) || !!(d.tag && String(d.tag).trim());
   const guildWarOk = (d.guildWar === true);
   const weeklyOk = (d.weeklyMeta === true);
@@ -244,6 +247,13 @@ function renderMember(res) {
       <div class="rounded-2xl border border-slate-200 bg-white p-4">
         <div class="text-xs text-slate-500">Tem tag?</div>
         <div class="mt-2">${yesNoPill(hasTag)}</div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <div class="text-xs text-slate-500">Modo de jogo</div>
+        <div class="mt-2">
+          <span class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-black text-slate-800 ring-1 ring-slate-200">${escapeHtml(playMode)}</span>
+        </div>
       </div>
 
       <div class="rounded-2xl border border-slate-200 bg-white p-4">
