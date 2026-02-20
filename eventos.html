@@ -267,21 +267,82 @@ function statusPt(raw) {
   return map[s] || map[s.toLowerCase()] || raw.toString().toUpperCase();
 }
 
-function fmtDateTime(v) {
+function fmtDateOnly(v) {
   if (v == null || v === "") return "";
-  // aceita ms number, Timestamp-like, ou string
   try {
-    if (typeof v === "number" && isFinite(v)) return new Date(v).toLocaleString("pt-BR");
-    if (typeof v === "string") {
-      const n = Number(v);
-      if (isFinite(n) && n > 0 && v.trim().length >= 10) return new Date(n).toLocaleString("pt-BR");
-      // tenta ISO / dd/mm
-      const d = new Date(v);
-      if (!isNaN(d.getTime())) return d.toLocaleString("pt-BR");
+    // Firestore Timestamp-like
+    if (typeof v === "object" && v.seconds) {
+      const d = new Date(v.seconds * 1000);
+      const dd = String(d.getUTCDate()).padStart(2, "0");
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const yy = d.getUTCFullYear();
+      return `${dd}/${mm}/${yy}`;
     }
-    if (typeof v === "object" && v.seconds) return new Date(v.seconds*1000).toLocaleString("pt-BR");
-  } catch(_) {}
+
+    // ms number (assume UTC for date-only fields to avoid -1 day shift)
+    if (typeof v === "number" && isFinite(v)) {
+      const d = new Date(v);
+      const dd = String(d.getUTCDate()).padStart(2, "0");
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const yy = d.getUTCFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (!s) return "";
+
+      // dd/mm/yyyy (keeps exactly as provided)
+      const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (m) {
+        const dd = String(m[1]).padStart(2, "0");
+        const mm = String(m[2]).padStart(2, "0");
+        const yy = m[3];
+        return `${dd}/${mm}/${yy}`;
+      }
+
+      // ISO / others: use UTC date parts to avoid timezone shifting the day
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        const dd = String(d.getUTCDate()).padStart(2, "0");
+        const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+        const yy = d.getUTCFullYear();
+        return `${dd}/${mm}/${yy}`;
+      }
+    }
+  } catch (_) {}
   return safeStr(v);
+}
+
+function fmtTime(v) {
+  if (v == null || v === "") return "";
+  try {
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (!s) return "";
+      // accepts HH:mm or HH:mm:ss (shows HH:mm)
+      const m = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (m) return `${String(m[1]).padStart(2, "0")}:${m[2]}`;
+      return s;
+    }
+    // if someone saved a timestamp/number as "time", show local HH:mm
+    if (typeof v === "number" && isFinite(v)) {
+      const d = new Date(v);
+      return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    }
+    if (typeof v === "object" && v.seconds) {
+      const d = new Date(v.seconds * 1000);
+      return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    }
+  } catch (_) {}
+  return safeStr(v);
+}
+
+function buildWhenText(dateVal, timeVal) {
+  const dateTxt = fmtDateOnly(dateVal);
+  const timeTxt = fmtTime(timeVal);
+  if (!dateTxt) return "";
+  return timeTxt ? `${dateTxt} • ${timeTxt}` : dateTxt;
 }
 
 
@@ -398,9 +459,9 @@ function render(items) {
     const statusRaw = pick(d, ["progress","progresso","status","andamento"], "");
 const statusShow = statusRaw ? statusPt(statusRaw) : "";
 
-const whenRaw = pick(d, ["dateTime","datetime","when","dataHora","data_hora","date","data","hora","time","startAt","startsAt","scheduledAtMs","scheduledAt","startMs"], "");
-const whenShow = fmtDateTime(whenRaw);
-
+const dateVal = pick(d, ["date","data","startDate","startsOn","day","scheduledDate","scheduledAtMs","scheduledAt","startMs","dateTime","datetime","when","dataHora","data_hora","startAt","startsAt"], "");
+const timeVal = pick(d, ["time","hora","horario","startTime","startsTime"], "");
+const whenShow = buildWhenText(dateVal, timeVal);
 const topPills = [
   iconPill("users", guildName),
   statusShow ? iconPill("activity", statusShow) : "",
