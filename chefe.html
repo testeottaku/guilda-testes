@@ -467,34 +467,66 @@ function fmtDate(ts) {
 
     // ELIMINAR TUDO (REQUISITO DA VERONICA)
     window.fullDeleteGuild = async (gid, name) => {
-      if(!confirm(`⚠️ REALMENTE QUER EXCLUIR TUDO DA GUILDA: ${name}?\n\nIsso apagará Membros, Lines, Configurações e todos os UTILIZADORES vinculados ao ID da guilda. Esta ação é irreversível!`)) return;
-      
+      if(!confirm(`⚠️ REALMENTE QUER EXCLUIR TUDO DA GUILDA: ${name}?\n\nIsso apagará Membros, Lines, Campeonatos, Configurações e todos os UTILIZADORES vinculados ao ID da guilda.\n\nEsta ação é irreversível!`)) return;
+
       showToast('info', 'A eliminar dados... por favor aguarde.');
+
+      // Firestore limita 500 operações por batch.
+      // Então deletamos em "lotes" para não estourar quando a guilda é grande.
+      const commitDeletes = async (refs) => {
+        const CHUNK = 450; // margem de segurança
+        for (let i = 0; i < refs.length; i += CHUNK) {
+          const b = writeBatch(db);
+          refs.slice(i, i + CHUNK).forEach((r) => b.delete(r));
+          await b.commit();
+        }
+      };
+
       try {
-        const batch = writeBatch(db);
+        const refsToDelete = [];
 
-        // 1. Deletar Membros
-        const memSnap = await getDocs(collection(db, 'guildas', gid, 'membros'));
-        memSnap.forEach(d => batch.delete(d.ref));
+        // 1) Subcoleções (membros / lines / campeonatos)
+        try {
+          const memSnap = await getDocs(collection(db, 'guildas', gid, 'membros'));
+          memSnap.forEach((d) => refsToDelete.push(d.ref));
+        } catch (e) {
+          console.warn('Delete membros: sem permissão/leitura?', e);
+        }
 
-        // 2. Deletar Lines
-        const lineSnap = await getDocs(collection(db, 'guildas', gid, 'lines'));
-        lineSnap.forEach(d => batch.delete(d.ref));
+        try {
+          const lineSnap = await getDocs(collection(db, 'guildas', gid, 'lines'));
+          lineSnap.forEach((d) => refsToDelete.push(d.ref));
+        } catch (e) {
+          console.warn('Delete lines: sem permissão/leitura?', e);
+        }
 
-        // 3. Deletar Users (onde guildId == gid)
-        const userSnap = await getDocs(query(collection(db, 'users'), where('guildId', '==', gid)));
-        userSnap.forEach(d => batch.delete(d.ref));
+        try {
+          const campSnap = await getDocs(collection(db, 'guildas', gid, 'campeonatos'));
+          campSnap.forEach((d) => refsToDelete.push(d.ref));
+        } catch (e) {
+          console.warn('Delete campeonatos: sem permissão/leitura?', e);
+        }
 
-        // 4. Deletar Docs Principais
-        batch.delete(doc(db, 'guildas', gid));
-        batch.delete(doc(db, 'configGuilda', gid));
+        // 2) Users vinculados (onde guildId == gid)
+        try {
+          const userSnap = await getDocs(query(collection(db, 'users'), where('guildId', '==', gid)));
+          userSnap.forEach((d) => refsToDelete.push(d.ref));
+        } catch (e) {
+          console.warn('Delete users: sem permissão/leitura?', e);
+        }
 
-        await batch.commit();
+        // 3) Docs principais (sempre por último)
+        refsToDelete.push(doc(db, 'configGuilda', gid));
+        refsToDelete.push(doc(db, 'guildas', gid));
+
+        await commitDeletes(refsToDelete);
+
         showToast('success', 'Guilda e todos os vínculos eliminados com sucesso.');
         loadData();
       } catch(e) {
-        console.error(e);
-        showToast('error', 'Erro ao eliminar dados da guilda.');
+        console.error('FULL DELETE ERROR:', e);
+        const details = (e && (e.code || e.message)) ? ` (${e.code || e.message})` : '';
+        showToast('error', 'Erro ao eliminar dados da guilda.' + details);
       }
     };
 
