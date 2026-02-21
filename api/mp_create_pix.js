@@ -49,9 +49,10 @@ function ensureAdmin() {
     throw new Error("FIREBASE_SERVICE_ACCOUNT inválido: JSON.parse falhou.");
   }
 
-  // Corrige private_key caso venha com \\n
+  // Corrige private_key caso venha com \n
   if (sa.private_key && typeof sa.private_key === "string") {
-    sa.private_key = sa.private_key.replace(/\\n/g, "\n");
+    sa.private_key = sa.private_key.replace(/\n/g, "
+");
   }
 
   admin.initializeApp({
@@ -131,6 +132,64 @@ function makeIdempotencyKey() {
   return `idem_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
+/**
+ * Rate limit leve por UID (anti-flood HTTP sem prejudicar usuário real)
+ * Ex.: 8 requisições por minuto por UID.
+ */
+async function uidRateLimit(db, uid, opts = {}) {
+  const WINDOW_MS = Number(opts.windowMs || 60_000);
+  const MAX_REQ = Number(opts.maxRequests || 8);
+
+  const ref = db.collection("rate_http_pix").doc(uid);
+  const snap = await ref.get();
+  const now = Date.now();
+
+  let windowStart = now;
+  let count = 1;
+
+  if (snap.exists) {
+    const d = snap.data() || {};
+    windowStart = Number(d.windowStart || now);
+    count = Number(d.count || 0);
+
+    if (now - windowStart < WINDOW_MS) {
+      if (count >= MAX_REQ) return { ok: false, retryAfterMs: WINDOW_MS - (now - windowStart) };
+      count += 1;
+    } else {
+      windowStart = now;
+      count = 1;
+    }
+  }
+
+  await ref.set({ windowStart, count, updatedAtMs: now }, { merge: true });
+  return { ok: true };
+}
+
+/**
+ * Rate limit só para CRIAR NOVO PIX (cooldown longo, ex.: 30 min / 1h)
+ * Aplicar somente quando NÃO existe pendente para reutilizar.
+ */
+async function creationCooldown(db, uid, cooldownMs) {
+  const now = Date.now();
+  const ref = db.collection("rate_new_pix").doc(uid);
+  const snap = await ref.get();
+
+  if (snap.exists) {
+    const d = snap.data() || {};
+    const lastCreatedAt = Number(d.lastCreatedAt || 0);
+    if (lastCreatedAt && now - lastCreatedAt < cooldownMs) {
+      return { ok: false, retryAfterMs: cooldownMs - (now - lastCreatedAt) };
+    }
+  }
+  return { ok: true };
+}
+
+async function markCreated(db, uid) {
+  const now = Date.now();
+  const ref = db.collection("rate_new_pix").doc(uid);
+  await ref.set({ lastCreatedAt: now, updatedAtMs: now }, { merge: true });
+}
+
 module.exports = async (req, res) => {
   cors(res);
 
@@ -185,6 +244,14 @@ module.exports = async (req, res) => {
       return json(res, 400, { ok: false, error: "Email inválido para pagamento." });
     }
 
+    // ✅ Anti-flood HTTP leve (sem atrapalhar usuário normal)
+    const rl = await uidRateLimit(db, uid, { windowMs: 60_000, maxRequests: 8 });
+    if (!rl.ok) {
+      const waitSec = Math.max(1, Math.ceil((rl.retryAfterMs || 0) / 1000));
+      res.setHeader("Retry-After", String(waitSec));
+      return json(res, 429, { ok: false, error: "Muitas tentativas. Aguarde um pouco e tente novamente." });
+    }
+
     const amount = Number(PLAN_PRICES[plano]);
     if (!Number.isFinite(amount) || amount <= 0) {
       return json(res, 400, { ok: false, error: "Valor inválido." });
@@ -226,6 +293,17 @@ module.exports = async (req, res) => {
           plano: planOld || plano,
         });
       }
+    }
+
+    // ✅ Cooldown longo: só quando for CRIAR um NOVO PIX (não afeta reutilização)
+    const COOLDOWN_MS = 30 * 60 * 1000; // 30 min (troque para 60*60*1000 = 1h se quiser)
+    const cd = await creationCooldown(db, uid, COOLDOWN_MS);
+    if (!cd.ok) {
+      const waitMin = Math.max(1, Math.ceil((cd.retryAfterMs || 0) / 60000));
+      return json(res, 429, {
+        ok: false,
+        error: `Você já criou um pagamento recentemente. Aguarde ${waitMin} min e tente novamente.`,
+      });
     }
 
     // Webhook URL (no seu domínio)
@@ -300,6 +378,9 @@ module.exports = async (req, res) => {
       },
       { merge: true }
     );
+
+    // Marca cooldown apenas quando criou com sucesso
+    await markCreated(db, uid);
 
     return json(res, 200, {
       ok: true,
