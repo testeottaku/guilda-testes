@@ -49,12 +49,10 @@ function ensureAdmin() {
     throw new Error("FIREBASE_SERVICE_ACCOUNT inválido: JSON.parse falhou.");
   }
 
-  // Corrige private_key caso venha com \n
+  // Corrige private_key caso venha com \\n
   if (sa.private_key && typeof sa.private_key === "string") {
-    sa.private_key = sa.private_key.replace(/\n/g, "
-");
+    sa.private_key = sa.private_key.replace(/\\n/g, "\n");
   }
-
   admin.initializeApp({
     credential: admin.credential.cert(sa),
   });
