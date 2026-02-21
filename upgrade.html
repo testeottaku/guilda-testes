@@ -285,17 +285,20 @@
       throw new Error('Dados ausentes (uid/email/guildId).');
     }
 
+    const idToken = await user.getIdToken(true);
+
     const res = await fetch('/api/mp_create_pix', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      // API espera: plano, uid, email, guildId
-      body: JSON.stringify({ plano: planId, uid, email, guildId })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      // uid/email vêm do token (mais seguro). Enviamos só o necessário.
+      body: JSON.stringify({ plano: planId, guildId })
     });
 
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data?.error || 'Falha ao criar pagamento.');
-    }
+    if (!res.ok) throw new Error(data?.error || 'Falha ao criar pagamento.');
     return data;
   }
 
