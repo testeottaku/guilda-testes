@@ -20,6 +20,25 @@ function toLabel(mpStatus){
   return 'pendente';
 }
 
+function parseExternalReference(refStr) {
+  const out = { guildId: null, uid: null, plan: null };
+  const s = String(refStr || '').trim();
+  if (!s) return out;
+
+  // formato esperado: guilda:<gid>|uid:<uid>|plano:<plano>
+  const parts = s.split('|');
+  for (const p of parts) {
+    const [kRaw, ...rest] = p.split(':');
+    const k = String(kRaw || '').trim().toLowerCase();
+    const v = rest.join(':').trim();
+    if (!v) continue;
+    if (k === 'guilda' || k === 'guildid' || k === 'guild') out.guildId = v;
+    if (k === 'uid' || k === 'user' || k === 'userid') out.uid = v;
+    if (k === 'plano' || k === 'plan' || k === 'tier') out.plan = v;
+  }
+  return out;
+}
+
 function daysForPlan(plan){
   const p = String(plan || '').toLowerCase();
 
@@ -63,31 +82,25 @@ module.exports = async (req, res) => {
     const mpStatus = mpData.status || 'pending';
     const label = toLabel(mpStatus);
 
-    // tenta obter contexto pelo external_reference (se tiver)
-    let uid = null, guildId = null, plan = null;
-    try {
-      const ref = mpData.external_reference ? JSON.parse(mpData.external_reference) : null;
-      uid = ref?.uid ? String(ref.uid) : null;
-      guildId = ref?.guildId ? String(ref.guildId) : null;
-      plan = ref?.plan ? String(ref.plan) : null;
-    } catch (_) {}
+    // Contexto vem do MP (fonte da verdade)
+    const ref = parseExternalReference(mpData.external_reference);
+    const uid = ref.uid ? String(ref.uid) : null;
+    const guildId = ref.guildId ? String(ref.guildId) : null;
+    const plan = ref.plan ? String(ref.plan) : null;
 
-    // Se não veio, tenta recuperar do doc solicita
-    const docId = `mp_${paymentId}`;
-    const sRef = admin.firestore().doc(`solicita/${docId}`);
-    const sSnap = await sRef.get();
-    if (sSnap.exists) {
-      const s = sSnap.data() || {};
-      uid = uid || (s.uid ? String(s.uid) : null);
-      guildId = guildId || (s.guildId ? String(s.guildId) : null);
-      plan = plan || (s.plano ? String(s.plano) : null);
-    }
+    // Atualiza solicita por UID (novo padrão). Se não tiver UID no external_reference, cai no padrão antigo.
+    const sRef = uid
+      ? admin.firestore().doc(`solicita/${uid}`)
+      : admin.firestore().doc(`solicita/mp_${paymentId}`);
 
     await sRef.set({
       paymentId: String(paymentId),
       mpStatus,
       status: label,
       nomePagador: `pagamento > ${label}`,
+      plano: plan || undefined,
+      guildId: guildId || undefined,
+      uid: uid || undefined,
       updatedAtMs: Date.now(),
     }, { merge: true });
 

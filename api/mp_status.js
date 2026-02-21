@@ -20,6 +20,21 @@ function toLabel(mpStatus){
   return 'pendente';
 }
 
+function parseExternalReference(refStr) {
+  const out = { uid: null };
+  const s = String(refStr || '').trim();
+  if (!s) return out;
+  const parts = s.split('|');
+  for (const p of parts) {
+    const [kRaw, ...rest] = p.split(':');
+    const k = String(kRaw || '').trim().toLowerCase();
+    const v = rest.join(':').trim();
+    if (!v) continue;
+    if (k === 'uid' || k === 'user' || k === 'userid') out.uid = v;
+  }
+  return out;
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -43,8 +58,10 @@ module.exports = async (req, res) => {
     const label = toLabel(status);
 
     // Atualiza solicita (redundância útil em teste mesmo sem webhook)
-    const docId = `mp_${paymentId}`;
-    await admin.firestore().doc(`solicita/${docId}`).set({
+    const ref = parseExternalReference(mpData.external_reference);
+    const docPath = ref.uid ? `solicita/${ref.uid}` : `solicita/mp_${paymentId}`;
+    await admin.firestore().doc(docPath).set({
+      paymentId,
       mpStatus: status,
       status: label,
       nomePagador: `pagamento > ${label}`,

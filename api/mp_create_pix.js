@@ -3,6 +3,34 @@
 
 const admin = require("firebase-admin");
 
+function parseExternalReference(refStr) {
+  const out = { guildId: null, uid: null, plano: null };
+  const s = String(refStr || "").trim();
+  if (!s) return out;
+
+  // formato esperado: guilda:<gid>|uid:<uid>|plano:<plano>
+  const parts = s.split("|");
+  for (const p of parts) {
+    const [kRaw, ...rest] = p.split(":");
+    const k = String(kRaw || "").trim().toLowerCase();
+    const v = rest.join(":").trim();
+    if (!v) continue;
+    if (k === "guilda" || k === "guildid" || k === "guild") out.guildId = v;
+    if (k === "uid" || k === "user" || k === "userid") out.uid = v;
+    if (k === "plano" || k === "plan" || k === "tier") out.plano = v;
+  }
+  return out;
+}
+
+function toLabel(mpStatus) {
+  const s = String(mpStatus || "").toLowerCase();
+  if (s === "approved") return "aprovado";
+  if (s === "pending" || s === "in_process") return "pendente";
+  if (s === "rejected") return "recusado";
+  if (s === "cancelled" || s === "expired" || s === "refunded" || s === "charged_back") return "expirado";
+  return "pendente";
+}
+
 function getEnv(name) {
   const v = process.env[name];
   return (v && String(v).trim()) || "";
@@ -119,14 +147,32 @@ module.exports = async (req, res) => {
     const mpToken = getEnv("MP_ACCESS_TOKEN");
     if (!mpToken) return json(res, 500, { ok: false, error: "MP_ACCESS_TOKEN ausente (ENV)." });
 
+    ensureAdmin();
+    const db = admin.firestore();
+
     // Body pode chegar como string
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+
+    // Segurança: se vier Firebase ID Token, usamos ele como fonte da verdade
+    const authz = String(req.headers?.authorization || "").trim();
+    let tokenUid = "";
+    let tokenEmail = "";
+    if (authz.toLowerCase().startsWith("bearer ")) {
+      const idToken = authz.slice(7).trim();
+      try {
+        const decoded = await admin.auth().verifyIdToken(idToken);
+        tokenUid = String(decoded?.uid || "");
+        tokenEmail = String(decoded?.email || "");
+      } catch (_) {
+        return json(res, 401, { ok: false, error: "Token inválido. Faça login novamente." });
+      }
+    }
 
     const planoRaw = body.plano;
     const plano = normalizePlan(planoRaw);
 
-    const uid = String(body.uid || "");
-    const email = String(body.email || "");
+    const uid = tokenUid || String(body.uid || "");
+    const email = tokenEmail || String(body.email || "");
     const guildId = String(body.guildId || "");
 
     if (!plano || !PLAN_PRICES[plano]) {
@@ -142,6 +188,44 @@ module.exports = async (req, res) => {
     const amount = Number(PLAN_PRICES[plano]);
     if (!Number.isFinite(amount) || amount <= 0) {
       return json(res, 400, { ok: false, error: "Valor inválido." });
+    }
+
+    // 1 solicitação por UID (documento fixo)
+    // Se já existir uma solicitação pendente, reutiliza.
+    const sRef = db.collection("solicita").doc(uid);
+    const sSnap = await sRef.get();
+    if (sSnap.exists) {
+      const s = sSnap.data() || {};
+      const mpStatusOld = String(s.mpStatus || s.status || "");
+      const labelOld = toLabel(mpStatusOld);
+      const planOld = normalizePlan(s.plano);
+      const paymentIdOld = String(s.paymentId || "");
+
+      if (labelOld === "pendente" && paymentIdOld) {
+        if (planOld && planOld !== plano) {
+          return json(res, 409, {
+            ok: false,
+            error: "Você já tem uma solicitação pendente. Finalize ou aguarde antes de pedir outro plano.",
+            pending: {
+              plano: planOld,
+              paymentId: paymentIdOld,
+              status: s.mpStatus || s.status || "pending",
+            },
+          });
+        }
+
+        // Mesmo plano: retorna o mesmo PIX já criado
+        return json(res, 200, {
+          ok: true,
+          reused: true,
+          paymentId: paymentIdOld,
+          status: s.mpStatus || s.status || "pending",
+          qrCode: s.qrCode || "",
+          qrBase64: s.qrBase64 || "",
+          amount: Number(s.amount || amount),
+          plano: planOld || plano,
+        });
+      }
     }
 
     // Webhook URL (no seu domínio)
@@ -188,22 +272,20 @@ module.exports = async (req, res) => {
 
     const paymentId = String(data.id || "");
     const status = String(data.status || "pending");
+    const label = toLabel(status);
 
     const tx = data.point_of_interaction?.transaction_data || {};
     const qrCode = tx.qr_code || "";
     const qrBase64 = tx.qr_code_base64 || "";
 
-    // Salva “solicita” automaticamente
-    ensureAdmin();
-    const db = admin.firestore();
-
-    const docId = `mp_${paymentId}`;
-    await db.collection("solicita").doc(docId).set(
+    // Salva “solicita” automaticamente (doc fixo por UID)
+    await sRef.set(
       {
         tipo: "mercadopago_pix",
         paymentId,
-        status,
-        nomePagador: `pagamento > ${status}`,
+        mpStatus: status,
+        status: label,
+        nomePagador: `pagamento > ${label}`,
         plano,
         uid,
         email,
@@ -211,6 +293,9 @@ module.exports = async (req, res) => {
         amount,
         notification_url,
         idempotencyKey: idemKey,
+        qrCode,
+        qrBase64,
+        updatedAtMs: Date.now(),
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
