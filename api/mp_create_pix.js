@@ -163,8 +163,8 @@ module.exports = async (req, res) => {
     const planoRaw = body.plano;
     const plano = normalizePlan(planoRaw);
 
-    // guildId: por padrão, use o próprio UID (mais seguro)
-    const guildId = String(body.guildId || uid);
+    // guildId: vem do /users/{uid}.guildId (não confia no body)
+    const guildIdRequested = String(body.guildId || "").trim();
 
     if (!plano || !PLAN_PRICES[plano]) {
       return json(res, 400, { ok: false, error: `Plano inválido: ${planoRaw}` });
@@ -172,13 +172,27 @@ module.exports = async (req, res) => {
     if (!email.includes("@")) {
       return json(res, 400, { ok: false, error: "Email inválido para pagamento." });
     }
-    // Evita alguém tentar criar pagamento para outra guilda via body
-    if (guildId !== uid) {
-      return json(res, 403, { ok: false, error: "Guild inválida para este usuário." });
-    }
 
     ensureAdmin();
     const db = admin.firestore();
+
+    // Valida guildId pelo cadastro do usuário (users sempre existe)
+    const userSnap = await db.collection("users").doc(uid).get();
+    if (!userSnap.exists) {
+      return json(res, 400, { ok: false, error: "Usuário não encontrado (users/{uid})." });
+    }
+    const userData = userSnap.data() || {};
+    const userGuildId = (typeof userData.guildId === "string" && userData.guildId.trim())
+      ? userData.guildId.trim()
+      : uid;
+
+    // Se o front mandou guildId, ele precisa bater com o do users
+    if (guildIdRequested && guildIdRequested !== userGuildId) {
+      return json(res, 403, { ok: false, error: "Guild inválida para este usuário." });
+    }
+
+    // guildId final (fonte da verdade)
+    const guildId = userGuildId;
 
     const solicitaRef = db.collection("solicita").doc(uid);
     const snap = await solicitaRef.get();
